@@ -1,0 +1,76 @@
+# Validación de GamerDex
+
+Versión validada: 0.5.0 · Room v4 · formato de copia portable v3 (lectura v1, v2 y v3).
+
+Fecha: 17 de octubre de 2026.
+
+Entorno: Windows, JDK Microsoft 21.0.8, Gradle 8.11.1, Android SDK 35 y emulador Medium Phone Android 15 (API 35, x86_64).
+
+## Resultados
+
+- Validación 0.5.0: APK e instrumentación compilados; Lint con 0 errores y las mismas 82 advertencias anteriores, sin baseline ni supresiones.
+- 24 pruebas distintas correctas: 18 de Android y 6 de red. La batería inicial de Android pasó 17 casos; el nuevo recorrido de cuadrícula y los dos de Cover Flow se repitieron correctamente tras ajustar el selector y el desplazamiento de la automatización.
+- Cuadrícula: geometría real de tres columnas en vertical y cuatro en horizontal; persistencia al recrear Activity; apertura del detalle y regreso a Lista. El selector permite saltos de línea y no necesita desplazamiento horizontal.
+- Preferencias antiguas: la vista anterior se recupera como Lista o Cover Flow; la nueva Cuadrícula persiste al crear otra instancia de preferencias.
+- Media RAWG: respuesta 4,25/5 con 123 votos produce 85/100, independientemente de rating_top. Datos ausentes, no finitos, fuera de rango o sin votos no producen una falsa nota cero. Capturas y valoración mantienen estados independientes ante fallos.
+- Consulta real desde Compose: autocompletado y ficha muestran la media RAWG con votos y conversión explícita a 0–100, además de sus capturas. Revisión visual de `compact-grid.png` y `community-rating.png` en `docs/previews/render-tests/`; son datos de prueba.
+- La nota personal conserva su persistencia 0–100 y aparece separada de la externa, con bandas roja (<50), amarilla (50–74) y verde (≥75), tonos graduales y etiqueta de nivel. Room v4 y formato de copia v3 no cambian.
+
+Los resultados 0.4.1 que siguen se conservan como historial.
+
+- Validación 0.4.1: APK y paquetes de instrumentación compilados; Lint con 0 errores y las mismas 82 advertencias de la base anterior. Arranque en frío correcto en API 35 tras actualizar.
+- 29 pruebas apropiadas al cambio, todas correctas: dominio (8), ZIP (9), Room/migración (8) y Android (4: recorrido de progreso/valoración y tres pruebas de copia/gamertags).
+- Migración real 3 → 4: notas 0, 2,5, 4,5, 5 y null pasan a 0, 50, 90, 100 y null. Se conservan notas escritas, favoritos y progreso. Reabrir la base dos veces no reconvierte los valores; una nota nueva de 3/100 sigue siendo 3.
+- Copias v1/v2 convierten la escala antigua una sola vez al formato v3; exportar y volver a importar conserva los valores. Una nota baja de una copia v3 no se interpreta como una nota antigua. Notas incompatibles con la escala de una copia antigua son rechazadas.
+- Recorrido Compose: guardar 90/100, leerlo de Room y mostrar «★ 90 / 100» en la ficha, manteniendo favoritos, platino y porcentaje independientes.
+- Consulta real RAWG verificada: la respuesta de detalles incluye rating, ratings_count y metacritic. Estas medias externas se han investigado; no se ha añadido su visualización en 0.4.1. Véase `docs/rawg-ratings.md`.
+
+Los resultados 0.4.0 que siguen se conservan como historial.
+
+- Validación 0.4.0: compilación APK, instrumentación y Lint correctos; 0 errores y 82 advertencias de Lint. No hay baseline ni supresiones.
+- 41 pruebas distintas verificadas: dominio (8), RAWG con MockWebServer (4), ZIP (7), Room/migración (7) y Android (15). Las ejecuciones finales de Android cubren 14 casos de la batería general y la cámara en repetición focalizada después de corregir el desplazamiento de la automatización al visor anidado. No quedan fallos pendientes.
+- Progreso: porcentajes fuera de rango rechazados, platino limitado a PS3/4/5, historia finalizada independiente del 100 % y de caja/manual/disco. Estadísticas con géneros múltiples sin contar dos veces un género repetido y colección vacía.
+- Persistencia: migración real 2 → 3 conserva notas, precio y valoración; favorito, finalizado, porcentaje, platino e ID RAWG se escriben y leen desde Room. Copias v2 conservan los nuevos campos y se siguen leyendo manifiestos v1 sin ellos.
+- Recorrido Compose nuevo: guardar PS5 con 87 %, finalizado, favorito, platino y nota 4,5/5; recrear Activity; filtrar favoritos por PS5; abrir listados desde estadísticas y los tres contadores. Apodo guardado desde Preferencias y utilizado al crear un gamertag nuevo.
+- Compartir: PNG de 1600 × 900 leído desde la URI content:// de FileProvider; MIME, ClipData y permiso temporal de lectura verificados. Intentar compartir la base de datos mediante ese proveedor es rechazado. El selector y la publicación de WhatsApp/Instagram dependen de las apps instaladas y no se han automatizado.
+- RAWG real: autocompletado, ID asociado, portada y caché sin red, ficha y capturas del endpoint de screenshots comprobados con la clave local. La prueba de red verifica también los enlaces HTTPS de vídeos y el caso en que fallan los tráileres pero siguen disponibles las capturas. No se garantiza disponibilidad de vídeo para todos los juegos ni planes de API; no se ha validado reproducción de un tráiler real en un dispositivo físico.
+- Revisión visual: portada compacta sin hero decorativo, búsqueda tras los contadores, fondos de tema, textos legibles en tema oscuro, variantes del wordmark y gamertags. Las capturas están en `docs/previews/render-tests/`; representan datos de prueba.
+
+Los resultados 0.3.0, 0.2.1 y 0.2.0 que siguen se conservan como historial.
+
+- Validación 0.3.0: `:app:assembleDebug`, `:app:assembleDebugAndroidTest` y `:app:lintDebug` correctos. Lint: 0 errores, 78 advertencias (las 72 anteriores, cuatro sobre complejidad de trazados de iconos de plataforma y dos sugerencias KTX nuevas). No hay baseline ni supresiones.
+- Ocho pruebas de Android completadas, 0 fallos: `CollectionV3FlowTest` (2), `CollectionV2FlowTest` (2), `DesignPreviewTest` (1) y `BackupAndGamertagTest` (3).
+- Carrusel: navegación entre tres carátulas, apertura del detalle, recreación de Activity con vista persistente, filtro a una plataforma con un único resultado, controles de extremos desactivados, búsqueda vacía y regreso a cuadrícula. Los juegos y portadas de demostración se crean durante la prueba y se eliminan al terminar.
+- Selector: búsqueda de consola, logotipo local visible y selección en el formulario. El formulario anterior y la persistencia del tema siguen pasando sus recorridos.
+- Nueve temas capturados desde la app real; nueve gamertags PNG de 1600 × 900 renderizados y decodificados correctamente. Revisión visual de los cinco temas nuevos, carrusel y selector. Archivos en `docs/previews/render-tests/`.
+- No hay cambio de esquema de base de datos ni de formato ZIP en 0.3.0. Las pruebas de dominio, red y Room enumeradas más abajo corresponden a 0.2.0 y se conservan como historial.
+
+- Identidad 0.2.1: cinco pruebas específicas en emulador completadas, 0 fallos (`BrandPreviewTest`, `DesignPreviewTest` y `BackupAndGamertagTest`). Se exportaron los recursos Android reales y se revisaron el monograma a 48 px, las máscaras circular y redondeada, la capa monocroma, las cabeceras Cyberpunk/Kawaii y el logotipo en el PNG de gamertag. Capturas de los cuatro temas actualizadas.
+- Cierre 0.2.1: `:app:assembleDebug` y `:app:lintDebug` correctos, 0 errores y las mismas 72 advertencias de la base 0.2.0. APK definitivo instalado y arranque en frío correcto en API 35 (2,8 s orientativos).
+- Originales SVG y PNG de marca en `docs/branding/`; icono adaptativo en el lanzador y splash API 31+, logotipo con colores de tema en colección, menú y gamertags. El tamaño intrínseco de los vectores del logotipo se limita a 200 dp conservando su proporción y geometría.
+- Los resultados de dominio, red, ZIP, Room y recorrido completo enumerados debajo corresponden a la validación 0.2.0; esos módulos no han cambiado con la identidad 0.2.1.
+
+- Dominio: 6 pruebas, 0 fallos (valoración, edición, referencias, URLs HTTPS, importes exactos y contenido físico independiente).
+- Red: 2 pruebas, 0 fallos (parseo RAWG, parámetros codificados, ausencia de clave sin llamada HTTP).
+- Formato ZIP: 6 pruebas, 0 fallos (datos y fotos, rutas no válidas, referencias externas, versión futura, manifiesto excesivo e integridad referencial).
+- Room en emulador: 6 pruebas, 0 fallos (operaciones de colección, logotipos compartidos, sustitución transaccional y migración 1 → 2 con datos existentes).
+- Android/Compose: 9 pruebas, 0 fallos (formulario anterior, cámara, RAWG real y caché sin red; edición coleccionista, componentes, estado, precio y género; menú, tema persistente; recuperación portable con foto original borrada; PNG en cuatro temas, exportación recuperada desde SavedStateHandle y capturas visuales).
+- Compilación `:app:assembleDebug`: correcta. APK en `app/build/outputs/apk/debug/app-debug.apk`.
+- Esquemas Room v1 y v2 generados/versionados en `core/database/schemas/com.gamerdex.core.database.GamerDexDatabase/`.
+- Arranque en frío independiente de las pruebas: correcto, sin cierre inesperado.
+- Validación final tras los ajustes visuales: `:app:assembleDebug`, `:app:lintDebug` y `:app:connectedDebugAndroidTest` completados correctamente; el recorrido Compose volvió a pasar.
+- Validación 0.2.0: 29 pruebas en total, 0 fallos, 0 omitidas. Compilación, Lint y pruebas en emulador completados correctamente.
+- Caché de imágenes comprobada con una imagen real de RAWG: carga inicial correcta y segunda carga correcta desde `DataSource.DISK`, con acceso de red y caché de memoria desactivados para la petición. La comprobación está integrada en la prueba real RAWG.
+- Lint: 0 errores y 72 advertencias. Son 60 avisos de dependencias, 6 de AGP, 1 del target SDK fijado en 35 y 5 sugerencias de extensiones KTX. No hay baseline ni supresiones.
+- Capturas reales de los cuatro temas y ejemplos de gamertags: `docs/previews/render-tests/`. Los PNG de ejemplo sin portada usan datos de prueba, no una colección real.
+- Ejemplo de gamertag con imagen real de RAWG y renderizado verificado: `docs/previews/render-tests/gamertag-live-CYBERPUNK.png`.
+
+Primera medición orientativa del emulador: arranque en frío 2,6 s y PSS aproximado 75 MB en la Bóveda vacía. Es una compilación debug, con emulador y herramientas de prueba; no representa rendimiento de producción ni constituye un benchmark.
+
+La revisión visual inicial detectó iconos oscuros de sistema sobre el tema OLED. Se ajustó explícitamente el estilo de las barras para usar iconos claros. También se ajustaron los colores seleccionados de Material 3, se eliminó el boxing del estado de valoración y se añadieron reglas de extracción de datos y el icono monocromático.
+
+## Límites de las comprobaciones
+
+RAWG se ha probado con MockWebServer, una consulta HTTP real y el recorrido de autocompletado desde Compose usando la clave local. La prueba CameraX captura con la cámara virtual, guarda el juego, recrea la Activity y abre la foto en el visor. Se ha probado una migración real v1 → v2 y la recuperación de una copia con sus fotos después de borrar la imagen original. No se ha automatizado la interacción con todos los proveedores del selector de documentos Android, PhotoPicker, la revocación de permisos de fotos, el gesto de zoom ni todos los tamaños y escalas tipográficas. Cámara y rendimiento en hardware físico quedan pendientes.
+
+Las dependencias y el target SDK están fijados, no actualizados automáticamente a los últimos disponibles. Las advertencias de Lint sobre versiones más recientes se conservan para una actualización coordinada y comprobada; no se han ocultado mediante una baseline.

@@ -1,0 +1,6 @@
+<resources>
+    <style name="Theme.GamerDex" parent="Theme.GamerDex.Base">
+        <item name="android:windowSplashScreenBackground">#080D13</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
+    </style>
+</resources>
