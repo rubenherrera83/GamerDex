@@ -1,6 +1,17 @@
 # GamerDex
 
-Versión 0.6.1: gamertags con totales globales y logotipos personalizables.
+Versión 0.7.0: acceso directo a códigos de barras, catálogo Evercade, yenes e historial de gasto.
+
+## Novedades 0.7.0
+
+- El alta ofrece Escanear código de barras, Introducir EAN/UPC y Buscar cartucho Evercade directamente. Los códigos incompletos se explican antes de consultar; ScanDex distingue códigos desconocidos, coincidencias pendientes, credenciales rechazadas y cuotas.
+- Evercade y sus variantes se añaden al catálogo de sistemas. Un buscador independiente consulta el catálogo público oficial de cartuchos, importa nombre/portada/enlace y anota los juegos incluidos. No crea IDs RAWG ni equivale a una API oficial de Evercade.
+- Precios en JPY para juegos y hardware, con yenes enteros y sin conversión automática de monedas.
+- Fecha de compra opcional para juegos y vinculación a una unidad de Mis sistemas. Estadísticas muestra gasto de videojuegos, hardware y conjunto, por moneda, año, plataforma y unidad; las fechas desconocidas permanecen sin atribuir a un año.
+- El historial conserva las compras al eliminar fichas. Se pueden retirar compras archivadas desde Estadísticas. Las correcciones de precio/fecha actualizan la compra de esa copia sin sumarla otra vez. No reconstruye fichas eliminadas antes de actualizar.
+- Room v6 añade fechas/vínculo/fuente en juegos y un registro de compras. Copias v5 incluyen el historial y leen v1–v4; restaurar sustituye también el historial.
+
+[ScanDex, Evercade y criterios del gasto](docs/search-and-spending.md).
 
 ## Novedades 0.6.1
 
@@ -93,7 +104,7 @@ Room es la fuente de verdad y las operaciones de colección funcionan sin red. R
 
 La API key de RAWG se inyecta en BuildConfig y puede extraerse del APK. Para distribución pública, sustituir el acceso directo por un backend con credenciales y cuotas propias. No se usan secretos Twitch. El formulario y buscador atribuyen metadatos a RAWG; comprobar sus condiciones de uso para la distribución prevista.
 
-## Esquema Room v5
+## Esquema Room v6
 
 | Tabla | Clave primaria | Restricciones e índices |
 | --- | --- | --- |
@@ -101,6 +112,7 @@ La API key de RAWG se inyecta en BuildConfig y puede extraerse del APK. Para dis
 | companies | id: Long autogenerado | name obligatorio y único; logoUrl opcional |
 | games | id: Long autogenerado | platformId y companyId obligatorios; índices en ambas FK, title, createdAt e isSpecialEdition |
 | hardware | id: Long autogenerado | payload JSON con ficha de sistema y accesorios, validado en el dominio |
+| purchases | key: String (`GAME:id` / `HARDWARE:id`) | payload JSON de adquisición, conservado al borrar la unidad de la colección |
 
 `games.platformId → platforms.id` y `games.companyId → companies.id`: ON DELETE RESTRICT y ON UPDATE CASCADE. Se permiten varias copias de un mismo título y plataforma. Los nombres únicos usan la comparación BINARY de SQLite; la normalización de nombres corresponderá al repositorio.
 
@@ -112,19 +124,21 @@ En v3 se añaden isFinished, completionPercent, hasPlatinum, isFavorite y rawgId
 
 En v4 se conservan las columnas y se convierte rating a 0–100. La migración transforma los valores existentes; la versión del esquema distingue las notas antiguas de las nuevas, sin inferir su escala a partir del número. V5 añade hardware sin modificar juegos, plataformas ni compañías.
 
+V6 añade purchasedOn, ownedSystemId y catalogUrl opcionales en juegos y el registro de compras. Una adquisición se actualiza al corregir su ficha y permanece al borrar el juego o sistema. La fecha desconocida se conserva como tal; no se utiliza el año de lanzamiento como fecha de compra.
+
 Las entidades y el dominio validan título/nombre no vacío, año 1950–2100, valoración finita 0–100, URIs no vacías y coherencia de edición especial; la entidad Platform valida el color hexadecimal. Estas validaciones Kotlin no son CHECK de SQLite; las restricciones SQL efectivas son PK, FK, NOT NULL y UNIQUE. El repositorio normaliza espacios exteriores y guarda referencias y juego en una única transacción.
 
 Las fotos guardan referencias URI, no bytes. PhotoPicker conserva el permiso persistente antes de guardar la URI. Si se revoca posteriormente o se elimina el archivo original, aparece el placeholder. No se requiere permiso de acceso a toda la biblioteca.
 
 ## Migraciones y validación
 
-Room exporta los esquemas v1–v5 a `core/database/schemas`. La migración 1 → 2 conserva juegos, fotos, notas y referencias; convierte las ediciones especiales y los estados anteriores en los nuevos campos. La migración 2 → 3 inicializa progreso y favorito sin alterar valoraciones ni adquisición; la 3 → 4 convierte las notas a 0–100; la 4 → 5 añade el inventario de hardware. Las migraciones tienen pruebas con bases de versiones anteriores reales. No se permite recreación destructiva.
+Room exporta los esquemas v1–v6 a `core/database/schemas`. La migración 1 → 2 conserva juegos, fotos, notas y referencias; convierte las ediciones especiales y los estados anteriores en los nuevos campos. La migración 2 → 3 inicializa progreso y favorito sin alterar valoraciones ni adquisición; la 3 → 4 convierte las notas a 0–100; la 4 → 5 añade el inventario de hardware; la 5 → 6 inicia el historial a partir de las fichas existentes. Las migraciones tienen pruebas con bases de versiones anteriores reales. No se permite recreación destructiva.
 
 ## Copia y recuperación
 
-En Preferencias, «Crear copia de seguridad» abre el selector de documentos de Android. El ZIP incluye todos los juegos, plataformas y compañías, sus identificadores y campos, y los bytes de las fotos locales. Las portadas y logotipos remotos se conservan como URLs. No incluye credenciales RAWG ni preferencias de tema. El formato portable evita copiar una base SQLite abierta con archivos WAL pendientes.
+En Preferencias, «Crear copia de seguridad» abre el selector de documentos de Android. El ZIP v5 incluye todos los juegos, sistemas, plataformas, compañías e historial de compras, sus identificadores y campos, y los bytes de las fotos locales. Se leen copias v1–v5. Las portadas y logotipos remotos se conservan como URLs. No incluye credenciales RAWG ni preferencias de tema. El formato portable evita copiar una base SQLite abierta con archivos WAL pendientes.
 
-«Recuperar copia de seguridad» valida versión, integridad referencial, fotos, rutas y tamaños antes de mostrar el número de juegos y fotos y la fecha. Al confirmar, la colección se sustituye en una sola transacción Room y las fotos se copian al almacenamiento privado. Una copia inválida no modifica la colección. Los archivos fotográficos originales de la colección anterior se conservan.
+«Recuperar copia de seguridad» valida versión, integridad referencial, fotos, rutas y tamaños antes de mostrar juegos, sistemas, compras, fotos y fecha. Al confirmar, la colección y su historial se sustituyen en una sola transacción Room y las fotos se copian al almacenamiento privado. Una copia inválida no modifica la colección. Los archivos fotográficos originales de la colección anterior se conservan.
 
 Límites por archivo de copia: 512 MiB descomprimidos, 32 MiB por foto, 8 MiB de manifiesto y hasta 5000 fotos. Si una foto original ya no se puede leer, la exportación falla y no se presenta como completa. Las copias son ZIP sin cifrar; guárdalas en una ubicación privada si incluyen datos personales.
 

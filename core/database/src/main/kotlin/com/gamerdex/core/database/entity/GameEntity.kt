@@ -44,6 +44,7 @@ data class GameEntity(
     @ColumnInfo(defaultValue = "0") val hasPlatinum: Boolean = false,
     @ColumnInfo(defaultValue = "0") val isFavorite: Boolean = false,
     val rawgId: Long? = null,
+    val purchasedOn: String? = null, val ownedSystemId: Long? = null, val catalogUrl: String? = null,
 ) {
     init {
         require(title.isNotBlank())

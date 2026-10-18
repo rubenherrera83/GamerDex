@@ -54,6 +54,8 @@ import com.gamerdex.ui.RawgMediaViewModel
                 Text("${if (game.isFinished) "Finalizado" else "Sin finalizar"} · ${game.completionPercent} % completado", style = MaterialTheme.typography.titleMedium)
                 if (game.hasPlatinum) Text("🏆 Trofeo platino conseguido", color = MaterialTheme.colorScheme.secondary)
                 game.pricePaidCents?.let { Text("Precio pagado: ${com.gamerdex.core.domain.formatPrice(it, game.priceCurrency)}", style = MaterialTheme.typography.titleMedium) }
+                Text("Fecha de compra: ${game.purchasedOn ?: "Desconocida"}")
+                game.catalogUrl?.let{url->TextButton(onClick={uriHandler.openUri(url)}){Text("Catálogo oficial Evercade ↗")}}
                 if (game.genres.isNotEmpty()) Text(game.genres.joinToString(" / "), color = MaterialTheme.colorScheme.secondary)
                 OutlinedButton(onClick = gamertag, modifier = Modifier.fillMaxWidth()) { Text("Crear gamertag de este juego") }
                 game.notes?.let { Text("NOTAS", style = MaterialTheme.typography.labelSmall, color = CyberCyan); Text(it) }
@@ -90,6 +92,6 @@ import com.gamerdex.ui.RawgMediaViewModel
             }
         }
     }
-    if (confirm) AlertDialog(onDismissRequest = { confirm = false }, title = { Text("¿Eliminar este juego?") }, text = { Text("Se eliminará ${game.title} de tu colección. Tus fotos originales se conservarán.") },
+    if (confirm) AlertDialog(onDismissRequest = { confirm = false }, title = { Text("¿Eliminar este juego?") }, text = { Text("Se eliminará ${game.title} de tu colección. Tus fotos originales y su compra en el historial de gasto se conservarán. Las compras archivadas se pueden quitar desde Estadísticas.") },
         confirmButton = { TextButton(onClick = { confirm = false; delete() }) { Text("Eliminar") } }, dismissButton = { TextButton(onClick = { confirm = false }) { Text("Cancelar") } })
 }

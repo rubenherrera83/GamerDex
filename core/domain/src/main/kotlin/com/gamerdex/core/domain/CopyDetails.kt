@@ -14,11 +14,16 @@ fun PhysicalCondition.label() = when (this) {
     PhysicalCondition.GOOD -> "Bueno"; PhysicalCondition.ACCEPTABLE -> "Aceptable"; PhysicalCondition.DAMAGED -> "Dañado"
 }
 
-fun parsePriceCents(text: String): Long? {
+val supportedCurrencies = listOf("EUR", "USD", "GBP", "JPY")
+fun parsePriceCents(text: String, currency: String = "EUR"): Long? {
     if (text.isBlank()) return null
     require(Regex("\\d{1,9}([.,]\\d{1,2})?").matches(text.trim())) { "Usa un importe positivo con hasta dos decimales." }
-    return BigDecimal(text.trim().replace(',', '.')).movePointRight(2).longValueExact()
+    val result=BigDecimal(text.trim().replace(',', '.')).movePointRight(2).longValueExact()
+    require(currency in supportedCurrencies && (currency!="JPY" || result%100L==0L)) { "Introduce yenes enteros, sin fracciones." }
+    return result
 }
 fun formatPrice(cents: Long, currency: String = "EUR"): String = NumberFormat.getCurrencyInstance().apply {
     this.currency = Currency.getInstance(currency)
+    minimumFractionDigits = this.currency.defaultFractionDigits
+    maximumFractionDigits = this.currency.defaultFractionDigits
 }.format(BigDecimal.valueOf(cents, 2))

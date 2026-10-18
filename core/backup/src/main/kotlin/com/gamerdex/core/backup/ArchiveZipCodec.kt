@@ -21,7 +21,7 @@ class ArchiveZipCodec {
     }
     fun write(snapshot: CollectionSnapshot, output: OutputStream, openPhoto: (String) -> InputStream) {
         snapshot.validate()
-        require(snapshot.formatVersion == 4) { "La exportación necesita el formato actual de inventario." }
+        require(snapshot.formatVersion == 5) { "La exportación necesita el formato actual de historial." }
         val references = (snapshot.games.flatMap { it.localCustomPhotos } + snapshot.hardware.flatMap { it.localPhotos }).distinct().associateWith { "photos/${UUID.randomUUID()}.bin" }
         require(references.size < MAX_ENTRIES) { "Demasiadas fotos para una sola copia." }
         val portable = snapshot.copy(games = snapshot.games.map { game -> game.copy(localCustomPhotos = game.localCustomPhotos.map { references.getValue(it) }) },
@@ -62,7 +62,8 @@ class ArchiveZipCodec {
         }
         val stored = json.decodeFromString<CollectionSnapshot>(requireNotNull(manifest) { "No se encontró el manifiesto de GamerDex." })
         stored.validate()
-        val snapshot = stored.copy(formatVersion = 4, games = if (stored.formatVersion < 3) stored.games.map { it.copy(rating = it.rating?.times(20f)) } else stored.games)
+        val normalizedGames=if(stored.formatVersion<3)stored.games.map{it.copy(rating=it.rating?.times(20f))}else stored.games
+        val snapshot = stored.copy(formatVersion = 5, games=normalizedGames,purchases=if(stored.formatVersion<5)com.gamerdex.core.domain.seedPurchases(normalizedGames,stored.hardware)else stored.purchases)
         snapshot.validate()
         val references = (snapshot.games.flatMap { it.localCustomPhotos } + snapshot.hardware.flatMap { it.localPhotos }).toSet()
         require(references == assets.keys && references.all { assetName.matches(it) }) { "Faltan fotos o hay referencias no válidas." }

@@ -20,6 +20,7 @@ data class Game(
     val genres: List<String> = emptyList(), val platformId: Long = 0, val companyId: Long = 0,
     val isFinished: Boolean = false, val completionPercent: Int = 0,
     val hasPlatinum: Boolean = false, val isFavorite: Boolean = false, val rawgId: Long? = null,
+    val purchasedOn: String? = null, val ownedSystemId: Long? = null, val catalogUrl: String? = null,
 ) {
     init {
         require(title.isNotBlank())
@@ -31,7 +32,10 @@ data class Game(
         require(createdAt >= 0)
         require(isValidLogoUrl(platformLogoUrl) && isValidLogoUrl(companyLogoUrl))
         require(pricePaidCents == null || pricePaidCents in 0..99_999_999_999)
-        require(priceCurrency in setOf("EUR", "USD", "GBP"))
+        require(priceCurrency in supportedCurrencies && (priceCurrency!="JPY" || pricePaidCents==null || pricePaidCents%100L==0L))
+        require(purchasedOn==null || validPurchaseDate(purchasedOn))
+        require(ownedSystemId==null || ownedSystemId>0)
+        require(isValidLogoUrl(catalogUrl))
         require(genres.none(String::isBlank))
         require(completionPercent in 0..100)
         require(!hasPlatinum || supportsPlatinum(platform))

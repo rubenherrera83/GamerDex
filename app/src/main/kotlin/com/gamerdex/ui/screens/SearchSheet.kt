@@ -56,15 +56,7 @@ import com.gamerdex.ui.components.PlatformCatalog
             Text("Los filtros se aplican a los primeros 40 resultados. Puedes escribir un título más concreto.",style=MaterialTheme.typography.labelSmall)
         }
     }
-    if(showBarcode) AlertDialog(onDismissRequest={showBarcode=false},title={Text("Identificar por código")},text={Column(verticalArrangement=Arrangement.spacedBy(12.dp)){
-        Text("Escribe el EAN/UPC o escanea el código de la caja. ScanDex identificará título y plataforma para buscarlos en RAWG.")
-        OutlinedTextField(barcode,{barcode=it.filter(Char::isDigit).take(14)},label={Text("Código EAN / UPC")},modifier=Modifier.fillMaxWidth(),singleLine=true)
-        TextButton(onClick={
-            val options=com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions.Builder().setBarcodeFormats(com.google.mlkit.vision.barcode.common.Barcode.FORMAT_EAN_13,com.google.mlkit.vision.barcode.common.Barcode.FORMAT_EAN_8,com.google.mlkit.vision.barcode.common.Barcode.FORMAT_UPC_A).enableAutoZoom().build()
-            com.google.mlkit.vision.codescanner.GmsBarcodeScanning.getClient(context,options).startScan().addOnSuccessListener{code->code.rawValue?.let{barcode=it;scannerError=null;showBarcode=false;lookupBarcode(it)}}.addOnFailureListener{scannerError="No se pudo abrir el lector. Comprueba Google Play Services o escribe el código."}
-        }){Text("Escanear código")}
-        scannerError?.let{Text(it,color=MaterialTheme.colorScheme.error)}
-    }},confirmButton={TextButton(onClick={showBarcode=false;lookupBarcode(barcode)},enabled=com.gamerdex.core.domain.validBarcode(barcode)){Text("Buscar código")}},dismissButton={TextButton(onClick={showBarcode=false}){Text("Cancelar")}})
+    if(showBarcode) BarcodeSearchDialog(dismiss={showBarcode=false},lookup={showBarcode=false;lookupBarcode(it)})
     selecting?.let { game -> AlertDialog(onDismissRequest={selecting=null},title={Text("Elige tu versión")},text={
         LazyColumn(Modifier.heightIn(max=350.dp)) { items(game.platforms.distinct()) { platform ->
             TextButton(onClick={selecting=null; choose(game.copy(platforms=listOf(platform)))},modifier=Modifier.fillMaxWidth()){Text(PlatformCatalog.display(platform))}

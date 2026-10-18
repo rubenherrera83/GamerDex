@@ -6,18 +6,20 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.gamerdex.core.domain.*
 import com.gamerdex.ui.components.*
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Composable fun StatisticsScreen(games: List<Game>, menu: () -> Unit, open: (CollectionFilter) -> Unit, platform: (String) -> Unit, genre: (String) -> Unit) {
+@Composable fun StatisticsScreen(games: List<Game>, menu: () -> Unit, open: (CollectionFilter) -> Unit, platform: (String) -> Unit, genre: (String) -> Unit,hardware:List<Hardware> = emptyList(),purchases:List<Purchase> = emptyList(),removeArchived:(String)->Unit = {}) {
     val stats = remember(games) { collectionStats(games) }
     Scaffold(containerColor = androidx.compose.ui.graphics.Color.Transparent,
         topBar = { TopAppBar(title = { Text("Estadísticas") }, navigationIcon = { TextButton(onClick = menu) { Text("☰") } }) }) { padding ->
-        LazyColumn(Modifier.fillMaxSize().padding(padding), contentPadding = PaddingValues(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        LazyColumn(Modifier.fillMaxSize().padding(padding).testTag("statistics-list"), contentPadding = PaddingValues(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
             item { Text("Tu historia en números.", style = MaterialTheme.typography.headlineMedium) }
             item { Text("Toca una cifra para ver sus juegos. El 100 % de progreso es independiente de tener caja, manual y disco.", color = MaterialTheme.colorScheme.onSurfaceVariant) }
+            item { SpendingSection(games,hardware,purchases,removeArchived) }
             CollectionFilter.entries.chunked(2).forEach { pair -> item { Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 pair.forEach { filter -> Surface(shape = MaterialTheme.shapes.medium, color = MaterialTheme.colorScheme.surface, modifier = Modifier.weight(1f).clickable { open(filter) }) {
                     Column(Modifier.padding(16.dp)) { Text("${stats.totals.getValue(filter)}", style = MaterialTheme.typography.headlineLarge, color = MaterialTheme.colorScheme.primary); Text(filter.title, style = MaterialTheme.typography.labelMedium) }

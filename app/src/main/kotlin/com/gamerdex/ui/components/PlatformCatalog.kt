@@ -14,6 +14,7 @@ object PlatformCatalog {
         "3DO", "Neo Geo AES", "Neo Geo CD", "Neo Geo Pocket", "Neo Geo Pocket Color", "PC Engine", "TurboGrafx-16", "PC Engine CD", "TurboGrafx-CD",
         "ColecoVision", "Intellivision", "Magnavox Odyssey 2", "Philips Videopac", "Philips CD-i", "Vectrex",
         "Commodore 64", "Commodore Amiga", "ZX Spectrum", "Amstrad CPC", "MSX", "MSX2", "BBC Micro", "Acorn Electron", "Apple II", "Apple Macintosh",
+        "Evercade", "Evercade VS", "Evercade VS-R", "Evercade EXP", "Evercade EXP-R", "Evercade Alpha", "Evercade Nexus", "Super Pocket",
         "Steam Deck", "Linux", "macOS", "Android", "iOS")
 
     fun family(name: String): String {

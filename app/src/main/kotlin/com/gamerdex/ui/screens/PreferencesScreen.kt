@@ -54,7 +54,7 @@ import java.util.Date
     }
     state.pending?.let { pending ->
         AlertDialog(onDismissRequest = { if (!state.busy) viewModel.cancelRestore() }, title = { Text("¿Recuperar esta colección?") },
-            text = { Text("${pending.titles} juegos · ${pending.systems} sistemas · ${pending.photos} fotos\n${DateFormat.getDateTimeInstance().format(Date(pending.createdAt))}\n\nSe sustituirá la colección actual, incluidos los sistemas. Una copia antigua sin sistemas vaciará ese inventario. Puedes cancelar y crear primero una copia de tus datos.") },
+            text = { Text("${pending.titles} juegos · ${pending.systems} sistemas · ${pending.purchases} compras · ${pending.photos} fotos\n${DateFormat.getDateTimeInstance().format(Date(pending.createdAt))}\n\nSe sustituirán la colección y el historial. Las copias antiguas no contienen compras de fichas eliminadas; las anteriores a v4 tampoco contienen sistemas. Puedes cancelar y crear primero una copia de tus datos.") },
             confirmButton = { TextButton(onClick = viewModel::restore, enabled = !state.busy) { Text("Restaurar colección") } },
             dismissButton = { TextButton(onClick = viewModel::cancelRestore, enabled = !state.busy) { Text("Cancelar") } })
     }

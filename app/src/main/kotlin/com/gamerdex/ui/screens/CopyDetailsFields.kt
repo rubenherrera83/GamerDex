@@ -16,11 +16,11 @@ data class CopyDetailsState(
     val box: Boolean = true, val manual: Boolean = true, val media: Boolean = true,
     val physical: PhysicalCondition = PhysicalCondition.UNSPECIFIED, val price: String = "", val currency: String = "EUR", val genres: String = "",
 ) : Serializable {
-    val valid: Boolean get() = runCatching { parsePriceCents(price) }.isSuccess
+    val valid: Boolean get() = runCatching { parsePriceCents(price,currency) }.isSuccess
     companion object {
         fun from(game: Game?) = if (game == null) CopyDetailsState() else CopyDetailsState(game.effectiveEdition, game.specialEditionDetails.orEmpty(),
             game.condition == GameCondition.DIGITAL, game.condition == GameCondition.SEALED, game.hasBox, game.hasManual, game.hasMedia,
-            game.physicalCondition, game.pricePaidCents?.let { BigDecimal.valueOf(it, 2).toPlainString() }.orEmpty(), game.priceCurrency, game.genres.joinToString(", "))
+            game.physicalCondition, game.pricePaidCents?.let { BigDecimal.valueOf(it, 2).stripTrailingZeros().toPlainString() }.orEmpty(), game.priceCurrency, game.genres.joinToString(", "))
     }
 }
 
@@ -51,9 +51,9 @@ data class CopyDetailsState(
     }
     Text("03 / ADQUISICIÓN", color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelLarge)
     OutlinedTextField(value.price, { change(value.copy(price = it)) }, enabled = enabled, label = { Text("Precio pagado (opcional)") },
-        supportingText = { Text(if (value.valid) "Importe exacto, hasta dos decimales." else "Introduce un importe válido: por ejemplo 49,95.") },
+        supportingText = { Text(if(value.currency=="JPY") "Yenes enteros, sin fracciones (ej.: 1500)." else if (value.valid) "Importe exacto, hasta dos decimales." else "Introduce un importe válido: por ejemplo 49,95.") },
         isError = !value.valid, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal), singleLine = true, modifier = Modifier.fillMaxWidth())
-    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) { listOf("EUR", "USD", "GBP").forEach { currency -> FilterChip(value.currency == currency, { change(value.copy(currency = currency)) }, enabled = enabled, label = { Text(currency) }) } }
+    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) { supportedCurrencies.forEach { currency -> FilterChip(value.currency == currency, { change(value.copy(currency = currency)) }, enabled = enabled, label = { Text(currency) }) } }
     OutlinedTextField(value.genres, { change(value.copy(genres = it)) }, label = { Text("Géneros (separados por comas)") }, enabled = enabled,
         supportingText = { Text("Ej.: RPG, Acción, Racing. RAWG los completa cuando están disponibles.") }, modifier = Modifier.fillMaxWidth())
 }

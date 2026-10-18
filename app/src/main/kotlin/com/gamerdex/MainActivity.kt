@@ -52,6 +52,7 @@ class MainActivity : ComponentActivity() {
     val nav = rememberNavController()
     val state by viewModel.state.collectAsStateWithLifecycle()
     val hardware by viewModel.hardware.collectAsStateWithLifecycle()
+    val purchases by viewModel.purchases.collectAsStateWithLifecycle()
     val search by viewModel.search.collectAsStateWithLifecycle()
     val saving by viewModel.saving.collectAsStateWithLifecycle()
     val snack = remember { SnackbarHostState() }
@@ -92,7 +93,7 @@ class MainActivity : ComponentActivity() {
             }
             composable("statistics") { StatisticsScreen(state.games, menu, { nav.navigate("library/${it.name}") },
                 { selected -> platform = selected; genre = null; nav.navigate("vault") { popUpTo("vault"); launchSingleTop = true } },
-                { selected -> genre = selected; platform = null; nav.navigate("vault") { popUpTo("vault"); launchSingleTop = true } }) }
+                { selected -> genre = selected; platform = null; nav.navigate("vault") { popUpTo("vault"); launchSingleTop = true } },hardware,purchases,viewModel::removeArchivedPurchase) }
             composable("browse/{kind}") { browse ->
                 val platforms = browse.arguments?.getString("kind") == "platforms"
                 BrowseScreen(state.games, platforms, menu) { selected ->
@@ -114,7 +115,7 @@ class MainActivity : ComponentActivity() {
                 val id = entry.arguments!!.getLong("id")
                 val game = state.games.find { it.id == id }
                 if (id == 0L || game != null) EditorScreen(game, saving, search, viewModel::search, viewModel::choose,
-                    { gameToSave, committed -> viewModel.save(gameToSave) { committed(); nav.popBackStack() } }, { if (!saving) nav.popBackStack() }, viewModel::lookupBarcode)
+                    { gameToSave, committed -> viewModel.save(gameToSave) { committed(); nav.popBackStack() } }, { if (!saving) nav.popBackStack() }, viewModel::lookupBarcode,hardware)
                 else MissingGame(state.loading) { nav.popBackStack() }
             }
         }

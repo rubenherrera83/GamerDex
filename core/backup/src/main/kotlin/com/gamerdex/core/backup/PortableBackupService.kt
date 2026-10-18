@@ -15,6 +15,7 @@ import javax.inject.Singleton
 class PreparedRestore internal constructor(internal val decoded: DecodedArchive, internal val directory: File) {
     val titles get() = decoded.snapshot.games.size
     val systems get() = decoded.snapshot.hardware.size
+    val purchases get() = decoded.snapshot.purchases.size
     val photos get() = decoded.assets.size
     val createdAt get() = decoded.snapshot.createdAt
     internal val consumed = AtomicBoolean(false)

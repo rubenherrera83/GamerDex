@@ -22,7 +22,7 @@ interface CollectionDao {
     @Insert suspend fun restoreCompanies(values: List<CompanyEntity>)
     @Transaction @Query("SELECT * FROM games ORDER BY createdAt DESC, id DESC")
     fun observeGames(): Flow<List<GameRecord>>
-    @Upsert suspend fun save(game: GameEntity)
+    @Upsert suspend fun save(game: GameEntity): Long
     @Query("DELETE FROM games WHERE id = :id") suspend fun delete(id: Long)
     @Insert(onConflict = OnConflictStrategy.IGNORE) suspend fun insert(platform: PlatformEntity): Long
     @Insert(onConflict = OnConflictStrategy.IGNORE) suspend fun insert(company: CompanyEntity): Long

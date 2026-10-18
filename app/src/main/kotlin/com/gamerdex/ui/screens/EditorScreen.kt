@@ -42,7 +42,7 @@ fun GameCondition.label() = when (this) {
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable fun EditorScreen(original: Game?, saving: Boolean, searchState: SearchState, search: (String) -> Unit,
-    choose: (Metadata, (Metadata) -> Unit) -> Unit, save: (Game, () -> Unit) -> Unit, back: () -> Unit, lookupBarcode: (String) -> Unit = {}) {
+    choose: (Metadata, (Metadata) -> Unit) -> Unit, save: (Game, () -> Unit) -> Unit, back: () -> Unit, lookupBarcode: (String) -> Unit = {}, ownedHardware:List<Hardware> = emptyList()) {
     var title by rememberSaveable { mutableStateOf(original?.title.orEmpty()) }
     var platform by rememberSaveable { mutableStateOf(original?.platform.orEmpty()) }
     var company by rememberSaveable { mutableStateOf(original?.company.orEmpty()) }
@@ -55,6 +55,13 @@ fun GameCondition.label() = when (this) {
     var platinum by rememberSaveable { mutableStateOf(original?.hasPlatinum ?: false) }
     var favorite by rememberSaveable { mutableStateOf(original?.isFavorite ?: false) }
     var rawgId by rememberSaveable { mutableStateOf(original?.rawgId) }
+    var purchasedOn by rememberSaveable{mutableStateOf(original?.purchasedOn.orEmpty())}
+    var ownedSystemId by rememberSaveable{mutableStateOf(original?.ownedSystemId)}
+    var catalogUrl by rememberSaveable{mutableStateOf(original?.catalogUrl)}
+    var chooseSystem by rememberSaveable{mutableStateOf(false)}
+    var showBarcode by rememberSaveable{mutableStateOf(false)}
+    var scanImmediately by rememberSaveable{mutableStateOf(false)}
+    var showEvercade by rememberSaveable{mutableStateOf(false)}
     var customizeLogos by rememberSaveable { mutableStateOf(false) }
     var copy by rememberSaveable { mutableStateOf(CopyDetailsState.from(original)) }
     var rating by rememberSaveable { mutableFloatStateOf(original?.rating ?: 0f) }
@@ -93,13 +100,21 @@ fun GameCondition.label() = when (this) {
     val validPlatformLogo = isValidLogoUrl(platformLogo.trim().ifBlank { null })
     val validCompanyLogo = isValidLogoUrl(companyLogo.trim().ifBlank { null })
     val validCompletion = completion.toIntOrNull()?.let { it in 0..100 } == true
-    val valid = title.isNotBlank() && platform.isNotBlank() && company.isNotBlank() && validYear && validPlatformLogo && validCompanyLogo && copy.valid && validCompletion
+    val validDate=purchasedOn.isBlank() || validPurchaseDate(purchasedOn)
+    val valid = title.isNotBlank() && platform.isNotBlank() && company.isNotBlank() && validYear && validPlatformLogo && validCompanyLogo && copy.valid && validCompletion && validDate
     Scaffold(containerColor = androidx.compose.ui.graphics.Color.Transparent, topBar = { TopAppBar(title = { Text(if (original == null) "Nueva adquisición" else "Editar juego") }, navigationIcon = { TextButton(onClick = back, enabled = !saving) { Text("Volver") } }) }) { padding ->
         Column(Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState()).imePadding().padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             OutlinedButton(onClick = { showSearch = true }, modifier = Modifier.fillMaxWidth(), enabled = !saving) { Text("⌕ Autocompletar con RAWG") }
+            FlowRow(horizontalArrangement=Arrangement.spacedBy(8.dp)) {
+                OutlinedButton(onClick={scanImmediately=true;showBarcode=true},enabled=!saving){Text("Escanear código de barras")}
+                OutlinedButton(onClick={scanImmediately=false;showBarcode=true},enabled=!saving){Text("Introducir EAN / UPC")}
+            }
+            OutlinedButton(onClick={showEvercade=true},modifier=Modifier.fillMaxWidth(),enabled=!saving){Text("Buscar cartucho Evercade")}
             OutlinedTextField(title, { title = it }, label = { Text("Título *") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
             PlatformPicker(platform, platformLogo.ifBlank { null }, !saving) { if (it != platform) platformLogo = ""; platform = it }
             OutlinedTextField(company, { if (it != company) companyLogo = ""; company = it }, label = { Text("Compañía *") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
+            OutlinedTextField(purchasedOn,{purchasedOn=it},label={Text("Fecha de compra (AAAA-MM-DD)")},supportingText={Text("Opcional. No es la fecha de lanzamiento.")},isError=!validDate,modifier=Modifier.fillMaxWidth())
+            OutlinedButton(onClick={chooseSystem=true},modifier=Modifier.fillMaxWidth()) { Text("Sistema de mi inventario: ${ownedHardware.find{it.id==ownedSystemId}?.name ?: ownedSystemId?.let{"Unidad archivada #$it"} ?: "Sin vincular"}") }
             TextButton(onClick = { customizeLogos = !customizeLogos }) { Text(if (customizeLogos) "Ocultar logotipos" else "Personalizar logotipos") }
             if (customizeLogos) {
                 OutlinedTextField(platformLogo, { platformLogo = it }, label = { Text("URL del logotipo de plataforma") }, isError = !validPlatformLogo, modifier = Modifier.fillMaxWidth(), singleLine = true)
@@ -135,8 +150,8 @@ fun GameCondition.label() = when (this) {
                 rating = rating.takeIf { rated }, notes = notes.trim().ifBlank { null }, createdAt = original?.createdAt ?: System.currentTimeMillis(),
                 platformLogoUrl = platformLogo.trim().ifBlank { null }, companyLogoUrl = companyLogo.trim().ifBlank { null }, editionType = copy.edition,
                 hasBox = copy.box && !copy.digital, hasManual = copy.manual && !copy.digital, hasMedia = copy.media && !copy.digital, physicalCondition = copy.physical,
-                pricePaidCents = parsePriceCents(copy.price), priceCurrency = copy.currency, genres = copy.genres.split(',').map(String::trim).filter(String::isNotBlank).distinct(),
-                isFinished = finished, completionPercent = completion.toInt(), hasPlatinum = platinum && supportsPlatinum(platform), isFavorite = favorite, rawgId = rawgId)) { committed = true } },
+                pricePaidCents = parsePriceCents(copy.price,copy.currency), priceCurrency = copy.currency, genres = copy.genres.split(',').map(String::trim).filter(String::isNotBlank).distinct(),
+                isFinished = finished, completionPercent = completion.toInt(), hasPlatinum = platinum && supportsPlatinum(platform), isFavorite = favorite, rawgId = rawgId,purchasedOn=purchasedOn.ifBlank{null},ownedSystemId=ownedSystemId,catalogUrl=catalogUrl)) { committed = true } },
                 enabled = valid && !saving && !importing, modifier = Modifier.fillMaxWidth().height(54.dp)) { Text(if (saving) "Guardando…" else "GUARDAR EN LA BÓVEDA") }
             Text("* Campos obligatorios · Tu colección se guarda en este dispositivo.", style = MaterialTheme.typography.bodySmall)
         }
@@ -144,9 +159,20 @@ fun GameCondition.label() = when (this) {
     if (showSearch) SearchSheet(searchState, search, { result -> choose(result) { metadata ->
         title = metadata.title; platform = metadata.platforms.singleOrNull() ?: platform.takeIf { p -> p.isNotBlank() && metadata.platforms.any { com.gamerdex.ui.components.PlatformCatalog.family(it) == com.gamerdex.ui.components.PlatformCatalog.family(p) } }.orEmpty(); company = metadata.company.orEmpty(); platformLogo = ""; companyLogo = ""
         rawgId = metadata.id
+        catalogUrl=null
         year = metadata.year?.toString().orEmpty(); cover = metadata.coverUrl.orEmpty(); showSearch = false
         copy = copy.copy(genres = metadata.genres.joinToString(", "))
     } }, { showSearch = false; search("") }, lookupBarcode)
+    if(showBarcode) BarcodeSearchDialog(scanImmediately,{showBarcode=false}){code->showBarcode=false;showSearch=true;lookupBarcode(code)}
+    if(showEvercade) EvercadeSearchSheet({cart->
+        title=cart.title;platform="Evercade";company="Blaze Entertainment";cover=cart.cover.orEmpty();year="";rawgId=null;catalogUrl=cart.url;platformLogo="";companyLogo=""
+        notes=listOf(notes.takeIf{it.isNotBlank()},"Catálogo oficial Evercade: ${cart.url}",cart.games.takeIf{it.isNotEmpty()}?.joinToString("\n",prefix="Juegos incluidos:\n")).filterNotNull().joinToString("\n\n")
+        copy=copy.copy(genres="Recopilación");showEvercade=false
+    },{showEvercade=false})
+    if(chooseSystem) AlertDialog(onDismissRequest={chooseSystem=false},title={Text("Vincular compra a un sistema")},text={androidx.compose.foundation.lazy.LazyColumn(Modifier.heightIn(max=400.dp)){
+        item{TextButton(onClick={ownedSystemId=null;chooseSystem=false}){Text("Sin vincular")}}
+        items(ownedHardware.size){i->val system=ownedHardware[i];val suffix=if(ownedHardware.count{it.name==system.name}>1) " · ${system.serialNumber.ifBlank{"#${system.id}"}}" else "";TextButton(onClick={ownedSystemId=system.id;chooseSystem=false}){Text("${system.name} · ${system.platform}$suffix")}}
+    }},confirmButton={TextButton(onClick={chooseSystem=false}){Text("Cerrar")}})
 }
 
 @Composable private fun ProgressToggle(label: String, value: Boolean, enabled: Boolean, change: (Boolean) -> Unit) {

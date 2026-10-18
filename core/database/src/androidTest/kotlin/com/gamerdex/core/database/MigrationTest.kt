@@ -9,6 +9,24 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class MigrationTest {
+    @Test fun migratesV5PurchasesWithoutInventingGamePurchaseDates() {
+        val name="spending-v6-migration"
+        helper.createDatabase(name,5).apply {
+            execSQL("INSERT INTO platforms (id,name,generation,logoUrl,colorHex) VALUES (1,'PC',NULL,NULL,'#00F0FF')")
+            execSQL("INSERT INTO companies (id,name,logoUrl) VALUES (1,'Studio',NULL)")
+            execSQL("INSERT INTO games (id,title,platformId,companyId,releaseYear,coverUrl,localCustomPhotos,isSpecialEdition,specialEditionDetails,condition,rating,notes,createdAt,pricePaidCents) VALUES (1,'Old game',1,1,1991,NULL,'[]',0,NULL,'VERY_GOOD',90,'Keep',1234,1999)")
+            val hardware=com.gamerdex.core.domain.Hardware(7,"Old Saturn","Sega Saturn",purchasedOn="2019-12-01",pricePaidCents=10000)
+            execSQL("INSERT INTO hardware (id,payload) VALUES (?,?)",arrayOf(7,kotlinx.serialization.json.Json.encodeToString(com.gamerdex.core.domain.Hardware.serializer(),hardware)))
+            close()
+        }
+        helper.runMigrationsAndValidate(name,6,true,DatabaseMigrations.FROM_5_TO_6).use {db->
+            db.query("SELECT payload FROM purchases ORDER BY `key`").use {row->
+                assertEquals(2,row.count);assertTrue(row.moveToFirst())
+                val game=kotlinx.serialization.json.Json.decodeFromString(com.gamerdex.core.domain.Purchase.serializer(),row.getString(0));assertNull(game.purchasedOn);assertEquals(1999L,game.amount)
+                assertTrue(row.moveToNext());val hardware=kotlinx.serialization.json.Json.decodeFromString(com.gamerdex.core.domain.Purchase.serializer(),row.getString(0));assertEquals("2019-12-01",hardware.purchasedOn)
+            }
+        }
+    }
     @Test fun addsHardwareToV4WithoutChangingGames() {
         val name="hardware-migration-v5"
         helper.createDatabase(name,4).apply {
@@ -43,7 +61,7 @@ class MigrationTest {
         }
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         repeat(2) {
-            val db = androidx.room.Room.databaseBuilder(context, GamerDexDatabase::class.java, name).addMigrations(DatabaseMigrations.FROM_3_TO_4, DatabaseMigrations.FROM_4_TO_5).build()
+            val db = androidx.room.Room.databaseBuilder(context, GamerDexDatabase::class.java, name).addMigrations(DatabaseMigrations.FROM_3_TO_4, DatabaseMigrations.FROM_4_TO_5,DatabaseMigrations.FROM_5_TO_6).build()
             try { kotlinx.coroutines.runBlocking {
                 val repository = RoomCollectionRepository(db)
                 assertEquals(90f, repository.snapshot().games.first { it.id == 3L }.rating)
@@ -68,7 +86,7 @@ class MigrationTest {
                 assertTrue(row.isNull(row.getColumnIndexOrThrow("rawgId")))
             }
         }
-        val db = androidx.room.Room.databaseBuilder(InstrumentationRegistry.getInstrumentation().targetContext, GamerDexDatabase::class.java, name).addMigrations(DatabaseMigrations.FROM_2_TO_3, DatabaseMigrations.FROM_3_TO_4, DatabaseMigrations.FROM_4_TO_5).build()
+        val db = androidx.room.Room.databaseBuilder(InstrumentationRegistry.getInstrumentation().targetContext, GamerDexDatabase::class.java, name).addMigrations(DatabaseMigrations.FROM_2_TO_3, DatabaseMigrations.FROM_3_TO_4, DatabaseMigrations.FROM_4_TO_5,DatabaseMigrations.FROM_5_TO_6).build()
         try { kotlinx.coroutines.runBlocking {
             val repository = RoomCollectionRepository(db)
             val original = repository.snapshot().games.single()

@@ -13,6 +13,18 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class CollectionDatabaseTest {
+    @Test fun historicalPurchasesSurviveDeletionAndCorrectionsDoNotDoubleCount()=runTest {
+        repository.saveHardware(com.gamerdex.core.domain.Hardware(name="Japan Saturn",platform="Sega Saturn",pricePaidCents=1000000,currency="JPY",purchasedOn="2020-01-01"))
+        val system=repository.snapshot().hardware.single()
+        repository.save(Game(title="Japan Game",platform="Sega Saturn",company="Studio",pricePaidCents=200000,priceCurrency="JPY",purchasedOn="2021-02-03",ownedSystemId=system.id))
+        val game=repository.snapshot().games.single()
+        repository.save(game.copy(isFavorite=true));assertEquals(2,repository.observePurchases().first().size)
+        repository.save(game.copy(pricePaidCents=300000));assertEquals(1300000L,com.gamerdex.core.domain.spendingTotals(repository.observePurchases().first()).combined["JPY"])
+        repository.delete(game.id);repository.deleteHardware(system.id)
+        val archived=repository.snapshot();assertEquals(2,archived.purchases.size)
+        repository.replace(archived);assertEquals(archived.purchases,repository.snapshot().purchases)
+        repository.removeArchivedPurchase("GAME:${game.id}");assertEquals(1,repository.snapshot().purchases.size)
+    }
     @Test fun hardwareCrudAndTransactionalRestoreKeepAllFields() = runTest {
         val value=com.gamerdex.core.domain.Hardware(name="Saturn PAL",platform="Sega Saturn",hasBox=true,serialNumber="SAT123",pricePaidCents=15999,
             controllers=listOf(com.gamerdex.core.domain.Controller("3D Control Pad",2)),localPhotos=listOf("content://test/photo"))

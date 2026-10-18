@@ -29,6 +29,10 @@ class CollectionViewModel @Inject constructor(private val collection: Collection
     } }
     fun clearError() { mutableState.update { it.copy(error = null) } }
     val hardware = collection.observeHardware().stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+    val purchases=collection.observePurchases().stateIn(viewModelScope,SharingStarted.WhileSubscribed(5_000),emptyList())
+    fun removeArchivedPurchase(key:String) { viewModelScope.launch {
+        try {collection.removeArchivedPurchase(key)} catch(e:CancellationException){throw e} catch(_:Exception){mutableState.update{it.copy(error="No se pudo retirar esa compra del historial.")}}
+    } }
     fun saveHardware(value: Hardware, done: () -> Unit) {
         if (mutableSaving.value) return
         mutableSaving.value = true
@@ -75,7 +79,7 @@ class CollectionViewModel @Inject constructor(private val collection: Collection
         searchJob=viewModelScope.launch {
             try {
                 val match=barcodes.lookup(code)
-                if(match==null) mutableSearch.value=SearchState(error="ScanDex no tiene una coincidencia para este código. Busca por título o continúa manualmente.")
+                if(match==null) mutableSearch.value=SearchState(error="ScanDex no tiene registrado el código $code. Puede faltar esta edición; no indica una clave incorrecta. Busca el título en RAWG o continúa manualmente.")
                 else {
                     mutableSearch.value=SearchState(match.title,loading=true,barcodeMatch=match)
                     try { mutableSearch.value=SearchState(match.title,metadata.search(match.title),barcodeMatch=match) }

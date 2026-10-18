@@ -11,16 +11,17 @@ android {
     namespace = "com.gamerdex"
     compileSdk = 35
     buildFeatures { compose = true; buildConfig = true }
-    defaultConfig { applicationId = "com.gamerdex"; minSdk = 26; targetSdk = 35; versionCode = 9; versionName = "0.6.1"; testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner" }
+    defaultConfig { applicationId = "com.gamerdex"; minSdk = 26; targetSdk = 35; versionCode = 10; versionName = "0.7.0"; testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner" }
     val properties = Properties().apply { rootProject.file("local.properties").takeIf { it.exists() }?.inputStream()?.use { load(it) } }
     defaultConfig {
         buildConfigField("String", "RAWG_API_KEY", "\"" + properties.getProperty("RAWG_API_KEY", "").replace("\\", "\\\\").replace("\"", "\\\"") + "\"")
         buildConfigField("String", "SCANDEX_API_TOKEN", "\"" + properties.getProperty("SCANDEX_API_TOKEN", "").replace("\\", "\\\\").replace("\"", "\\\"") + "\"")
     }
-    compileOptions { sourceCompatibility = JavaVersion.VERSION_17; targetCompatibility = JavaVersion.VERSION_17 }
+    compileOptions { isCoreLibraryDesugaringEnabled=true; sourceCompatibility = JavaVersion.VERSION_17; targetCompatibility = JavaVersion.VERSION_17 }
 }
 kotlin { jvmToolchain(21); compilerOptions { jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17) } }
 dependencies {
+    coreLibraryDesugaring(libs.desugar.nio)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.google.code.scanner)
     implementation(project(":core:database"))

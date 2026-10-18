@@ -1,12 +1,22 @@
 # Validación de GamerDex
 
-Versión validada: 0.6.1 · Room v5 · formato de copia portable v4 (lectura v1–v4).
+Versión validada: 0.7.0 · Room v6 · formato de copia portable v5 (lectura v1–v5).
 
 Fecha: 18 de octubre de 2026.
 
 Entorno: Windows, JDK Microsoft 21.0.8, Gradle 8.11.1, Android SDK 35 y emulador Medium Phone Android 15 (API 35, x86_64).
 
 ## Resultados
+
+- Validación 0.7.0: APK, instrumentación y Lint compilados. Lint: 0 errores y las mismas 82 advertencias anteriores, sin baseline ni supresiones. APK instalado y arranque en frío correcto en API 35.
+- 69 pruebas distintas correctas: dominio (12), ZIP (11), proveedores HTTP (8), Room/migraciones (12) y Android (26). La batería Android inicial tuvo dos fallos de desplazamiento en listas diferidas; tras ajustar los selectores se repitieron correctamente los cuatro casos de las dos clases afectadas. No quedan fallos pendientes.
+- ScanDex: consulta real con credencial local válida y código público 0711719577966: HTTP 200 y Horizon Forbidden West: Complete Edition / PS5. El código proporcionado 502655067591 tiene checksum inválido; el EAN publicado 5026555067591 para Civilization VI Switch también devuelve 404 con la misma credencial. Se distinguen 404, 200 sin juego asociado, 401/403 y cuota 429 mediante pruebas HTTP. El formulario directo rechaza el código incompleto antes de consultar y mantiene los ceros iniciales. La captura óptica en teléfono real sigue pendiente; no se presenta como validada.
+- Evercade: prueba Compose contra el catálogo oficial real, búsqueda y selección de Atari Collection 1, importación de plataforma, imagen, URL y lista con Adventure. Se guarda sin ID RAWG y se verifica su compra en yenes y vínculo al hardware. Es búsqueda por nombre de cartucho/recopilación; el lector HTML depende de la estructura pública del sitio y tiene salida manual ante error.
+- Gasto: JPY sin fracciones, otras monedas con precisión de centésimas, sumas independientes por moneda y separación juego/hardware. Fechas desconocidas no usan el año de lanzamiento. Cambiar un precio no duplica adquisiciones; borrar fichas conserva el registro. Restaurar conserva compras archivadas y permite retirarlas del historial.
+- Migración real 5 → 6: conserva precios existentes, fecha conocida de hardware y fecha desconocida de juegos anteriores. Las migraciones previas siguen pasando. ZIP v5 conserva historia, yenes y fechas; v4 inicia historia con fichas existentes y las copias v1/v2 siguen convirtiendo notas una sola vez.
+- Revisión visual de `docs/previews/render-tests/spending-by-system.png`: hardware de prueba 12.000 JPY en 2022 y videojuego 1.500 JPY en 2023, total 13.500 JPY en la misma unidad, sin mezclar otras monedas. La captura contiene datos sintéticos; no representa la colección del usuario.
+
+Los resultados 0.6.1 que siguen se conservan como historial.
 
 - Validación 0.6.1: APK e instrumentación compilados; Lint con 0 errores y las mismas 82 advertencias anteriores, sin baseline ni supresiones.
 - Nueve pruebas Android relevantes correctas: personalización/exportación (2), editor de gamertag (1), copias/gamertags en los nueve temas (3) y recorrido de progreso, apodo y compartición (3). Las pruebas nuevas se corrigieron para devolver Unit a JUnit y desplazar la lista hasta elementos todavía no compuestos.

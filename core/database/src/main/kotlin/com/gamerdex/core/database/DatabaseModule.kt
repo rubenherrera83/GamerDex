@@ -15,7 +15,7 @@ import javax.inject.Singleton
 object DatabaseModule {
     @Provides
     fun provideCollectionRepository(repository: RoomCollectionRepository): com.gamerdex.core.domain.CollectionRepository = repository
-    private val migrations: Array<Migration> = arrayOf(DatabaseMigrations.FROM_1_TO_2, DatabaseMigrations.FROM_2_TO_3, DatabaseMigrations.FROM_3_TO_4, DatabaseMigrations.FROM_4_TO_5)
+    private val migrations: Array<Migration> = arrayOf(DatabaseMigrations.FROM_1_TO_2, DatabaseMigrations.FROM_2_TO_3, DatabaseMigrations.FROM_3_TO_4, DatabaseMigrations.FROM_4_TO_5, DatabaseMigrations.FROM_5_TO_6)
 
     @Provides @Singleton
     fun provideDatabase(@ApplicationContext context: Context): GamerDexDatabase =

@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit
 
 @Serializable data class ScanDexPlatform(val id: Long, val name: String)
 @Serializable data class ScanDexGame(val name: String, val platform: ScanDexPlatform)
-@Serializable data class ScanDexResponse(@SerialName("igdb_metadata") val metadata: ScanDexGame? = null)
+@Serializable data class ScanDexResponse(@SerialName("igdb_metadata") val metadata: ScanDexGame? = null, val status:String?=null)
 interface ScanDexApi {
     @GET("lookup") suspend fun lookup(@Query("value") value: String, @Header("Authorization") token: String): ScanDexResponse
 }
@@ -25,6 +25,7 @@ class ScanDexRepository(private val api: ScanDexApi, private val token: String) 
         val response = try { api.lookup(code,token) } catch(e:HttpException) {
             when(e.code()) { 404 -> return null; 401,403 -> error("ScanDex no ha autorizado el token configurado."); 429 -> error("Has alcanzado el límite de consultas de ScanDex. Reintenta más tarde."); else -> throw e }
         }
+        if(response.metadata==null) error(if(response.status=="unmatched") "ScanDex conoce el código, pero todavía no tiene un juego asociado. Busca por título." else "ScanDex respondió sin datos de identificación. Puedes buscar por título; no significa que la clave sea incorrecta.")
         return response.metadata?.takeIf { it.name.isNotBlank() && it.platform.name.isNotBlank() }?.let { BarcodeMatch(it.name,it.platform.name) }
     }
     companion object {

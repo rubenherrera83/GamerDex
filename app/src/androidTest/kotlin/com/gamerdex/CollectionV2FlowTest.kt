@@ -29,6 +29,7 @@ class CollectionV2FlowTest {
         compose.onNodeWithText("Precio pagado:", substring = true).assert(hasText("39", substring = true))
         compose.onNodeWithText("Crear gamertag de este juego").performScrollTo().performClick()
         compose.waitUntil(20_000) { compose.onAllNodesWithContentDescription("Vista previa del gamertag").fetchSemanticsNodes().isNotEmpty() }
+        compose.onNodeWithTag("gamertag-editor").performScrollToNode(hasText("Guardar gamertag como imagen"))
         compose.onNodeWithText("Guardar gamertag como imagen").performScrollTo().assertIsEnabled()
         compose.onNodeWithText("☰").performClick()
         compose.onNodeWithText("Géneros").performClick()

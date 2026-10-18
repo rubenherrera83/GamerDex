@@ -23,7 +23,7 @@ import java.time.LocalDate
         require(id >= 0 && name.isNotBlank() && platform.isNotBlank())
         require(purchasedOn == null || validPurchaseDate(purchasedOn))
         require(pricePaidCents == null || pricePaidCents in 0..99_999_999_999)
-        require(currency in setOf("EUR", "USD", "GBP"))
+        require(currency in supportedCurrencies && (currency!="JPY" || pricePaidCents==null || pricePaidCents%100L==0L))
         require(localPhotos.none(String::isBlank))
         require(isValidLogoUrl(imageUrl) && isValidLogoUrl(logoUrl))
         require(controllers.size <= 100)

@@ -2,6 +2,8 @@
 
 Capturas reales del emulador Android 15:
 
+- [Gasto histórico por sistema y año, 0.7.0](render-tests/spending-by-system.png)
+
 - [Gamertag con totales y seis logotipos, 0.6.1](render-tests/gamertag-customized.png)
 
 - [Ficha de sistema con mandos, 0.6.0](render-tests/hardware-detail.png)

@@ -10,6 +10,8 @@ La foto elegida tiene prioridad sobre la URL HTTPS opcional. Sin ambas se muestr
 
 Room v5 añade la tabla `hardware` sin alterar los juegos. La ficha se serializa en un payload JSON tipado con ID Room propio. Las copias v4 incluyen inventario, mandos y fotos; se leen v1–v4. Restaurar sustituye juegos e inventario de forma transaccional. Una copia anterior no contiene sistemas: la confirmación avisa de que ese inventario se vaciará. El formato v3 conserva sus notas 0–100; solo v1/v2 convierten 0–5 una vez. Versiones antiguas de la app no abren copias v4.
 
+Desde 0.7.0 se utiliza Room v6 y ZIP v5, que añade historial de compras, JPY y fechas de adquisición de juegos. Evercade dispone de catálogo propio y ScanDex tiene acceso directo desde el formulario. Véase [búsqueda y gasto](search-and-spending.md).
+
 ## Nombres y resultados de RAWG
 
 El catálogo incorpora Genesis, Mega Drive II, Famicom, Super Famicom, Sega Mark III, SG-1000, Atari clásicas/Jaguar/Lynx/ST, 3DO, Neo Geo, PC Engine, Commodore, Spectrum, Amstrad, MSX y otros sistemas. Se mantienen los nombres regionales como elecciones distintas; los alias ayudan a buscar sin renombrar colecciones existentes. Las equivalencias se usan para localizar familias, no para garantizar compatibilidad de cartuchos, región o accesorios.

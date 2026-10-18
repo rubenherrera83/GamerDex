@@ -9,10 +9,12 @@ android {
     namespace = "com.gamerdex.core.network"
     compileSdk = 35
     defaultConfig { minSdk = 26 }
-    compileOptions { sourceCompatibility = JavaVersion.VERSION_17; targetCompatibility = JavaVersion.VERSION_17 }
+    compileOptions { isCoreLibraryDesugaringEnabled=true; sourceCompatibility = JavaVersion.VERSION_17; targetCompatibility = JavaVersion.VERSION_17 }
 }
 kotlin { jvmToolchain(21); compilerOptions { jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17) } }
 dependencies {
+    coreLibraryDesugaring(libs.desugar.nio)
+    implementation(libs.jsoup)
     implementation(project(":core:domain"))
     implementation(libs.retrofit.core)
     implementation(libs.retrofit.serialization)

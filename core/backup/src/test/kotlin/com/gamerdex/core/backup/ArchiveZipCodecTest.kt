@@ -10,6 +10,16 @@ import java.io.*
 import java.util.zip.*
 
 class ArchiveZipCodecTest {
+    @Test fun v5KeepsArchivedExpensesYenAndPurchaseDatesWhileV4SeedsHistory() {
+        val game=snapshot().games.single().copy(priceCurrency="JPY",pricePaidCents=120000,purchasedOn="2022-01-02",catalogUrl="https://evercade.co.uk/cartridges/test/")
+        val archived=Purchase(PurchaseKind.HARDWARE,999,"Old console","Saturn",300000,"JPY","2020-01-01")
+        val source=snapshot().copy(games=listOf(game),purchases=listOf(archived)+seedPurchases(listOf(game),emptyList()))
+        val out=ByteArrayOutputStream();codec.write(source,out){error("No photos")}
+        assertEquals(source,codec.read(ByteArrayInputStream(out.toByteArray()),temporary.newFolder()).snapshot)
+        val old=snapshot().copy(formatVersion=4)
+        val restored=codec.read(ByteArrayInputStream(zip("manifest.json",Json.encodeToString(old).toByteArray())),temporary.newFolder()).snapshot
+        assertEquals(5,restored.formatVersion);assertEquals(1,restored.purchases.size);assertNull(restored.purchases.single().purchasedOn)
+    }
     @Test fun hardwarePhotosControllersAndV3ArchivesRoundTrip() {
         val hardware=Hardware(42,"Master System II","Master System",hasBox=true,hasManual=false,serialNumber="MS2-ABC",purchasedOn="1995-06-20",pricePaidCents=1999,
             controllers=listOf(Controller("Arcade stick",2,notes="Edición especial")),localPhotos=listOf("content://hardware/photo"))
@@ -21,7 +31,7 @@ class ArchiveZipCodecTest {
         assertArrayEquals(byteArrayOf(9,8,7),decoded.assets.getValue(item.localPhotos.single()).readBytes())
         val legacy=snapshot().copy(formatVersion=3,games=snapshot().games.map{it.copy(rating=3f)})
         val restored=codec.read(ByteArrayInputStream(zip("manifest.json",Json.encodeToString(legacy).toByteArray())),temporary.newFolder()).snapshot
-        assertEquals(4,restored.formatVersion); assertTrue(restored.hardware.isEmpty()); assertEquals(3f,restored.games.single().rating)
+        assertEquals(5,restored.formatVersion); assertTrue(restored.hardware.isEmpty()); assertEquals(3f,restored.games.single().rating)
     }
     @Test fun oldBackupRatingsConvertOnceAndCurrentLowScoresStayLow() {
         val legacy = listOf(0f, 2.5f, 4.5f, 5f, null)
@@ -29,7 +39,7 @@ class ArchiveZipCodecTest {
             val source = snapshot().copy(formatVersion = version, games = legacy.mapIndexed { index, rating -> snapshot().games.single().copy(id = index + 1L, rating = rating) })
             val raw = zip("manifest.json", Json.encodeToString(source).toByteArray())
             val restored = codec.read(ByteArrayInputStream(raw), temporary.newFolder()).snapshot
-            assertEquals(4, restored.formatVersion)
+            assertEquals(5, restored.formatVersion)
             assertEquals(listOf(0f, 50f, 90f, 100f, null), restored.games.map { it.rating })
             val output = ByteArrayOutputStream()
             codec.write(restored, output) { error("No photos") }

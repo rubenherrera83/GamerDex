@@ -107,7 +107,7 @@ fun HardwareKind.label() = when(this) { HardwareKind.CONSOLE -> "Consola"; Hardw
             TextButton(onClick={confirm=true}){Text("Eliminar sistema",color=MaterialTheme.colorScheme.error)}
         }
     }
-    if(confirm) AlertDialog(onDismissRequest={confirm=false},title={Text("¿Eliminar este sistema?")},text={Text("Se eliminará esta ficha y sus mandos. Los juegos se conservan.")},confirmButton={TextButton(onClick=delete){Text("Eliminar")}},dismissButton={TextButton(onClick={confirm=false}){Text("Cancelar")}})
+    if(confirm) AlertDialog(onDismissRequest={confirm=false},title={Text("¿Eliminar este sistema?")},text={Text("Se eliminará esta ficha y sus mandos. Los juegos y su compra en el historial de gasto se conservan. Las compras archivadas se pueden quitar desde Estadísticas.")},confirmButton={TextButton(onClick=delete){Text("Eliminar")}},dismissButton={TextButton(onClick={confirm=false}){Text("Cancelar")}})
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
@@ -117,7 +117,7 @@ fun HardwareKind.label() = when(this) { HardwareKind.CONSOLE -> "Consola"; Hardw
     var box by rememberSaveable { mutableStateOf(original?.hasBox ?: false) }; var manual by rememberSaveable { mutableStateOf(original?.hasManual ?: false) }; var cables by rememberSaveable { mutableStateOf(original?.hasCables ?: false) }
     var condition by rememberSaveable { mutableStateOf(original?.condition ?: PhysicalCondition.UNSPECIFIED) }; var working by rememberSaveable { mutableStateOf(original?.working) }
     var serial by rememberSaveable { mutableStateOf(original?.serialNumber.orEmpty()) }; var date by rememberSaveable { mutableStateOf(original?.purchasedOn.orEmpty()) }
-    var price by rememberSaveable { mutableStateOf(original?.pricePaidCents?.let { BigDecimal.valueOf(it,2).toPlainString() }.orEmpty()) }; var currency by rememberSaveable { mutableStateOf(original?.currency ?: "EUR") }
+    var price by rememberSaveable { mutableStateOf(original?.pricePaidCents?.let { BigDecimal.valueOf(it,2).stripTrailingZeros().toPlainString() }.orEmpty()) }; var currency by rememberSaveable { mutableStateOf(original?.currency ?: "EUR") }
     var notes by rememberSaveable { mutableStateOf(original?.notes.orEmpty()) }; var imageUrl by rememberSaveable { mutableStateOf(original?.imageUrl.orEmpty()) }; var logoUrl by rememberSaveable { mutableStateOf(original?.logoUrl.orEmpty()) }
     var photos by rememberSaveable { mutableStateOf(original?.localPhotos ?: emptyList()) }
     var controllerJson by rememberSaveable { mutableStateOf(Json.encodeToString(original?.controllers ?: emptyList<Controller>())) }
@@ -130,7 +130,7 @@ fun HardwareKind.label() = when(this) { HardwareKind.CONSOLE -> "Consola"; Hardw
         catch(_:SecurityException){photoError="No se pudo conservar el permiso de las fotos."}
     }
     val dateValid=date.isBlank() || validPurchaseDate(date)
-    val priceValid=runCatching { parsePriceCents(price) }.isSuccess
+    val priceValid=runCatching { parsePriceCents(price,currency) }.isSuccess
     val valid=name.isNotBlank() && platform.isNotBlank() && dateValid && priceValid && isValidLogoUrl(imageUrl.ifBlank{null}) && isValidLogoUrl(logoUrl.ifBlank{null})
     BackHandler(saving) { }
     Scaffold(containerColor=Color.Transparent,topBar={TopAppBar(title={Text(if(original==null) "Nuevo sistema" else "Editar sistema")},navigationIcon={TextButton(onClick=back,enabled=!saving){Text("Volver")}})}) { padding ->
@@ -146,7 +146,7 @@ fun HardwareKind.label() = when(this) { HardwareKind.CONSOLE -> "Consola"; Hardw
             OutlinedTextField(serial,{serial=it},label={Text("Número de serie")},modifier=Modifier.fillMaxWidth(),enabled=!saving)
             OutlinedTextField(date,{date=it},label={Text("Fecha de compra (AAAA-MM-DD)")},supportingText={Text("Opcional; deja en blanco si no la sabes")},isError=!dateValid,modifier=Modifier.fillMaxWidth(),enabled=!saving)
             OutlinedTextField(price,{price=it},label={Text("Precio pagado")},keyboardOptions=KeyboardOptions(keyboardType=KeyboardType.Decimal),isError=!priceValid,modifier=Modifier.fillMaxWidth(),enabled=!saving)
-            FlowRow(horizontalArrangement=Arrangement.spacedBy(8.dp)) { listOf("EUR","USD","GBP").forEach{FilterChip(currency==it,{currency=it},label={Text(it)},enabled=!saving)} }
+            FlowRow(horizontalArrangement=Arrangement.spacedBy(8.dp)) { supportedCurrencies.forEach{FilterChip(currency==it,{currency=it},label={Text(it)},enabled=!saving)} }
             SectionLabel("02","Mandos y accesorios")
             controllers.forEachIndexed { index,c -> OutlinedCard { Column(Modifier.padding(12.dp),verticalArrangement=Arrangement.spacedBy(8.dp)) {
                 OutlinedTextField(c.name,{if(it.isNotBlank())update(index,c.copy(name=it))},label={Text("Mando ${index+1}: modelo / edición")},modifier=Modifier.fillMaxWidth(),enabled=!saving)
@@ -165,7 +165,7 @@ fun HardwareKind.label() = when(this) { HardwareKind.CONSOLE -> "Consola"; Hardw
             OutlinedTextField(logoUrl,{logoUrl=it},label={Text("URL HTTPS del logotipo (opcional)")},modifier=Modifier.fillMaxWidth(),enabled=!saving,isError=!isValidLogoUrl(logoUrl.ifBlank{null}))
             Text("La primera foto será la imagen principal. Sin foto se muestra una ilustración genérica y el logotipo del catálogo.",style=MaterialTheme.typography.bodySmall)
             OutlinedTextField(notes,{notes=it},label={Text("Notas y otros accesorios")},modifier=Modifier.fillMaxWidth(),enabled=!saving)
-            Button(onClick={save(Hardware(original?.id ?: 0,name.trim(),platform.trim(),kind,region.trim(),box,manual,cables,condition,working,serial.trim(),date.ifBlank{null},parsePriceCents(price),currency,controllers,photos,imageUrl.ifBlank{null},logoUrl.ifBlank{null},notes))},enabled=valid && !saving,modifier=Modifier.fillMaxWidth()){Text(if(saving) "Guardando…" else "GUARDAR SISTEMA")}
+            Button(onClick={save(Hardware(original?.id ?: 0,name.trim(),platform.trim(),kind,region.trim(),box,manual,cables,condition,working,serial.trim(),date.ifBlank{null},parsePriceCents(price,currency),currency,controllers,photos,imageUrl.ifBlank{null},logoUrl.ifBlank{null},notes))},enabled=valid && !saving,modifier=Modifier.fillMaxWidth()){Text(if(saving) "Guardando…" else "GUARDAR SISTEMA")}
         }
     }
 }

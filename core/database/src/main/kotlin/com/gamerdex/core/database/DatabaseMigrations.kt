@@ -4,6 +4,23 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
 object DatabaseMigrations {
+    val FROM_5_TO_6 = object : Migration(5,6) {
+        override fun migrate(db:SupportSQLiteDatabase) {
+            db.execSQL("ALTER TABLE games ADD COLUMN purchasedOn TEXT")
+            db.execSQL("ALTER TABLE games ADD COLUMN ownedSystemId INTEGER")
+            db.execSQL("ALTER TABLE games ADD COLUMN catalogUrl TEXT")
+            db.execSQL("CREATE TABLE IF NOT EXISTS purchases (`key` TEXT NOT NULL, payload TEXT NOT NULL, PRIMARY KEY(`key`))")
+            val json=kotlinx.serialization.json.Json { encodeDefaults=true }
+            fun insert(value:com.gamerdex.core.domain.Purchase) { db.execSQL("INSERT INTO purchases (`key`,payload) VALUES (?,?)",arrayOf(value.key,json.encodeToString(com.gamerdex.core.domain.Purchase.serializer(),value))) }
+            db.query("SELECT g.id,g.title,p.name,g.pricePaidCents,g.priceCurrency FROM games g JOIN platforms p ON p.id=g.platformId").use { row ->
+                while(row.moveToNext()) insert(com.gamerdex.core.domain.Purchase(com.gamerdex.core.domain.PurchaseKind.GAME,row.getLong(0),row.getString(1),row.getString(2),if(row.isNull(3))null else row.getLong(3),row.getString(4)))
+            }
+            db.query("SELECT id,payload FROM hardware").use { row -> while(row.moveToNext()) {
+                val item=json.decodeFromString(com.gamerdex.core.domain.Hardware.serializer(),row.getString(1)).copy(id=row.getLong(0))
+                insert(com.gamerdex.core.domain.hardwarePurchase(item))
+            } }
+        }
+    }
     val FROM_4_TO_5 = object : Migration(4, 5) {
         override fun migrate(db: SupportSQLiteDatabase) {
             db.execSQL("CREATE TABLE IF NOT EXISTS hardware (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, payload TEXT NOT NULL)")
