@@ -19,6 +19,7 @@ android {
     }
     compileOptions { isCoreLibraryDesugaringEnabled=true; sourceCompatibility = JavaVersion.VERSION_17; targetCompatibility = JavaVersion.VERSION_17 }
 }
+base { archivesName.set("GamerDex-${android.defaultConfig.versionName}") }
 kotlin { jvmToolchain(21); compilerOptions { jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17) } }
 dependencies {
     coreLibraryDesugaring(libs.desugar.nio)

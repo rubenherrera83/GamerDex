@@ -6,6 +6,12 @@ Comprobación real del 18 de octubre de 2026: el token local obtiene HTTP 200 y 
 
 El formulario permite escanear o escribir sin abrir antes RAWG. Se conserva el acceso desde el buscador anterior. La validación distingue código incompleto/checksum, 404 desconocido, 200 conocido sin juego asociado, respuesta sin datos de identificación, 401/403 de autorización y 429 de cuota. No se confunde falta de cobertura con clave inválida. Cuando no hay datos se puede buscar por título en RAWG o registrar la copia manualmente. La cámara usa Google Code Scanner; la escritura conserva ceros iniciales.
 
+## Alternativas a ScanDex (evaluación, sin integración)
+
+El 18 de octubre de 2026 se consultó el endpoint gratuito documentado de [UPCitemdb](https://www.upcitemdb.com/wp/docs/main/development/getting-started/) con EAN 5026555067591: HTTP 200, un resultado «Sid Meier's Civilization Vi Switch (sp)». La categoría recibida es genérica/inexacta (`Electronics > Video Game Consoles`); conviene confirmar título y plataforma con el usuario y enriquecer la ficha mediante RAWG. Esta comprobación puntual no demuestra superioridad global de cobertura. Su [plan gratuito](https://www.upcitemdb.com/wp/docs/main/development/plan/) no exige cuenta ni clave y limita a 100 solicitudes combinadas al día, con límites adicionales de frecuencia.
+
+[PriceCharting](https://www.pricecharting.com/api-documentation) también documenta consulta por UPC y título/consola. Requiere suscripción; su licencia estándar es de uso interno y ofrecer datos de precios en una app para terceros requiere acuerdo comercial. [Barcode Lookup](https://www.barcodelookup.com/api) ofrece búsquedas UPC/EAN genéricas mediante clave y planes de pago. Ninguno garantiza encontrar todas las ediciones regionales. Estas alternativas se han investigado; la app sigue utilizando ScanDex.
+
 ## Evercade
 
 El buscador utiliza [el catálogo oficial de cartuchos](https://evercade.co.uk/cartridges/), sin requerir una clave RAWG. Busca nombres de cartuchos/recopilaciones, no todos los títulos contenidos globalmente. Al elegir uno consulta su ficha y añade sus juegos incluidos a las notas. Se registra un cartucho como una copia Evercade, con editorial Blaze Entertainment, imagen y enlace a la fuente; no se inventa año de lanzamiento ni un ID RAWG. El formulario permite corregir los campos importados.

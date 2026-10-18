@@ -8,6 +8,7 @@ Entorno: Windows, JDK Microsoft 21.0.8, Gradle 8.11.1, Android SDK 35 y emulador
 
 ## Resultados
 
+- Ajuste posterior del empaquetado: `:app:assembleDebug` correcto; el directorio de salida y `output-metadata.json` contienen `GamerDex-0.7.0-debug.apk`, versión 0.7.0 y código 10. El nombre procede de `versionName` y mantiene la variante. No cambia el comportamiento de la app.
 - Validación 0.7.0: APK, instrumentación y Lint compilados. Lint: 0 errores y las mismas 82 advertencias anteriores, sin baseline ni supresiones. APK instalado y arranque en frío correcto en API 35.
 - 69 pruebas distintas correctas: dominio (12), ZIP (11), proveedores HTTP (8), Room/migraciones (12) y Android (26). La batería Android inicial tuvo dos fallos de desplazamiento en listas diferidas; tras ajustar los selectores se repitieron correctamente los cuatro casos de las dos clases afectadas. No quedan fallos pendientes.
 - ScanDex: consulta real con credencial local válida y código público 0711719577966: HTTP 200 y Horizon Forbidden West: Complete Edition / PS5. El código proporcionado 502655067591 tiene checksum inválido; el EAN publicado 5026555067591 para Civilization VI Switch también devuelve 404 con la misma credencial. Se distinguen 404, 200 sin juego asociado, 401/403 y cuota 429 mediante pruebas HTTP. El formulario directo rechaza el código incompleto antes de consultar y mantiene los ceros iniciales. La captura óptica en teléfono real sigue pendiente; no se presenta como validada.
