@@ -1,4 +1,4 @@
-# Búsqueda y gasto · 0.7.0
+# Búsqueda y gasto · 0.7.1
 
 ## ScanDex
 
@@ -6,11 +6,19 @@ Comprobación real del 18 de octubre de 2026: el token local obtiene HTTP 200 y 
 
 El formulario permite escanear o escribir sin abrir antes RAWG. Se conserva el acceso desde el buscador anterior. La validación distingue código incompleto/checksum, 404 desconocido, 200 conocido sin juego asociado, respuesta sin datos de identificación, 401/403 de autorización y 429 de cuota. No se confunde falta de cobertura con clave inválida. Cuando no hay datos se puede buscar por título en RAWG o registrar la copia manualmente. La cámara usa Google Code Scanner; la escritura conserva ceros iniciales.
 
-## Alternativas a ScanDex (evaluación, sin integración)
+## UPCitemdb como respaldo (0.7.1)
 
 El 18 de octubre de 2026 se consultó el endpoint gratuito documentado de [UPCitemdb](https://www.upcitemdb.com/wp/docs/main/development/getting-started/) con EAN 5026555067591: HTTP 200, un resultado «Sid Meier's Civilization Vi Switch (sp)». La categoría recibida es genérica/inexacta (`Electronics > Video Game Consoles`); conviene confirmar título y plataforma con el usuario y enriquecer la ficha mediante RAWG. Esta comprobación puntual no demuestra superioridad global de cobertura. Su [plan gratuito](https://www.upcitemdb.com/wp/docs/main/development/plan/) no exige cuenta ni clave y limita a 100 solicitudes combinadas al día, con límites adicionales de frecuencia.
 
-[PriceCharting](https://www.pricecharting.com/api-documentation) también documenta consulta por UPC y título/consola. Requiere suscripción; su licencia estándar es de uso interno y ofrecer datos de precios en una app para terceros requiere acuerdo comercial. [Barcode Lookup](https://www.barcodelookup.com/api) ofrece búsquedas UPC/EAN genéricas mediante clave y planes de pago. Ninguno garantiza encontrar todas las ediciones regionales. Estas alternativas se han investigado; la app sigue utilizando ScanDex.
+La app consulta primero ScanDex. Ante 404, respuesta sin juego, token ausente/rechazado, cuota o error de red, consulta el endpoint gratuito de UPCitemdb con el mismo código, sin token ni credenciales RAWG/ScanDex. La cancelación del usuario se propaga y no inicia otra consulta. Si ScanDex identifica el juego no se llama al respaldo.
+
+Se muestra la fuente real y, si hubo un fallo de ScanDex, su aviso junto a la identificación alternativa. Si ambos catálogos carecen del código se indica ausencia de coincidencias; si falla un servicio se explica el fallo, sin presentarlo como falta de cobertura. Se conservan la búsqueda por título y el formulario manual.
+
+Solo se admite un producto cuyo EAN/UPC/GTIN coincida con el solicitado (se permite el relleno normalizado con ceros). Otro código, resultados ambiguos o un título vacío producen un error. El título original se muestra sin alterarlo. Para consultar RAWG se retiran únicamente un sufijo regional reconocido y un nombre de plataforma al final; si no hay plataforma reconocible queda por confirmar. No se usan categorías comerciales para inferir sistema ni se asigna automáticamente una versión RAWG. No se importan precios de tiendas, valoración ni datos personales de la compra.
+
+Una instancia única por proceso serializa consultas e impone diez segundos entre peticiones. Caché en memoria: coincidencias quince minutos, ausencias cinco minutos, máximo 500 códigos. No se reintentan automáticamente peticiones fallidas. Ante HTTP 429 o cabecera de cuota restante cero se respeta el reset del servidor (entre diez segundos y 24 horas); sin reset válido se pausa quince minutos. Las respuestas previamente cacheadas siguen disponibles durante esa pausa. La cuota gratuita depende principalmente de la IP, por lo que otras apps o dispositivos de la misma red pueden consumirla y reiniciar la app no restablece la cuota del proveedor. [Límites oficiales](https://www.upcitemdb.com/wp/docs/main/development/api-rate-limits/).
+
+[PriceCharting](https://www.pricecharting.com/api-documentation) también documenta consulta por UPC y título/consola. Requiere suscripción; su licencia estándar es de uso interno y ofrecer datos de precios en una app para terceros requiere acuerdo comercial. [Barcode Lookup](https://www.barcodelookup.com/api) ofrece búsquedas UPC/EAN genéricas mediante clave y planes de pago. Estas dos fuentes no se han integrado.
 
 ## Evercade
 

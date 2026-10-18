@@ -79,15 +79,15 @@ class CollectionViewModel @Inject constructor(private val collection: Collection
         searchJob=viewModelScope.launch {
             try {
                 val match=barcodes.lookup(code)
-                if(match==null) mutableSearch.value=SearchState(error="ScanDex no tiene registrado el código $code. Puede faltar esta edición; no indica una clave incorrecta. Busca el título en RAWG o continúa manualmente.")
+                if(match==null) mutableSearch.value=SearchState(error="ScanDex y UPCitemdb no tienen una coincidencia para $code. Puede faltar esta edición. Busca el título en RAWG o continúa manualmente.")
                 else {
-                    mutableSearch.value=SearchState(match.title,loading=true,barcodeMatch=match)
-                    try { mutableSearch.value=SearchState(match.title,metadata.search(match.title),barcodeMatch=match) }
+                    mutableSearch.value=SearchState(match.searchTitle,loading=true,barcodeMatch=match)
+                    try { mutableSearch.value=SearchState(match.searchTitle,metadata.search(match.searchTitle),barcodeMatch=match) }
                     catch(e:CancellationException){throw e}
-                    catch(_:Exception){mutableSearch.value=SearchState(match.title,error="ScanDex identificó el título, pero RAWG no respondió. Puedes reintentar la búsqueda por título.",barcodeMatch=match)}
+                    catch(_:Exception){mutableSearch.value=SearchState(match.searchTitle,error="${match.source} identificó el título, pero RAWG no respondió. Puedes reintentar la búsqueda por título.",barcodeMatch=match)}
                 }
             } catch(e:CancellationException){throw e}
-            catch(e:Exception){mutableSearch.value=SearchState(error=if(e is IllegalArgumentException || e is IllegalStateException) e.message else "No se pudo consultar ScanDex. Reintenta o busca por título.")}
+            catch(e:Exception){mutableSearch.value=SearchState(error=if(e is IllegalArgumentException || e is IllegalStateException) e.message else "No se pudieron consultar los servicios de códigos. Reintenta o busca por título.")}
         }
     }
     fun save(game: Game, done: () -> Unit) {

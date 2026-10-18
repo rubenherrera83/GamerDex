@@ -1,12 +1,20 @@
 # Validación de GamerDex
 
-Versión validada: 0.7.0 · Room v6 · formato de copia portable v5 (lectura v1–v5).
+Versión validada: 0.7.1 · Room v6 · formato de copia portable v5 (lectura v1–v5).
 
 Fecha: 18 de octubre de 2026.
 
 Entorno: Windows, JDK Microsoft 21.0.8, Gradle 8.11.1, Android SDK 35 y emulador Medium Phone Android 15 (API 35, x86_64).
 
 ## Resultados
+
+- Validación 0.7.1: APK e instrumentación compilados; Lint con 0 errores y las mismas 82 advertencias anteriores, sin baseline ni supresiones. Entregable `GamerDex-0.7.1-debug.apk`, versión 0.7.1/código 11 en los metadatos de salida.
+- 24 pruebas distintas correctas para este cambio: proveedores HTTP/combinación (18) y Android (6). Incluye las diez pruebas nuevas de UPCitemdb y combinación. El recorrido nuevo necesitó corregir su selector al apóstrofo tipográfico real del título RAWG; su repetición fue correcta, sin cambios de implementación adicionales.
+- Consulta real desde Android: EAN 5026555067591 → ausencia en ScanDex → UPCitemdb identifica Civilization VI → búsqueda RAWG → elección explícita de Nintendo Switch → formulario con título/plataforma y precio pagado vacío. También pasan identificación ScanDex de Horizon, importación RAWG de Portal, selector Genesis/Mega Drive, rechazo de código incompleto y catálogo Evercade.
+- Contratos HTTP: UPCitemdb usa `/prod/trial/lookup`, conserva ceros iniciales y no recibe claves RAWG, Authorization ni credenciales ScanDex. Solo acepta el código consultado y un producto sin ambigüedad; distingue ausencia, cuota y error de servidor. Caché de resultados/ausencias y separación de diez segundos entre solicitudes verificadas con reloj de prueba; HTTP 429 impide nuevas peticiones hasta el reset.
+- Combinación: una coincidencia primaria evita consultar el respaldo; 404 y fallos de ScanDex permiten continuar con UPCitemdb, con aviso de la fuente/fallo. Cancelación e input inválido no disparan consultas alternativas; los errores no se convierten en falsas ausencias. No se almacenan precios comerciales como gasto personal. No cambia Room ni el formato de copia.
+
+Los resultados 0.7.0 que siguen se conservan como historial.
 
 - Ajuste posterior del empaquetado: `:app:assembleDebug` correcto; el directorio de salida y `output-metadata.json` contienen `GamerDex-0.7.0-debug.apk`, versión 0.7.0 y código 10. El nombre procede de `versionName` y mantiene la variante. No cambia el comportamiento de la app.
 - Validación 0.7.0: APK, instrumentación y Lint compilados. Lint: 0 errores y las mismas 82 advertencias anteriores, sin baseline ni supresiones. APK instalado y arranque en frío correcto en API 35.

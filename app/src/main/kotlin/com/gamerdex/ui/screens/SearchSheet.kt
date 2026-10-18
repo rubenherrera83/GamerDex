@@ -14,15 +14,12 @@ import com.gamerdex.ui.SearchState
 import com.gamerdex.ui.components.Cover
 import com.gamerdex.ui.components.PlatformCatalog
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class,ExperimentalLayoutApi::class)
 @Composable fun SearchSheet(state: SearchState, search: (String) -> Unit, choose: (Metadata) -> Unit, dismiss: () -> Unit, lookupBarcode: (String) -> Unit = {}) {
     val uriHandler = androidx.compose.ui.platform.LocalUriHandler.current
-    val context = androidx.compose.ui.platform.LocalContext.current
     var platformFilter by rememberSaveable { mutableStateOf("") }
     var yearFilter by rememberSaveable { mutableStateOf("") }
-    var barcode by rememberSaveable { mutableStateOf("") }
     var showBarcode by rememberSaveable { mutableStateOf(false) }
-    var scannerError by remember { mutableStateOf<String?>(null) }
     var selecting by remember { mutableStateOf<Metadata?>(null) }
     ModalBottomSheet(onDismissRequest = dismiss, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
         Column(Modifier.fillMaxWidth().padding(horizontal = 20.dp).padding(bottom = 24.dp)) {
@@ -32,8 +29,11 @@ import com.gamerdex.ui.components.PlatformCatalog
                 OutlinedTextField(platformFilter,{platformFilter=it},label={Text("Filtrar plataforma")},modifier=Modifier.weight(1f),singleLine=true)
                 OutlinedTextField(yearFilter,{yearFilter=it.filter(Char::isDigit).take(4)},label={Text("Año")},modifier=Modifier.weight(.55f),singleLine=true)
             }
-            TextButton(onClick={showBarcode=true},enabled=!state.loading){Text("Buscar por código de barras / ScanDex")}
-            state.barcodeMatch?.let { match -> Text("ScanDex: ${match.title} · ${match.platform}. Confirma el juego y su versión en RAWG.",style=MaterialTheme.typography.bodySmall) }
+            TextButton(onClick={showBarcode=true},enabled=!state.loading){Text("Buscar por código de barras")}
+            state.barcodeMatch?.let { match ->
+                Text("${match.source}: ${match.title} · ${match.platform.ifBlank{"Plataforma por confirmar"}}. Confirma el juego y su versión en RAWG.",style=MaterialTheme.typography.bodySmall)
+                match.notice?.let{Text(it,style=MaterialTheme.typography.bodySmall)}
+            }
             if (state.loading) LinearProgressIndicator(Modifier.fillMaxWidth())
             state.error?.let {
                 Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(vertical = 12.dp))
@@ -51,8 +51,9 @@ import com.gamerdex.ui.components.PlatformCatalog
                 }
             }
             TextButton(onClick = dismiss) { Text("Continuar con el formulario manual") }
-            Row { TextButton(onClick = { uriHandler.openUri("https://rawg.io") }) { Text("Datos: RAWG ↗", style = MaterialTheme.typography.labelSmall) }
-                TextButton(onClick = { uriHandler.openUri("https://scandex.gamery.app") }) { Text("Códigos: ScanDex ↗",style=MaterialTheme.typography.labelSmall) } }
+            FlowRow { TextButton(onClick = { uriHandler.openUri("https://rawg.io") }) { Text("Datos: RAWG ↗", style = MaterialTheme.typography.labelSmall) }
+                TextButton(onClick = { uriHandler.openUri("https://scandex.gamery.app") }) { Text("ScanDex ↗",style=MaterialTheme.typography.labelSmall) }
+                TextButton(onClick = { uriHandler.openUri("https://www.upcitemdb.com") }) { Text("UPCitemdb ↗",style=MaterialTheme.typography.labelSmall) } }
             Text("Los filtros se aplican a los primeros 40 resultados. Puedes escribir un título más concreto.",style=MaterialTheme.typography.labelSmall)
         }
     }

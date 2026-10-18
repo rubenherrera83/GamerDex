@@ -28,11 +28,30 @@ import android.net.Uri
 @LargeTest @RunWith(AndroidJUnit4::class)
 class RawgLiveFlowTest {
     @get:Rule val compose = createAndroidComposeRule<MainActivity>()
+    @Test fun civilizationUsesUpcFallbackThenRequiresRawgAndPlatformConfirmation() {
+        assumeTrue("RAWG key is required",BuildConfig.RAWG_API_KEY.isNotBlank())
+        compose.onNodeWithText("+ AÑADIR JUEGO").performClick()
+        compose.onNodeWithText("Introducir EAN / UPC").performScrollTo().performClick()
+        compose.onNodeWithText("Código EAN / UPC").performTextInput("5026555067591")
+        compose.onNodeWithText("Buscar código").performClick()
+        compose.waitUntil(55_000){compose.onAllNodesWithText("UPCitemdb:",substring=true).fetchSemanticsNodes().isNotEmpty()}
+        compose.onNodeWithText("UPCitemdb:",substring=true).assert(hasText("Switch",substring=true))
+        val candidate=hasText("Sid Meier’s Civilization VI",ignoreCase=true) and hasClickAction() and !hasSetTextAction()
+        compose.waitUntil(30_000){compose.onAllNodes(candidate).fetchSemanticsNodes().isNotEmpty()}
+        compose.onNode(candidate).performClick()
+        compose.onNodeWithText("Elige tu versión").assertExists()
+        compose.onNodeWithText("Nintendo Switch",useUnmergedTree=true).performScrollTo().performClick()
+        compose.waitUntil(30_000){compose.onAllNodesWithText("Buscar título en RAWG").fetchSemanticsNodes().isEmpty()}
+        compose.onNodeWithText("Título *").assert(hasText("Civilization VI",substring=true))
+        compose.onNodeWithText("Plataforma *").assert(hasText("Nintendo Switch"))
+        compose.onNodeWithText("Precio pagado (opcional)").performScrollTo().assert(hasText("",substring=false))
+        compose.onNodeWithText("Volver").performClick()
+    }
     @Test fun barcodeLookupFindsRawgCandidatesWithoutAutomaticallyAddingAGame() {
         assumeTrue("RAWG and ScanDex tokens are required",BuildConfig.RAWG_API_KEY.isNotBlank() && BuildConfig.SCANDEX_API_TOKEN.isNotBlank())
         compose.onNodeWithText("+ AÑADIR JUEGO").performClick()
         compose.onNodeWithText("⌕ Autocompletar con RAWG").performClick()
-        compose.onNodeWithText("Buscar por código de barras / ScanDex").performClick()
+        compose.onNodeWithText("Buscar por código de barras").performClick()
         compose.onNodeWithText("Código EAN / UPC").performTextInput("0711719577966")
         compose.onNodeWithText("Buscar código").performClick()
         compose.waitUntil(30_000){compose.onAllNodesWithText("ScanDex:",substring=true).fetchSemanticsNodes().isNotEmpty()}

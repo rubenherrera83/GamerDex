@@ -1,6 +1,6 @@
 package com.gamerdex.core.domain
 
-data class BarcodeMatch(val title: String, val platform: String)
+data class BarcodeMatch(val title: String, val platform: String, val source:String="ScanDex", val searchTitle:String=title, val notice:String?=null)
 interface BarcodeRepository { suspend fun lookup(code: String): BarcodeMatch? }
 fun validBarcode(code: String): Boolean {
     if (code.length !in setOf(8,12,13,14) || code.any { it !in '0'..'9' }) return false

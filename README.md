@@ -1,6 +1,13 @@
 # GamerDex
 
-Versión 0.7.0: acceso directo a códigos de barras, catálogo Evercade, yenes e historial de gasto.
+Versión 0.7.1: búsqueda combinada ScanDex + UPCitemdb, catálogo Evercade, yenes e historial de gasto.
+
+## Novedades 0.7.1
+
+- ScanDex sigue siendo la primera fuente; UPCitemdb gratuito actúa como respaldo ante ausencia de coincidencia, token ausente/rechazado, cuota o fallo de servicio. No requiere una clave adicional.
+- La búsqueda identifica la fuente y conserva el aviso de fallo de ScanDex si utiliza el respaldo. El usuario confirma título y plataforma en RAWG antes de importar. No se importan ofertas como precio pagado.
+- UPCitemdb respeta un intervalo de diez segundos entre peticiones, evita consultas repetidas mediante caché temporal y aplica una pausa cuando recibe un límite del servidor. La cuota gratuita por IP es compartida; el respaldo no garantiza cobertura de todas las ediciones.
+- APK con nombre y versión automáticos: `GamerDex-0.7.1-debug.apk`. Room v6 y copias v5 no cambian.
 
 ## Novedades 0.7.0
 
@@ -11,7 +18,7 @@ Versión 0.7.0: acceso directo a códigos de barras, catálogo Evercade, yenes e
 - El historial conserva las compras al eliminar fichas. Se pueden retirar compras archivadas desde Estadísticas. Las correcciones de precio/fecha actualizan la compra de esa copia sin sumarla otra vez. No reconstruye fichas eliminadas antes de actualizar.
 - Room v6 añade fechas/vínculo/fuente en juegos y un registro de compras. Copias v5 incluyen el historial y leen v1–v4; restaurar sustituye también el historial.
 
-[ScanDex, Evercade y criterios del gasto](docs/search-and-spending.md).
+[ScanDex, UPCitemdb, Evercade y criterios del gasto](docs/search-and-spending.md).
 
 ## Novedades 0.6.1
 
@@ -102,7 +109,7 @@ Room es la fuente de verdad y las operaciones de colección funcionan sin red. R
 3. Para buscar metadatos, añade tu `RAWG_API_KEY` de https://rawg.io/apidocs. Sin clave funciona el formulario manual.
 4. Ejecuta `./gradlew.bat :app:assembleDebug` o abre el proyecto en Android Studio.
 
-Los APK llevan nombre y versión de la app: `GamerDex-0.7.0-debug.apk` para esta versión. El nombre se toma automáticamente de `versionName`; se conserva el sufijo de variante para distinguir compilaciones debug y release.
+Los APK llevan nombre y versión de la app: `GamerDex-0.7.1-debug.apk` para esta versión. El nombre se toma automáticamente de `versionName`; se conserva el sufijo de variante para distinguir compilaciones debug y release.
 
 La API key de RAWG se inyecta en BuildConfig y puede extraerse del APK. Para distribución pública, sustituir el acceso directo por un backend con credenciales y cuotas propias. No se usan secretos Twitch. El formulario y buscador atribuyen metadatos a RAWG; comprobar sus condiciones de uso para la distribución prevista.
 

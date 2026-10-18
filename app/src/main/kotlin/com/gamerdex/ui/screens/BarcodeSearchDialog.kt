@@ -24,7 +24,7 @@ import com.google.mlkit.vision.barcode.common.Barcode
     }
     LaunchedEffect(Unit){if(scanImmediately)scan()}
     AlertDialog(onDismissRequest=dismiss,title={Text("Identificar por código")},text={Column(verticalArrangement=Arrangement.spacedBy(12.dp)){
-        Text("Escanea o escribe todas las cifras del código de la caja, incluidas las que aparecen fuera de las barras. ScanDex no incluye todas las ediciones.")
+        Text("Escanea o escribe todas las cifras del código de la caja, incluidas las que aparecen fuera de las barras. Consultamos ScanDex y, si no lo identifica, UPCitemdb. Puede tardar unos segundos por sus límites de consultas; ningún catálogo incluye todas las ediciones.")
         OutlinedTextField(code,{code=it.filter(Char::isDigit).take(14)},label={Text("Código EAN / UPC")},singleLine=true,keyboardOptions=KeyboardOptions(keyboardType=KeyboardType.Number),modifier=Modifier.fillMaxWidth(),isError=code.isNotEmpty() && !validBarcode(code),supportingText={if(code.isNotEmpty() && !validBarcode(code))Text("Código incompleto o dígito de control incorrecto. No se modifica automáticamente.")})
         TextButton(onClick=scan){Text("Escanear código")}
         error?.let{Text(it,color=MaterialTheme.colorScheme.error)}
