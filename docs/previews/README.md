@@ -2,6 +2,8 @@
 
 Capturas reales del emulador Android 15:
 
+- [Ficha de sistema con mandos, 0.6.0](render-tests/hardware-detail.png)
+
 - [Cuadrícula compacta, 0.5.0](render-tests/compact-grid.png)
 - [Valoración de la comunidad RAWG, 0.5.0](render-tests/community-rating.png)
 

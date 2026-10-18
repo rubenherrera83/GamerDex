@@ -14,6 +14,7 @@ import javax.inject.Singleton
 
 class PreparedRestore internal constructor(internal val decoded: DecodedArchive, internal val directory: File) {
     val titles get() = decoded.snapshot.games.size
+    val systems get() = decoded.snapshot.hardware.size
     val photos get() = decoded.assets.size
     val createdAt get() = decoded.snapshot.createdAt
     internal val consumed = AtomicBoolean(false)
@@ -53,7 +54,7 @@ class PreparedRestore internal constructor(internal val decoded: DecodedArchive,
                 copied += target; staged.copyTo(target)
                 Uri.fromFile(target).toString()
             }
-            val snapshot = prepared.decoded.snapshot.copy(games = prepared.decoded.snapshot.games.map { game ->
+            val snapshot = prepared.decoded.snapshot.copy(hardware = prepared.decoded.snapshot.hardware.map { item -> item.copy(localPhotos = item.localPhotos.map { mapping.getValue(it) }) }, games = prepared.decoded.snapshot.games.map { game ->
                 game.copy(localCustomPhotos = game.localCustomPhotos.map { mapping.getValue(it) })
             })
             repository.replace(snapshot)

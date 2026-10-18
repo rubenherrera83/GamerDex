@@ -24,7 +24,7 @@ fun PlatformPicker(value: String, logo: String?, enabled: Boolean, change: (Stri
             Column(Modifier.fillMaxWidth().padding(horizontal = 20.dp)) {
                 Text("Elegir plataforma", style = MaterialTheme.typography.titleLarge)
                 OutlinedTextField(query, { query = it }, label = { Text("Buscar consola o sistema") }, singleLine = true, modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp))
-                val matches = PlatformCatalog.names.filter { it.contains(query.trim(), ignoreCase = true) }
+                val matches = PlatformCatalog.names.filter { PlatformCatalog.matches(it, query.trim()) }
                 LazyColumn(Modifier.fillMaxWidth().heightIn(max = 400.dp), contentPadding = PaddingValues(bottom = 32.dp)) {
                     if (matches.isEmpty()) item { Text("Puedes escribir una plataforma personalizada en el formulario.", Modifier.padding(16.dp)) }
                     items(matches, key = { it }) { name ->

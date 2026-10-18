@@ -13,7 +13,7 @@ import javax.inject.Singleton
     private val selected = MutableStateFlow(runCatching { VisualTheme.valueOf(preferences.getString("theme", null).orEmpty()) }.getOrDefault(VisualTheme.CYBERPUNK))
     val theme = selected.asStateFlow()
     private val mode = MutableStateFlow(runCatching { CollectionView.valueOf(preferences.getString("collection_view", null).orEmpty()) }
-        .getOrDefault(if (preferences.getBoolean("horizontal_collection", false)) CollectionView.COVER_FLOW else CollectionView.LIST))
+        .getOrDefault(if (preferences.contains("horizontal_collection")) { if (preferences.getBoolean("horizontal_collection", false)) CollectionView.COVER_FLOW else CollectionView.LIST } else CollectionView.GRID))
     val collectionView = mode.asStateFlow()
     private val nickname = MutableStateFlow(preferences.getString("nickname", "").orEmpty())
     val alias = nickname.asStateFlow()

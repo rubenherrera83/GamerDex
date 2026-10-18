@@ -1,12 +1,25 @@
 # Validación de GamerDex
 
-Versión validada: 0.5.0 · Room v4 · formato de copia portable v3 (lectura v1, v2 y v3).
+Versión validada: 0.6.0 · Room v5 · formato de copia portable v4 (lectura v1–v4).
 
-Fecha: 17 de octubre de 2026.
+Fecha: 18 de octubre de 2026.
 
 Entorno: Windows, JDK Microsoft 21.0.8, Gradle 8.11.1, Android SDK 35 y emulador Medium Phone Android 15 (API 35, x86_64).
 
 ## Resultados
+
+- Validación 0.6.0: APK, instrumentación Android y Room compilados; Lint con 0 errores y 82 advertencias, sin baseline ni supresiones. APK definitivo instalado y arranque en frío correcto en API 35.
+- 58 pruebas distintas correctas: dominio (10), ZIP (10), proveedores HTTP (7), Room/migraciones (10) y Android (21). La batería inicial Android completó 20 casos; después de ajustar el espacio del buscador y añadir el recorrido ScanDex se completaron siete casos focalizados, incluido el nuevo caso con servicios reales.
+- Inventario: creación desde formulario, caja, serie, fecha, precio exacto, mando especial y cantidad dos; recreación de Activity antes de guardar; lectura persistente, apertura, edición y borrado. Snapshot/restore transaccional conserva accesorios y fotos; inventarios con IDs duplicados se rechazan sin sustituir datos.
+- Migración real 4 → 5 añade hardware y conserva juegos y notas sobre 100. Las migraciones anteriores y las pruebas de colección siguen pasando.
+- Copias: v4 incluye fotos de sistemas y mandos. Recuperación real después de borrar la foto original: juego y sistema comparten correctamente la foto recuperada. V1/v2 convierten notas una vez; v3 mantiene 3/100 y se normaliza a v4 sin inventario. Rutas y referencias externas inválidas siguen rechazándose.
+- Búsqueda: filtro Mega Drive encuentra Genesis; el selector permite elegir explícitamente Genesis entre varias plataformas. RAWG real confirma Sonic the Hedgehog (1991), ID 53551, con Genesis disponible. Se prueba además la selección de PC para Portal y la ficha con media y multimedia reales.
+- ScanDex: contrato HTTP comprueba Authorization, ceros iniciales, ausencia de una clave RAWG en esa petición, 404, respuesta sin coincidencia, cuota y token ausente. Consulta real con token local y EAN público 0711719577966 devuelve Horizon Forbidden West: Complete Edition / PlayStation 5. El recorrido Compose consulta ScanDex, presenta candidatos RAWG y conserva vacío el formulario hasta que el usuario elige un juego. No se usan IDs IGDB para enriquecer datos.
+- Preferencias: nueva instalación sin elección usa Cuadrícula; elecciones anteriores Lista/Cover Flow y selección explícita de Cuadrícula se conservan.
+- Revisión visual de la ficha de hardware con emblema de Sega, ilustración genérica identificada, adquisición y mando especial. Captura de prueba en `docs/previews/render-tests/hardware-detail.png`. No representa datos del usuario.
+- El lector óptico con Google Code Scanner está integrado y compilado; no se ha validado la captura física de un EAN mediante ese módulo en un teléfono real. La ruta de código escrito sí se ha probado de extremo a extremo con ScanDex y RAWG. La cámara CameraX existente sigue pasando su prueba independiente.
+
+Los resultados 0.5.0 que siguen se conservan como historial.
 
 - Validación 0.5.0: APK e instrumentación compilados; Lint con 0 errores y las mismas 82 advertencias anteriores, sin baseline ni supresiones.
 - 24 pruebas distintas correctas: 18 de Android y 6 de red. La batería inicial de Android pasó 17 casos; el nuevo recorrido de cuadrícula y los dos de Cover Flow se repitieron correctamente tras ajustar el selector y el desplazamiento de la automatización.

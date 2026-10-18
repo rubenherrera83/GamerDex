@@ -10,13 +10,26 @@ import java.io.*
 import java.util.zip.*
 
 class ArchiveZipCodecTest {
+    @Test fun hardwarePhotosControllersAndV3ArchivesRoundTrip() {
+        val hardware=Hardware(42,"Master System II","Master System",hasBox=true,hasManual=false,serialNumber="MS2-ABC",purchasedOn="1995-06-20",pricePaidCents=1999,
+            controllers=listOf(Controller("Arcade stick",2,notes="Edición especial")),localPhotos=listOf("content://hardware/photo"))
+        val data=snapshot().copy(hardware=listOf(hardware))
+        val output=ByteArrayOutputStream(); codec.write(data,output){ByteArrayInputStream(byteArrayOf(9,8,7))}
+        val decoded=codec.read(ByteArrayInputStream(output.toByteArray()),temporary.newFolder())
+        val item=decoded.snapshot.hardware.single()
+        assertEquals(hardware.copy(localPhotos=item.localPhotos),item)
+        assertArrayEquals(byteArrayOf(9,8,7),decoded.assets.getValue(item.localPhotos.single()).readBytes())
+        val legacy=snapshot().copy(formatVersion=3,games=snapshot().games.map{it.copy(rating=3f)})
+        val restored=codec.read(ByteArrayInputStream(zip("manifest.json",Json.encodeToString(legacy).toByteArray())),temporary.newFolder()).snapshot
+        assertEquals(4,restored.formatVersion); assertTrue(restored.hardware.isEmpty()); assertEquals(3f,restored.games.single().rating)
+    }
     @Test fun oldBackupRatingsConvertOnceAndCurrentLowScoresStayLow() {
         val legacy = listOf(0f, 2.5f, 4.5f, 5f, null)
         listOf(1, 2).forEach { version ->
             val source = snapshot().copy(formatVersion = version, games = legacy.mapIndexed { index, rating -> snapshot().games.single().copy(id = index + 1L, rating = rating) })
             val raw = zip("manifest.json", Json.encodeToString(source).toByteArray())
             val restored = codec.read(ByteArrayInputStream(raw), temporary.newFolder()).snapshot
-            assertEquals(3, restored.formatVersion)
+            assertEquals(4, restored.formatVersion)
             assertEquals(listOf(0f, 50f, 90f, 100f, null), restored.games.map { it.rating })
             val output = ByteArrayOutputStream()
             codec.write(restored, output) { error("No photos") }

@@ -3,6 +3,9 @@ package com.gamerdex.core.domain
 import kotlinx.coroutines.flow.Flow
 
 interface CollectionRepository {
+    fun observeHardware(): Flow<List<Hardware>> = kotlinx.coroutines.flow.flowOf(emptyList())
+    suspend fun saveHardware(hardware: Hardware) { throw UnsupportedOperationException() }
+    suspend fun deleteHardware(id: Long) { throw UnsupportedOperationException() }
     fun observeGames(): Flow<List<Game>>
     suspend fun save(game: Game)
     suspend fun delete(id: Long)

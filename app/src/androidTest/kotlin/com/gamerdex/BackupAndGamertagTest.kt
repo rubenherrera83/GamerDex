@@ -49,16 +49,21 @@ class BackupAndGamertagTest {
             source.outputStream().use { image.compress(Bitmap.CompressFormat.PNG, 100, it) }
             repository.save(Game(title = "Portable", platform = "PC", company = "Studio", editionType = EditionType.COLLECTOR,
                 hasManual = false, pricePaidCents = 4995, genres = listOf("RPG"), localCustomPhotos = listOf(Uri.fromFile(source).toString())))
+            repository.saveHardware(Hardware(name="Saturn",platform="Sega Saturn",controllers=listOf(Controller("3D Pad",2)),localPhotos=listOf(Uri.fromFile(source).toString())))
             assertEquals(1, service.export(Uri.fromFile(archive)))
             source.delete()
             repository.save(Game(title = "To replace", platform = "PC", company = "Studio"))
             val prepared = service.prepare(Uri.fromFile(archive)); assertEquals(1, prepared.photos)
+            assertEquals(1,prepared.systems)
             assertEquals(1, service.restore(prepared))
             val restored = repository.observeGames().first().single()
             assertEquals(4995L, restored.pricePaidCents); assertFalse(restored.hasManual)
             assertEquals(EditionType.COLLECTOR, restored.effectiveEdition)
             val photo = requireNotNull(Uri.parse(restored.localCustomPhotos.single()).path)
             assertEquals(40, BitmapFactory.decodeFile(photo).width)
+            val system=repository.observeHardware().first().single()
+            assertEquals(2,system.controllers.single().quantity)
+            assertEquals(restored.localCustomPhotos,system.localPhotos)
             corrupt.writeText("Not a GamerDex backup")
             try { service.prepare(Uri.fromFile(corrupt)); fail("Expected invalid backup") } catch (_: Exception) { }
             assertEquals(restored, repository.observeGames().first().single())

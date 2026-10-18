@@ -44,7 +44,7 @@ import java.util.Date
             } }
             item { SectionLabel("02", "Copias de seguridad") }
             item { Text("Tu colección, a salvo.", style = MaterialTheme.typography.titleLarge) }
-            item { Text("Exporta juegos, plataformas, compañías y fotos locales en un archivo .zip. Guárdalo donde prefieras y recupéralo en otro dispositivo. Los ajustes de tema se conservan por separado.", color = MaterialTheme.colorScheme.onSurfaceVariant) }
+            item { Text("Exporta juegos, sistemas, mandos, plataformas, compañías y fotos locales en un archivo .zip. Guárdalo donde prefieras y recupéralo en otro dispositivo. Los ajustes de tema se conservan por separado.", color = MaterialTheme.colorScheme.onSurfaceVariant) }
             item { Button(onClick = { export.launch("GamerDex-${System.currentTimeMillis()}.zip") }, enabled = !state.busy, modifier = Modifier.fillMaxWidth()) { Text("Crear copia de seguridad") } }
             item { OutlinedButton(onClick = { restore.launch(arrayOf("application/zip", "application/octet-stream", "application/x-zip-compressed")) }, enabled = !state.busy, modifier = Modifier.fillMaxWidth()) { Text("Recuperar copia de seguridad") } }
             if (state.busy) item { LinearProgressIndicator(Modifier.fillMaxWidth()); Text("Procesando archivos…") }
@@ -54,7 +54,7 @@ import java.util.Date
     }
     state.pending?.let { pending ->
         AlertDialog(onDismissRequest = { if (!state.busy) viewModel.cancelRestore() }, title = { Text("¿Recuperar esta colección?") },
-            text = { Text("${pending.titles} juegos · ${pending.photos} fotos\n${DateFormat.getDateTimeInstance().format(Date(pending.createdAt))}\n\nSe sustituirá la colección actual. Puedes cancelar y crear primero una copia de tus datos.") },
+            text = { Text("${pending.titles} juegos · ${pending.systems} sistemas · ${pending.photos} fotos\n${DateFormat.getDateTimeInstance().format(Date(pending.createdAt))}\n\nSe sustituirá la colección actual, incluidos los sistemas. Una copia antigua sin sistemas vaciará ese inventario. Puedes cancelar y crear primero una copia de tus datos.") },
             confirmButton = { TextButton(onClick = viewModel::restore, enabled = !state.busy) { Text("Restaurar colección") } },
             dismissButton = { TextButton(onClick = viewModel::cancelRestore, enabled = !state.busy) { Text("Cancelar") } })
     }

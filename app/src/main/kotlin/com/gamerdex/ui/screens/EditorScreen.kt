@@ -42,7 +42,7 @@ fun GameCondition.label() = when (this) {
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable fun EditorScreen(original: Game?, saving: Boolean, searchState: SearchState, search: (String) -> Unit,
-    choose: (Metadata, (Metadata) -> Unit) -> Unit, save: (Game, () -> Unit) -> Unit, back: () -> Unit) {
+    choose: (Metadata, (Metadata) -> Unit) -> Unit, save: (Game, () -> Unit) -> Unit, back: () -> Unit, lookupBarcode: (String) -> Unit = {}) {
     var title by rememberSaveable { mutableStateOf(original?.title.orEmpty()) }
     var platform by rememberSaveable { mutableStateOf(original?.platform.orEmpty()) }
     var company by rememberSaveable { mutableStateOf(original?.company.orEmpty()) }
@@ -142,11 +142,11 @@ fun GameCondition.label() = when (this) {
         }
     }
     if (showSearch) SearchSheet(searchState, search, { result -> choose(result) { metadata ->
-        title = metadata.title; platform = metadata.platforms.firstOrNull().orEmpty(); company = metadata.company.orEmpty(); platformLogo = ""; companyLogo = ""
+        title = metadata.title; platform = metadata.platforms.singleOrNull() ?: platform.takeIf { p -> p.isNotBlank() && metadata.platforms.any { com.gamerdex.ui.components.PlatformCatalog.family(it) == com.gamerdex.ui.components.PlatformCatalog.family(p) } }.orEmpty(); company = metadata.company.orEmpty(); platformLogo = ""; companyLogo = ""
         rawgId = metadata.id
         year = metadata.year?.toString().orEmpty(); cover = metadata.coverUrl.orEmpty(); showSearch = false
         copy = copy.copy(genres = metadata.genres.joinToString(", "))
-    } }, { showSearch = false; search("") })
+    } }, { showSearch = false; search("") }, lookupBarcode)
 }
 
 @Composable private fun ProgressToggle(label: String, value: Boolean, enabled: Boolean, change: (Boolean) -> Unit) {

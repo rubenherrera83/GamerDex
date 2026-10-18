@@ -7,7 +7,7 @@ class RawgRepository(private val api: RawgApi, private val configured: Boolean) 
     private fun checkKey() = check(configured) { "Configura RAWG_API_KEY en local.properties para buscar. Puedes añadir juegos manualmente sin conexión." }
     override suspend fun search(query: String): List<Metadata> {
         checkKey()
-        return api.search(query.trim()).results.map { it.toDomain() }
+        return api.search(query.trim(), 40).results.map { it.toDomain() }
     }
     override suspend fun details(id: Long): Metadata { checkKey(); return api.details(id).toDomain() }
     override suspend fun media(id: Long): GameMedia = supervisorScope {

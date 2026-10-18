@@ -1,6 +1,16 @@
 # GamerDex
 
-Versión 0.5.0: tres vistas de colección y valoraciones personales y de la comunidad RAWG sobre 100.
+Versión 0.6.0: inventario de sistemas y accesorios, catálogo internacional y búsqueda asistida por códigos de barras.
+
+## Novedades 0.6.0
+
+- Cuadrícula es la vista inicial cuando no existe una elección guardada. Se conservan las preferencias anteriores del usuario.
+- «Mis sistemas» registra consolas, PCs, portátiles y microordenadores, múltiples unidades, caja/manual/cables, estado y funcionamiento, serie, fecha y precio, mandos con cantidades y detalles propios, notas, fotos y logotipo personalizable.
+- Catálogo ampliado con nombres regionales y sistemas clásicos. RAWG muestra todas las plataformas y pide elegir la versión; hasta 40 resultados con filtros locales por año y sistema.
+- ScanDex opcional: lectura de código con Google Play Services o entrada manual, consulta EAN/UPC y búsqueda posterior del título en RAWG. Requiere `SCANDEX_API_TOKEN` en `local.properties` para desarrollo.
+- Room v5 y copias v4 con hardware y fotos, compatibles con lectura de v1–v3. Restaurar una copia antigua vacía el inventario de sistemas y lo advierte antes de confirmar.
+
+[Funcionamiento, imágenes y preparación para producción](docs/catalog-and-production.md).
 
 ## Novedades 0.5.0
 
@@ -74,13 +84,14 @@ Room es la fuente de verdad y las operaciones de colección funcionan sin red. R
 
 La API key de RAWG se inyecta en BuildConfig y puede extraerse del APK. Para distribución pública, sustituir el acceso directo por un backend con credenciales y cuotas propias. No se usan secretos Twitch. El formulario y buscador atribuyen metadatos a RAWG; comprobar sus condiciones de uso para la distribución prevista.
 
-## Esquema Room v4
+## Esquema Room v5
 
 | Tabla | Clave primaria | Restricciones e índices |
 | --- | --- | --- |
 | platforms | id: Long autogenerado | name obligatorio y único; generation y logoUrl opcionales; colorHex obligatorio |
 | companies | id: Long autogenerado | name obligatorio y único; logoUrl opcional |
 | games | id: Long autogenerado | platformId y companyId obligatorios; índices en ambas FK, title, createdAt e isSpecialEdition |
+| hardware | id: Long autogenerado | payload JSON con ficha de sistema y accesorios, validado en el dominio |
 
 `games.platformId → platforms.id` y `games.companyId → companies.id`: ON DELETE RESTRICT y ON UPDATE CASCADE. Se permiten varias copias de un mismo título y plataforma. Los nombres únicos usan la comparación BINARY de SQLite; la normalización de nombres corresponderá al repositorio.
 
@@ -90,7 +101,7 @@ En v2 se añaden editionType, hasBox, hasManual, hasMedia, physicalCondition, pr
 
 En v3 se añaden isFinished, completionPercent, hasPlatinum, isFavorite y rawgId nullable. El dominio valida el porcentaje 0–100 y restringe el platino a PS3/PS4/PS5; las pantallas ofrecen el control únicamente para esos sistemas.
 
-En v4 se conservan las columnas y se convierte rating a 0–100. La migración transforma los valores existentes; la versión del esquema distingue las notas antiguas de las nuevas, sin inferir su escala a partir del número.
+En v4 se conservan las columnas y se convierte rating a 0–100. La migración transforma los valores existentes; la versión del esquema distingue las notas antiguas de las nuevas, sin inferir su escala a partir del número. V5 añade hardware sin modificar juegos, plataformas ni compañías.
 
 Las entidades y el dominio validan título/nombre no vacío, año 1950–2100, valoración finita 0–100, URIs no vacías y coherencia de edición especial; la entidad Platform valida el color hexadecimal. Estas validaciones Kotlin no son CHECK de SQLite; las restricciones SQL efectivas son PK, FK, NOT NULL y UNIQUE. El repositorio normaliza espacios exteriores y guarda referencias y juego en una única transacción.
 
@@ -98,7 +109,7 @@ Las fotos guardan referencias URI, no bytes. PhotoPicker conserva el permiso per
 
 ## Migraciones y validación
 
-Room exporta los esquemas v1, v2, v3 y v4 a `core/database/schemas`. La migración 1 → 2 conserva juegos, fotos, notas y referencias; convierte las ediciones especiales y los estados anteriores en los nuevos campos. La migración 2 → 3 inicializa progreso y favorito sin alterar valoraciones ni adquisición; la 3 → 4 convierte las notas a 0–100. Las migraciones tienen pruebas con bases de versiones anteriores reales. No se permite recreación destructiva.
+Room exporta los esquemas v1–v5 a `core/database/schemas`. La migración 1 → 2 conserva juegos, fotos, notas y referencias; convierte las ediciones especiales y los estados anteriores en los nuevos campos. La migración 2 → 3 inicializa progreso y favorito sin alterar valoraciones ni adquisición; la 3 → 4 convierte las notas a 0–100; la 4 → 5 añade el inventario de hardware. Las migraciones tienen pruebas con bases de versiones anteriores reales. No se permite recreación destructiva.
 
 ## Copia y recuperación
 

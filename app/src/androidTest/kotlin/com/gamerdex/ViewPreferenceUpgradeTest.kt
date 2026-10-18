@@ -17,6 +17,8 @@ class ViewPreferenceUpgradeTest {
         val hadHorizontal = store.contains("horizontal_collection")
         val oldHorizontal = store.getBoolean("horizontal_collection", false)
         try {
+            store.edit().remove("collection_view").remove("horizontal_collection").commit()
+            assertEquals(CollectionView.GRID, AppPreferences(context).collectionView.value)
             store.edit().remove("collection_view").putBoolean("horizontal_collection", false).commit()
             assertEquals(CollectionView.LIST, AppPreferences(context).collectionView.value)
             store.edit().putBoolean("horizontal_collection", true).commit()

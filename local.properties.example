@@ -1,3 +1,4 @@
 # Copy to local.properties. Never commit your real API key.
 sdk.dir=C:/Users/YOUR_USER/AppData/Local/Android/Sdk
 RAWG_API_KEY=
+SCANDEX_API_TOKEN=

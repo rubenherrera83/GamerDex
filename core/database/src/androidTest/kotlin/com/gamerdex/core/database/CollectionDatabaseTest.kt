@@ -13,6 +13,19 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class CollectionDatabaseTest {
+    @Test fun hardwareCrudAndTransactionalRestoreKeepAllFields() = runTest {
+        val value=com.gamerdex.core.domain.Hardware(name="Saturn PAL",platform="Sega Saturn",hasBox=true,serialNumber="SAT123",pricePaidCents=15999,
+            controllers=listOf(com.gamerdex.core.domain.Controller("3D Control Pad",2)),localPhotos=listOf("content://test/photo"))
+        repository.saveHardware(value)
+        val saved=repository.observeHardware().first().single()
+        assertTrue(saved.id>0);assertEquals(value.copy(id=saved.id),saved)
+        repository.saveHardware(saved.copy(hasManual=true));assertTrue(repository.observeHardware().first().single().hasManual)
+        val snapshot=repository.snapshot()
+        repository.deleteHardware(saved.id);assertTrue(repository.observeHardware().first().isEmpty())
+        repository.replace(snapshot);assertEquals(snapshot.hardware,repository.snapshot().hardware)
+        try{repository.replace(snapshot.copy(hardware=snapshot.hardware+snapshot.hardware));fail()}catch(_:IllegalArgumentException){}
+        assertEquals(snapshot.hardware,repository.snapshot().hardware)
+    }
     @Test fun replacesCollectionAtomicallyAndRetainsNewFields() = runTest {
         repository.save(Game(title = "Coleccionista", platform = "PC", company = "Studio", editionType = com.gamerdex.core.domain.EditionType.COLLECTOR,
             pricePaidCents = 7999, hasManual = false, genres = listOf("RPG")))

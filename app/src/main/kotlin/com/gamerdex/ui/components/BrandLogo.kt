@@ -20,7 +20,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 
 @Composable fun BrandLogo(name: String, url: String?, modifier: Modifier = Modifier, platform: Boolean = false) {
-    val initials = name.split(' ', '-', '_').filter { it.isNotBlank() }.take(2).joinToString("") { it.take(1) }.uppercase()
+    val initials = if(name.length <= 5 && !name.contains(' ')) name.uppercase() else name.split(' ', '-', '_').filter { it.isNotBlank() }.take(2).joinToString("") { it.take(1) }.uppercase()
     val placeholder: @Composable () -> Unit = {
         Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.primaryContainer), contentAlignment = Alignment.Center) {
             val resource = if (platform) PlatformCatalog.logo(name) else null

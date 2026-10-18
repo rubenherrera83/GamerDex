@@ -16,6 +16,7 @@ retrofit = "2.11.0"
 okhttp = "4.12.0"
 coil = "3.2.0"
 camera = "1.4.2"
+code-scanner = "16.1.0"
 junit = "4.13.2"
 androidx-junit = "1.2.1"
 espresso = "3.6.1"
@@ -23,6 +24,7 @@ test-runner = "1.6.2"
 test-core = "1.6.1"
 
 [libraries]
+google-code-scanner = { module = "com.google.android.gms:play-services-code-scanner", version.ref = "code-scanner" }
 androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "core" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activity" }
 androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycle" }

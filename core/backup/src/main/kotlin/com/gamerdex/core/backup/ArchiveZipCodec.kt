@@ -21,10 +21,11 @@ class ArchiveZipCodec {
     }
     fun write(snapshot: CollectionSnapshot, output: OutputStream, openPhoto: (String) -> InputStream) {
         snapshot.validate()
-        require(snapshot.formatVersion == 3) { "La exportación necesita el formato actual de valoraciones." }
-        val references = snapshot.games.flatMap { it.localCustomPhotos }.distinct().associateWith { "photos/${UUID.randomUUID()}.bin" }
+        require(snapshot.formatVersion == 4) { "La exportación necesita el formato actual de inventario." }
+        val references = (snapshot.games.flatMap { it.localCustomPhotos } + snapshot.hardware.flatMap { it.localPhotos }).distinct().associateWith { "photos/${UUID.randomUUID()}.bin" }
         require(references.size < MAX_ENTRIES) { "Demasiadas fotos para una sola copia." }
-        val portable = snapshot.copy(games = snapshot.games.map { game -> game.copy(localCustomPhotos = game.localCustomPhotos.map { references.getValue(it) }) })
+        val portable = snapshot.copy(games = snapshot.games.map { game -> game.copy(localCustomPhotos = game.localCustomPhotos.map { references.getValue(it) }) },
+            hardware = snapshot.hardware.map { item -> item.copy(localPhotos = item.localPhotos.map { references.getValue(it) }) })
         val manifest = json.encodeToString(portable).toByteArray(Charsets.UTF_8)
         require(manifest.size <= MAX_MANIFEST_BYTES) { "La colección supera el límite del manifiesto." }
         var total = manifest.size.toLong()
@@ -61,9 +62,9 @@ class ArchiveZipCodec {
         }
         val stored = json.decodeFromString<CollectionSnapshot>(requireNotNull(manifest) { "No se encontró el manifiesto de GamerDex." })
         stored.validate()
-        val snapshot = if (stored.formatVersion < 3) stored.copy(formatVersion = 3, games = stored.games.map { it.copy(rating = it.rating?.times(20f)) }) else stored
+        val snapshot = stored.copy(formatVersion = 4, games = if (stored.formatVersion < 3) stored.games.map { it.copy(rating = it.rating?.times(20f)) } else stored.games)
         snapshot.validate()
-        val references = snapshot.games.flatMap { it.localCustomPhotos }.toSet()
+        val references = (snapshot.games.flatMap { it.localCustomPhotos } + snapshot.hardware.flatMap { it.localPhotos }).toSet()
         require(references == assets.keys && references.all { assetName.matches(it) }) { "Faltan fotos o hay referencias no válidas." }
         return DecodedArchive(snapshot, assets)
     }

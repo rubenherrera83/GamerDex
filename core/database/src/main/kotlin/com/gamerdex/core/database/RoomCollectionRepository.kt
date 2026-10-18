@@ -5,9 +5,17 @@ import com.gamerdex.core.database.entity.*
 import com.gamerdex.core.domain.*
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 class RoomCollectionRepository @Inject constructor(private val db: GamerDexDatabase) : CollectionRepository {
     private val dao get() = db.collectionDao()
+    private val hardwareDao get() = db.hardwareDao()
+    private val json = Json { encodeDefaults = true }
+    private fun HardwareEntity.decode() = json.decodeFromString<Hardware>(payload).copy(id = id)
+    override fun observeHardware() = hardwareDao.observe().map { rows -> rows.map { it.decode() } }
+    override suspend fun saveHardware(hardware: Hardware) = hardwareDao.save(HardwareEntity(hardware.id, json.encodeToString(hardware)))
+    override suspend fun deleteHardware(id: Long) = hardwareDao.delete(id)
     private fun GameRecord.toDomain() = with(game) { Game(
         id, title, platform.name, company.name, releaseYear, coverUrl, localCustomPhotos,
         isSpecialEdition, specialEditionDetails, condition, rating, notes, createdAt, platform.logoUrl, company.logoUrl,
@@ -37,15 +45,17 @@ class RoomCollectionRepository @Inject constructor(private val db: GamerDexDatab
     override suspend fun snapshot(): CollectionSnapshot = db.withTransaction {
         CollectionSnapshot(games = dao.allGames().map { it.toDomain() },
             platforms = dao.allPlatforms().map { Platform(it.id, it.name, it.generation, it.logoUrl, it.colorHex) },
-            companies = dao.allCompanies().map { Company(it.id, it.name, it.logoUrl) })
+            companies = dao.allCompanies().map { Company(it.id, it.name, it.logoUrl) }, hardware = hardwareDao.all().map { it.decode() })
     }
     override suspend fun replace(snapshot: CollectionSnapshot) {
         snapshot.validate()
         db.withTransaction {
+            hardwareDao.clear()
             dao.clearGames(); dao.clearPlatforms(); dao.clearCompanies()
             dao.restorePlatforms(snapshot.platforms.map { PlatformEntity(it.id, it.name, it.generation, it.logoUrl, it.colorHex) })
             dao.restoreCompanies(snapshot.companies.map { CompanyEntity(it.id, it.name, it.logoUrl) })
             snapshot.games.forEach { dao.save(it.entity(it.platformId, it.companyId)) }
+            snapshot.hardware.forEach { hardwareDao.save(HardwareEntity(it.id, json.encodeToString(it))) }
         }
     }
 }

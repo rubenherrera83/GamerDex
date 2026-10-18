@@ -9,7 +9,7 @@ Desde 0.5.0 la ficha muestra **Tu nota** y **Comunidad RAWG** por separado. La n
 
 El color varía entre rojo (<50), amarillo (50–74) y verde (≥75), con tonos adaptados a temas claros y oscuros. La nota personal añade una etiqueta BAJA/MEDIA/ALTA; sin valoración se muestra «Sin valorar».
 
-La media es un dato consultado: no cambia el esquema Room v4 ni el formato de copia v3 y no se exporta como dato personal.
+La media es un dato consultado y no se exporta como dato personal. Su incorporación en 0.5.0 no cambió Room v4 ni las copias v3. Desde 0.6.0, el inventario de hardware utiliza Room v5 y copias v4; la media sigue separada de los datos personales.
 
 RAWG también puede incluir `metacritic`, una puntuación de crítica sobre 100; no está integrada en esta versión. No es necesario consultar otra web para obtener la media de la comunidad RAWG. Estas fuentes representan poblaciones distintas y no se combinan en una media única.
 

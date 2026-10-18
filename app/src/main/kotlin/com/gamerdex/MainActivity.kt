@@ -51,6 +51,7 @@ class MainActivity : ComponentActivity() {
 @Composable private fun GamerDexApp(theme: VisualTheme, mode: CollectionView, setMode: (CollectionView) -> Unit, nickname: String, viewModel: CollectionViewModel = hiltViewModel()) {
     val nav = rememberNavController()
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val hardware by viewModel.hardware.collectAsStateWithLifecycle()
     val search by viewModel.search.collectAsStateWithLifecycle()
     val saving by viewModel.saving.collectAsStateWithLifecycle()
     val snack = remember { SnackbarHostState() }
@@ -60,7 +61,7 @@ class MainActivity : ComponentActivity() {
     var platform by rememberSaveable { mutableStateOf<String?>(null) }
     var genre by rememberSaveable { mutableStateOf<String?>(null) }
     val menu: () -> Unit = { scope.launch { drawer.open() } }
-    val destinations = listOf("vault" to "Colección", "library/FAVORITES" to "Favoritos", "browse/platforms" to "Plataformas", "browse/genres" to "Géneros", "statistics" to "Estadísticas", "gamertag/0" to "Gamertags", "preferences" to "Preferencias")
+    val destinations = listOf("vault" to "Colección", "hardware" to "Mis sistemas", "library/FAVORITES" to "Favoritos", "browse/platforms" to "Plataformas", "browse/genres" to "Géneros", "statistics" to "Estadísticas", "gamertag/0" to "Gamertags", "preferences" to "Preferencias")
     LaunchedEffect(state.error) { state.error?.let { snack.showSnackbar(it); viewModel.clearError() } }
     ModalNavigationDrawer(drawerState = drawer, gesturesEnabled = !saving, drawerContent = {
         ModalDrawerSheet(modifier = Modifier.width(300.dp)) {
@@ -72,6 +73,17 @@ class MainActivity : ComponentActivity() {
     }) {
     Scaffold(containerColor = androidx.compose.ui.graphics.Color.Transparent, snackbarHost = { SnackbarHost(snack) }) { outer ->
         NavHost(nav, startDestination = "vault", modifier = Modifier.padding(bottom = outer.calculateBottomPadding())) {
+            composable("hardware") { HardwareListScreen(hardware, menu, { nav.navigate("hardware/edit/0") }, { nav.navigate("hardware/detail/$it") }) }
+            composable("hardware/edit/{id}",arguments=listOf(navArgument("id"){type=NavType.LongType})) { entry ->
+                val id=entry.arguments!!.getLong("id"); val item=hardware.find{it.id==id}
+                if(id==0L || item!=null) HardwareEditorScreen(item,saving,{ value -> viewModel.saveHardware(value){nav.popBackStack()} },{if(!saving)nav.popBackStack()})
+                else MissingGame(false){nav.popBackStack()}
+            }
+            composable("hardware/detail/{id}",arguments=listOf(navArgument("id"){type=NavType.LongType})) { entry ->
+                val id=entry.arguments!!.getLong("id"); val item=hardware.find{it.id==id}
+                if(item!=null) HardwareDetailScreen(item,{nav.popBackStack()},{nav.navigate("hardware/edit/$id")},{viewModel.deleteHardware(id){nav.popBackStack()}})
+                else MissingGame(false){nav.popBackStack()}
+            }
             composable("vault") { VaultScreen(state, { nav.navigate("edit/0") }, { nav.navigate("detail/$it") }, menu, platform, genre, { platform = it }, { platform = null; genre = null }, mode, setMode,
                 { nav.navigate("library/ALL") }, { nav.navigate("browse/platforms") }, { nav.navigate("library/SPECIAL") }, { game -> viewModel.save(game.copy(isFavorite = !game.isFavorite)) {} }) }
             composable("library/{filter}") { listEntry ->
@@ -102,7 +114,7 @@ class MainActivity : ComponentActivity() {
                 val id = entry.arguments!!.getLong("id")
                 val game = state.games.find { it.id == id }
                 if (id == 0L || game != null) EditorScreen(game, saving, search, viewModel::search, viewModel::choose,
-                    { gameToSave, committed -> viewModel.save(gameToSave) { committed(); nav.popBackStack() } }, { if (!saving) nav.popBackStack() })
+                    { gameToSave, committed -> viewModel.save(gameToSave) { committed(); nav.popBackStack() } }, { if (!saving) nav.popBackStack() }, viewModel::lookupBarcode)
                 else MissingGame(state.loading) { nav.popBackStack() }
             }
         }

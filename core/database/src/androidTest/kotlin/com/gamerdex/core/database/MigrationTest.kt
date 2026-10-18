@@ -9,6 +9,19 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class MigrationTest {
+    @Test fun addsHardwareToV4WithoutChangingGames() {
+        val name="hardware-migration-v5"
+        helper.createDatabase(name,4).apply {
+            execSQL("INSERT INTO platforms (id,name,generation,logoUrl,colorHex) VALUES (1,'PC',NULL,NULL,'#00F0FF')")
+            execSQL("INSERT INTO companies (id,name,logoUrl) VALUES (1,'Studio',NULL)")
+            execSQL("INSERT INTO games (id,title,platformId,companyId,releaseYear,coverUrl,localCustomPhotos,isSpecialEdition,specialEditionDetails,condition,rating,notes,createdAt) VALUES (1,'Preserved',1,1,2000,NULL,'[]',0,NULL,'VERY_GOOD',90,'Keep',1234)")
+            close()
+        }
+        helper.runMigrationsAndValidate(name,5,true,DatabaseMigrations.FROM_4_TO_5).use { db ->
+            db.query("SELECT rating, notes FROM games").use{assertTrue(it.moveToFirst());assertEquals(90f,it.getFloat(0));assertEquals("Keep",it.getString(1))}
+            db.query("SELECT COUNT(*) FROM hardware").use{assertTrue(it.moveToFirst());assertEquals(0,it.getInt(0))}
+        }
+    }
     @get:Rule val helper = MigrationTestHelper(InstrumentationRegistry.getInstrumentation(), GamerDexDatabase::class.java)
     @Test fun convertsLegacyRatingsOnceAndPreservesOtherFields() {
         val name = "migration-rating-v4-test"
@@ -30,7 +43,7 @@ class MigrationTest {
         }
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         repeat(2) {
-            val db = androidx.room.Room.databaseBuilder(context, GamerDexDatabase::class.java, name).addMigrations(DatabaseMigrations.FROM_3_TO_4).build()
+            val db = androidx.room.Room.databaseBuilder(context, GamerDexDatabase::class.java, name).addMigrations(DatabaseMigrations.FROM_3_TO_4, DatabaseMigrations.FROM_4_TO_5).build()
             try { kotlinx.coroutines.runBlocking {
                 val repository = RoomCollectionRepository(db)
                 assertEquals(90f, repository.snapshot().games.first { it.id == 3L }.rating)
@@ -55,7 +68,7 @@ class MigrationTest {
                 assertTrue(row.isNull(row.getColumnIndexOrThrow("rawgId")))
             }
         }
-        val db = androidx.room.Room.databaseBuilder(InstrumentationRegistry.getInstrumentation().targetContext, GamerDexDatabase::class.java, name).addMigrations(DatabaseMigrations.FROM_2_TO_3, DatabaseMigrations.FROM_3_TO_4).build()
+        val db = androidx.room.Room.databaseBuilder(InstrumentationRegistry.getInstrumentation().targetContext, GamerDexDatabase::class.java, name).addMigrations(DatabaseMigrations.FROM_2_TO_3, DatabaseMigrations.FROM_3_TO_4, DatabaseMigrations.FROM_4_TO_5).build()
         try { kotlinx.coroutines.runBlocking {
             val repository = RoomCollectionRepository(db)
             val original = repository.snapshot().games.single()

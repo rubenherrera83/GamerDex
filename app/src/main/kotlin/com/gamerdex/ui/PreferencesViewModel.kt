@@ -19,7 +19,7 @@ data class BackupState(val busy: Boolean = false, val message: String? = null, v
     private val mutableBackup = MutableStateFlow(BackupState())
     val state = mutableBackup.asStateFlow()
     fun select(theme: VisualTheme) = preferences.select(theme)
-    fun export(uri: Uri) = operation { "Copia creada: ${backup.export(uri)} juegos y sus fotos." }
+    fun export(uri: Uri) = operation { "Copia creada: ${backup.export(uri)} juegos, inventario de sistemas y fotos." }
     fun inspect(uri: Uri) = operation {
         val prepared = backup.prepare(uri)
         backup.discard(mutableBackup.value.pending)
@@ -29,7 +29,7 @@ data class BackupState(val busy: Boolean = false, val message: String? = null, v
     fun restore() {
         val pending = mutableBackup.value.pending ?: return
         operation {
-            try { "Colección recuperada: ${backup.restore(pending)} juegos." }
+            try { "Colección recuperada: ${backup.restore(pending)} juegos y ${pending.systems} sistemas." }
             finally { mutableBackup.update { it.copy(pending = null) } }
         }
     }
