@@ -10,7 +10,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 
-data class GamertagState(val bitmap: Bitmap? = null, val message: String? = null)
+data class GamertagState(val bitmap: Bitmap? = null, val message: String? = null,val renderedInput:GamertagInput?=null)
 @HiltViewModel class GamertagViewModel @Inject constructor(private val renderer: GamertagRenderer, private val savedState: SavedStateHandle, private val settings: GamertagSettings) : ViewModel() {
     val logos=settings.logos
     fun setLogos(value:List<GamertagLogo>)=settings.setLogos(value)
@@ -23,7 +23,7 @@ data class GamertagState(val bitmap: Bitmap? = null, val message: String? = null
         job?.cancel(); mutable.value = GamertagState()
         job = viewModelScope.launch {
             delay(300)
-            try { mutable.value = GamertagState(renderer.render(input)) }
+            try { mutable.value = GamertagState(renderer.render(input),renderedInput=input) }
             catch (e: CancellationException) { throw e }
             catch (_: Exception) { mutable.value = GamertagState(message = "No se pudo generar la imagen. Inténtalo de nuevo.") }
         }

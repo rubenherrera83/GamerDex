@@ -1,6 +1,14 @@
 # GamerDex
 
-Versión 0.8.0: filtros de gasto, tema Azul 16-bit y curiosidades/ranking de sistemas.
+Versión 0.9.0: gamertags de PCs y sistemas con componentes, temas Escritorio Aurora y Órbita Verde.
+
+## Novedades 0.9.0
+
+- Nuevo modo Sistema / PC en Gamertags y acceso directo desde la ficha de hardware. Usa el nombre, plataforma y primera foto del equipo, con hasta diez componentes/accesorios elegidos y sus cantidades; las notas son opcionales. Sirve también para consolas y microordenadores.
+- Panel de componentes en dos columnas, fotografía ajustada al marco, totales globales y hasta seis logotipos. Guardar y compartir siguen usando PNG 1600 × 900. Los textos largos se recortan y se muestra ese criterio en el editor.
+- Los PCs registran componentes en los accesorios existentes, con etiquetas de componente al elegir PC/ordenador. No se copian a la tarjeta los campos de serie, precio, fecha ni las notas generales del sistema.
+- Temas «Escritorio Aurora» (PC/Windows, cintas azules y lavanda) y «Órbita Verde» (Xbox, órbitas y verde), con fondos, paletas y variantes del wordmark compartidas por app y exportaciones. El icono se conserva.
+- APK `GamerDex-0.9.0-debug.apk`; Room v6 y ZIP v5 no cambian. [Uso de los gamertags](docs/gamertags.md).
 
 ## Novedades 0.8.0
 
@@ -118,7 +126,7 @@ Room es la fuente de verdad y las operaciones de colección funcionan sin red. R
 3. Para buscar metadatos, añade tu `RAWG_API_KEY` de https://rawg.io/apidocs. Sin clave funciona el formulario manual.
 4. Ejecuta `./gradlew.bat :app:assembleDebug` o abre el proyecto en Android Studio.
 
-Los APK llevan nombre y versión de la app: `GamerDex-0.8.0-debug.apk` para esta versión. El nombre se toma automáticamente de `versionName`; se conserva el sufijo de variante para distinguir compilaciones debug y release.
+Los APK llevan nombre y versión de la app: `GamerDex-0.9.0-debug.apk` para esta versión. El nombre se toma automáticamente de `versionName`; se conserva el sufijo de variante para distinguir compilaciones debug y release.
 
 La API key de RAWG se inyecta en BuildConfig y puede extraerse del APK. Para distribución pública, sustituir el acceso directo por un backend con credenciales y cuotas propias. No se usan secretos Twitch. El formulario y buscador atribuyen metadatos a RAWG; comprobar sus condiciones de uso para la distribución prevista.
 

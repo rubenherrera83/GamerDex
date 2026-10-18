@@ -14,6 +14,8 @@ enum class VisualTheme(val title: String, val tagline: String, val dark: Boolean
     ROYALE("Zona Royale", "Tu escuadrón. Tu estilo. Tu victoria."),
     TACTICAL("Operación Táctica", "Cada pieza cuenta. Completa la misión."),
     SEGA("Azul 16-bit", "Inspirado en la era Sega. Espíritu arcade."),
+    DESKTOP("Escritorio Aurora", "Inspirado en PC y Windows. Tu equipo, tu espacio."),
+    XBOX("Órbita Verde", "Inspirado en Xbox. Entra en la siguiente partida."),
 }
 val LocalVisualTheme = staticCompositionLocalOf { VisualTheme.CYBERPUNK }
 fun VisualTheme.heroTitle() = when (this) {
@@ -27,6 +29,8 @@ fun VisualTheme.heroTitle() = when (this) {
     VisualTheme.ROYALE -> "TU ESCUADRÓN.\nTU VICTORIA."
     VisualTheme.TACTICAL -> "OBJETIVO:\nTU COLECCIÓN."
     VisualTheme.SEGA -> "ESPÍRITU ARCADE.\nPOTENCIA AZUL."
+    VisualTheme.DESKTOP -> "TU EQUIPO.\nTU UNIVERSO."
+    VisualTheme.XBOX -> "CONECTA.\nSIGUE JUGANDO."
 }
 data class ThemePalette(val background: Color, val surface: Color, val raised: Color, val primary: Color, val secondary: Color, val tertiary: Color, val text: Color)
 fun VisualTheme.palette() = when (this) {
@@ -40,4 +44,6 @@ fun VisualTheme.palette() = when (this) {
     VisualTheme.ROYALE -> ThemePalette(Color(0xFF100D29), Color(0xFF211A43), Color(0xFF35285C), Color(0xFFC1A0FF), Color(0xFF68E6FF), Color(0xFFFFDF70), Color(0xFFF6F0FF))
     VisualTheme.TACTICAL -> ThemePalette(Color(0xFF131612), Color(0xFF20271E), Color(0xFF323B2B), Color(0xFFD1D8A2), Color(0xFFDFC596), Color(0xFFA9C2B6), Color(0xFFF0F1E6))
     VisualTheme.SEGA -> ThemePalette(Color(0xFF050D26),Color(0xFF0B1D48),Color(0xFF15346B),Color(0xFF64C8FF),Color(0xFFFFD45C),Color(0xFFFF6386),Color(0xFFF1F6FF))
+    VisualTheme.DESKTOP -> ThemePalette(Color(0xFF071525),Color(0xFF102B43),Color(0xFF194464),Color(0xFF79DDFF),Color(0xFFC0B4FF),Color(0xFFFFC677),Color(0xFFF0F8FF))
+    VisualTheme.XBOX -> ThemePalette(Color(0xFF07110A),Color(0xFF10261A),Color(0xFF1B3A27),Color(0xFF88EE68),Color(0xFFDAF6E5),Color(0xFF58CFBE),Color(0xFFF2FFF5))
 }

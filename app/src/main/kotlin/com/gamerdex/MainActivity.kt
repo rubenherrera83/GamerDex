@@ -82,7 +82,7 @@ class MainActivity : ComponentActivity() {
             }
             composable("hardware/detail/{id}",arguments=listOf(navArgument("id"){type=NavType.LongType})) { entry ->
                 val id=entry.arguments!!.getLong("id"); val item=hardware.find{it.id==id}
-                if(item!=null) HardwareDetailScreen(item,{nav.popBackStack()},{nav.navigate("hardware/edit/$id")},{viewModel.deleteHardware(id){nav.popBackStack()}})
+                if(item!=null) HardwareDetailScreen(item,{nav.popBackStack()},{nav.navigate("hardware/edit/$id")},{viewModel.deleteHardware(id){nav.popBackStack()}},{nav.navigate("gamertag-system/$id")})
                 else MissingGame(false){nav.popBackStack()}
             }
             composable("vault") { VaultScreen(state, { nav.navigate("edit/0") }, { nav.navigate("detail/$it") }, menu, platform, genre, { platform = it }, { platform = null; genre = null }, mode, setMode,
@@ -104,6 +104,9 @@ class MainActivity : ComponentActivity() {
             composable("preferences") { PreferencesScreen(menu) }
             composable("gamertag/{gameId}", arguments = listOf(navArgument("gameId") { type = NavType.LongType })) { tagEntry ->
                 GamertagScreen(state.games, theme, tagEntry.arguments?.getLong("gameId") ?: 0, menu, nickname, hardware)
+            }
+            composable("gamertag-system/{id}",arguments=listOf(navArgument("id"){type=NavType.LongType})){tagEntry->
+                GamertagScreen(state.games,theme,0,menu,nickname,hardware,initialSystem=tagEntry.arguments?.getLong("id") ?: 0)
             }
             composable("detail/{id}", arguments = listOf(navArgument("id") { type = NavType.LongType })) { entry ->
                 val id = entry.arguments!!.getLong("id")

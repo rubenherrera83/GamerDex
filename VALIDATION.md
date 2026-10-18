@@ -1,12 +1,22 @@
 # Validación de GamerDex
 
-Versión validada: 0.8.0 · Room v6 · formato de copia portable v5 (lectura v1–v5).
+Versión validada: 0.9.0 · Room v6 · formato de copia portable v5 (lectura v1–v5).
 
 Fecha: 18 de octubre de 2026.
 
 Entorno: Windows, JDK Microsoft 21.0.8, Gradle 8.11.1, Android SDK 35 y emulador Medium Phone Android 15 (API 35, x86_64).
 
 ## Resultados
+
+- Validación 0.9.0: APK e instrumentación compilados; Lint con 0 errores y las mismas 82 advertencias anteriores, sin baseline ni supresiones. Entregable `GamerDex-0.9.0-debug.apk`, versión 0.9.0/código 13.
+- 13 pruebas Android distintas correctas: gamertag de hardware (2), recorrido PC/temas (1), backup y renderer de temas (3), personalización (2), editor previo (1), hardware (1) y progreso/apodo/compartición (3). El recorrido nuevo requirió selectores inequívocos para la tarjeta buscada, el destino del menú y la unidad del selector; su repetición final fue correcta. No quedan fallos pendientes.
+- PC: edición del componente desde la ficha de un ordenador, acceso directo al gamertag, selección máxima de diez, sustitución de un elemento por el undécimo y conservación de esa selección al recrear Activity. El editor general permite elegir otra unidad y explica cómo añadir componentes cuando está vacía.
+- Datos: se conservan nombres y cantidades; índices inválidos y duplicados no crean filas extra. Notas opcionales, campo de serie de hardware/componente, precio y fecha no aparecen en el input de tarjeta por defecto. Se permite tarjeta sin componentes.
+- Exportación: input de PC con foto sintética, diez componentes y seis logotipos serializado/restaurado y exportado desde un ViewModel nuevo. PNG 1600 × 900 leído correctamente; los píxeles de la foto están presentes y el contenido del panel cambia al retirar componentes. Intent de compartición mantiene MIME image/png. Los botones del editor esperan a que el bitmap corresponda al input actual.
+- Escritorio Aurora y Órbita Verde: selección en Preferencias y persistencia al recrear Activity. Los doce temas producen imágenes exportables con fondos distintos. Se revisan las capturas reales de portada y los dos gamertags del PC; son datos sintéticos, no componentes ni fotografías del usuario. Archivos en `docs/previews/render-tests/`: `vault-DESKTOP.png`, `vault-XBOX.png`, `gamertag-pc-DESKTOP.png`, `gamertag-pc-XBOX.png`.
+- Room v6 y ZIP v5 se mantienen; los componentes utilizan los accesorios existentes y las preferencias anteriores de tema siguen siendo válidas. Las pruebas de backup, personalización y compartición anteriores pasan con el nuevo renderer.
+
+Los resultados 0.8.0 que siguen se conservan como historial.
 
 - Validación 0.8.0: APK e instrumentación compilados; Lint con 0 errores y las mismas 82 advertencias anteriores, sin baseline ni supresiones. APK `GamerDex-0.8.0-debug.apk`, versión 0.8.0/código 12 en los metadatos de salida.
 - 45 pruebas distintas correctas para este cambio: dominio (14), red (20) y Android (11). Después se repitieron los dos casos que generan las capturas de filtros y gamertags, tras dar cifras coherentes al fixture de gamertag. Sin fallos pendientes.

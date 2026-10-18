@@ -86,7 +86,7 @@ object GamerDexBrand {
                 canvas.drawText(char.toString(), 0f, 0f, paint); canvas.restore(); paint.textScaleX = 1f
             }
         } else {
-            paint.typeface = Typeface.create(when (theme) { VisualTheme.TACTICAL -> "monospace"; VisualTheme.KAWAII -> "sans-serif-rounded"; else -> "sans-serif-condensed" }, Typeface.BOLD)
+            paint.typeface = Typeface.create(when (theme) { VisualTheme.TACTICAL -> "monospace"; VisualTheme.KAWAII,VisualTheme.DESKTOP -> "sans-serif-rounded";VisualTheme.XBOX->"sans-serif-light"; else -> "sans-serif-condensed" }, if(theme==VisualTheme.DESKTOP || theme==VisualTheme.XBOX)Typeface.NORMAL else Typeface.BOLD)
             paint.textSize = if (theme == VisualTheme.TACTICAL) 60f else 72f
             paint.textSkewX = if (theme == VisualTheme.CYBERPUNK) -.23f else if (theme == VisualTheme.RACING || theme == VisualTheme.ROYALE) -.12f else 0f
             paint.textScaleX = 368f / paint.measureText("GAMERDEX")

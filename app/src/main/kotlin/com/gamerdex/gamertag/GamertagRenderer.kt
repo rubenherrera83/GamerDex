@@ -18,8 +18,8 @@ import com.gamerdex.branding.GamerDexBrand
 import com.gamerdex.ui.components.PlatformCatalog
 
 data class GamertagInput(val alias: String, val title: String, val subtitle: String, val metrics: String, val cover: String?, val theme: VisualTheme,
-    val totalGames: Int = 0, val totalSystems: Int = 0, val logos: List<GamertagLogo> = emptyList()) : java.io.Serializable {
-    init { require(totalGames >= 0 && totalSystems >= 0 && logos.size <= 6) }
+    val totalGames: Int = 0, val totalSystems: Int = 0, val logos: List<GamertagLogo> = emptyList(),val hardwareCard:Boolean=false,val components:List<String> = emptyList()) : java.io.Serializable {
+    init { require(totalGames >= 0 && totalSystems >= 0 && logos.size <= 6 && components.size<=10 && components.none(String::isBlank)) }
 }
 
 class GamertagRenderer @Inject constructor(@ApplicationContext private val context: Context) {
@@ -42,7 +42,7 @@ class GamertagRenderer @Inject constructor(@ApplicationContext private val conte
         canvas.save(); canvas.clipPath(artPath)
         paint.color = p.surface.toArgb(); canvas.drawRect(1000f, 60f, 1540f, 850f, paint)
         if (art != null) {
-            val scale = maxOf(530f / art.width, 780f / art.height)
+            val scale = if(input.hardwareCard)minOf(530f/art.width,780f/art.height)else maxOf(530f / art.width, 780f / art.height)
             val width = art.width * scale; val height = art.height * scale
             canvas.drawBitmap(art, null, RectF(1265f - width / 2, 450f - height / 2, 1265f + width / 2, 450f + height / 2), paint)
             paint.shader = LinearGradient(1000f, 0f, 1525f, 0f, intArrayOf(background, android.graphics.Color.TRANSPARENT), null, Shader.TileMode.CLAMP)
@@ -62,15 +62,38 @@ class GamertagRenderer @Inject constructor(@ApplicationContext private val conte
         paint.color=p.surface.toArgb(); canvas.drawRect(80f,307f,950f,350f,paint)
         val numbers=java.text.NumberFormat.getIntegerInstance()
         label(canvas,paint,"${numbers.format(input.totalGames)} VIDEOJUEGOS  /  ${numbers.format(input.totalSystems)} SISTEMAS",98f,339f,27f,secondary,835f)
+        if(input.hardwareCard)drawHardware(canvas,paint,input,primary,secondary,text,p.surface.toArgb()) else {
         drawWrapped(canvas, paint, input.title.uppercase(), 80f, 428f, 870f, primary)
         label(canvas, paint, input.subtitle, 84f, 650f, 30f, text, 860f)
         paint.color = p.surface.toArgb(); canvas.drawRect(80f, 680f, 950f, 736f, paint)
         paint.color = primary; canvas.drawRect(80f, 680f, 86f, 736f, paint)
         label(canvas, paint, input.metrics, 110f, 717f, 24f, text, 810f)
+        }
         drawLogos(canvas,paint,input.logos,logoImages,p.surface.toArgb(),primary,text)
         label(canvas, paint, "OWN THE GAME. KEEP THE STORY.", 80f, 878f, 20f, secondary)
         label(canvas, paint, "GD / 03", 1340f, 878f, 22f, primary)
         bitmap
+    }
+    private fun drawHardware(canvas:Canvas,paint:Paint,input:GamertagInput,primary:Int,secondary:Int,text:Int,surface:Int) {
+        wrappedLines(canvas,paint,input.title.uppercase(),80f,405f,870f,primary,50f,52f,2)
+        label(canvas,paint,input.subtitle,84f,490f,25f,text,860f)
+        label(canvas,paint,"COMPONENTES Y ACCESORIOS / ${input.components.size}",84f,520f,19f,secondary,860f)
+        if(input.components.isEmpty())label(canvas,paint,"SIN COMPONENTES SELECCIONADOS",84f,566f,24f,text,860f)
+        input.components.forEachIndexed { index,line->
+            val x=80f+(index%2)*445f;val y=530f+(index/2)*42f
+            paint.color=surface;paint.alpha=240;canvas.drawRect(x,y,x+425f,y+40f,paint);paint.alpha=255
+            wrappedLines(canvas,paint,line,x+10f,y+17f,405f,text,20f,20f,2)
+        }
+    }
+    private fun wrappedLines(canvas:Canvas,paint:Paint,value:String,x:Float,y:Float,width:Float,color:Int,size:Float,step:Float,lines:Int) {
+        paint.typeface=Typeface.create("sans-serif-condensed",Typeface.BOLD);paint.textSize=size;paint.color=color
+        var remaining=value.replace(Regex("\\s+")," ").trim()
+        repeat(lines){line->if(remaining.isNotEmpty()){
+            val count=paint.breakText(remaining,true,width,null).coerceAtLeast(1)
+            val split=if(count<remaining.length)remaining.take(count).lastIndexOf(' ').takeIf{it>count/2} ?: count else count
+            val rendered=if(line==lines-1)android.text.TextUtils.ellipsize(remaining,android.text.TextPaint(paint),width,android.text.TextUtils.TruncateAt.END).toString()else remaining.take(split)
+            canvas.drawText(rendered,x,y+line*step,paint);remaining=remaining.drop(split).trimStart()
+        }}
     }
     private suspend fun loadImage(source:String,width:Int,height:Int):Bitmap? = withTimeoutOrNull(8_000) {
         val result=SingletonImageLoader.get(context).execute(ImageRequest.Builder(context).data(source).size(width,height).allowHardware(false).build())
@@ -124,7 +147,7 @@ class GamertagRenderer @Inject constructor(@ApplicationContext private val conte
         for (x in 0..1600 step 80) canvas.drawLine(x.toFloat(), 0f, x.toFloat(), 900f, paint)
         for (y in 0..900 step 80) canvas.drawLine(0f, y.toFloat(), 1600f, y.toFloat(), paint)
         when (theme) {
-            VisualTheme.POP, VisualTheme.ARCADE, VisualTheme.VOXEL, VisualTheme.ROYALE, VisualTheme.TACTICAL,VisualTheme.SEGA ->
+            VisualTheme.POP, VisualTheme.ARCADE, VisualTheme.VOXEL, VisualTheme.ROYALE, VisualTheme.TACTICAL,VisualTheme.SEGA,VisualTheme.DESKTOP,VisualTheme.XBOX ->
                 ThemeArtwork.draw(canvas, theme, RectF(0f, 0f, 1600f, 900f), primary, secondary)
             VisualTheme.CYBERPUNK -> {
                 val random = Random(seed); paint.color = secondary; paint.alpha = 30

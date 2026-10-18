@@ -24,7 +24,7 @@ import androidx.compose.ui.graphics.toArgb
     val secondary = MaterialTheme.colorScheme.secondary
     val theme = LocalVisualTheme.current
     Canvas(modifier) {
-        if (theme in setOf(VisualTheme.POP, VisualTheme.ARCADE, VisualTheme.VOXEL, VisualTheme.ROYALE, VisualTheme.TACTICAL,VisualTheme.SEGA)) {
+        if (theme in setOf(VisualTheme.POP, VisualTheme.ARCADE, VisualTheme.VOXEL, VisualTheme.ROYALE, VisualTheme.TACTICAL,VisualTheme.SEGA,VisualTheme.DESKTOP,VisualTheme.XBOX)) {
             drawIntoCanvas {
                 val height = size.width * .55f
                 var top = 0f

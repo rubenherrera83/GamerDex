@@ -1,6 +1,22 @@
-# Gamertags · 0.6.1
+# Gamertags · 0.9.0
 
-Las tarjetas de colección, plataforma y juego muestran siempre los totales de toda la colección: número de copias de videojuegos, incluidas las ediciones repetidas, y número de unidades de hardware guardadas en Mis sistemas. Dos consolas del mismo modelo cuentan como dos sistemas. El número de plataformas distintas sigue siendo un dato diferente en la tarjeta de colección.
+## PCs y sistemas
+
+En Mis sistemas, registra el PC como PC / ordenador y añade CPU, GPU, RAM, almacenamiento, placa, fuente, refrigeración y periféricos mediante Componentes y accesorios. Se reutilizan los accesorios existentes, sus cantidades y notas; no se añade un esquema independiente ni se convierten automáticamente los nombres de accesorios antiguos.
+
+«Crear gamertag de este sistema» abre su tarjeta directamente. También se puede entrar desde Gamertags → Sistema / PC y elegir una unidad del inventario. El selector busca por nombre y plataforma y distingue unidades con su ID. Funciona igualmente con consolas y microordenadores. Si no hay inventario, indica que hay que registrar el sistema; no permite exportar un objetivo inexistente.
+
+Por defecto se incluyen los primeros diez elementos de la ficha. Se pueden desmarcar y elegir otros; el límite es de diez elementos, con sus cantidades, no diez unidades físicas. Un par de módulos RAM puede figurar como «2 × RAM DDR5 16 GB». La selección y la unidad se conservan al recrear Activity. Las notas de componentes solo se incorporan al activar su opción. No se copian los campos de serie de sistema/componente, precio, fecha de compra ni notas generales del sistema.
+
+El PNG mantiene 1600 × 900, totales globales y hasta seis logotipos. El nombre del equipo ocupa hasta dos líneas y los componentes usan dos columnas de cinco filas, con hasta dos líneas por elemento. Los textos largos terminan en puntos suspensivos; el editor avisa y permite revisar la vista previa. Se utiliza la primera foto local, o la imagen remota si no hay foto local, ajustando sus proporciones al marco decorativo. Sin foto hay fondo geométrico. Se puede generar también una tarjeta sin accesorios.
+
+Guardar y compartir utilizan el mismo bitmap. Los botones esperan a que la imagen corresponda a la selección actual, evitando exportar la anterior mientras se regenera. La solicitud de exportación conserva los componentes en SavedStateHandle para recrear el PNG si se pierde el ViewModel durante el selector de documentos. Las notas activadas y el contenido de la foto forman parte de la imagen que se comparte.
+
+## Temas y personalización
+
+«Escritorio Aurora» se inspira en PC/Windows con cintas azules/lavanda y un wordmark ligero y redondeado. «Órbita Verde» se inspira en Xbox con verdes, trazos orbitales y letras finas. Ambos se eligen en Preferencias, se aplican a toda la app y a los gamertags y conservan el icono existente. Los motivos son geométricos propios; no se incorporan fondos ni logotipos oficiales de Windows o Xbox al tema.
+
+Las tarjetas de colección, plataforma, juego y sistema/PC muestran siempre los totales de toda la colección: número de copias de videojuegos, incluidas las ediciones repetidas, y número de unidades de hardware guardadas en Mis sistemas. Dos consolas del mismo modelo cuentan como dos sistemas. El número de plataformas distintas sigue siendo un dato diferente en la tarjeta de colección.
 
 «Personalizar logotipos» permite combinar hasta seis elementos. Consolas ofrece todo el catálogo y los sistemas personalizados de la colección. Compañías utiliza los nombres/logotipos guardados y los emblemas locales disponibles. Juegos ofrece las carátulas de la colección. Para un logotipo específico de un juego o cualquier otra marca, Personalizado permite elegir una imagen desde Android o indicar una URL HTTPS; se recomienda PNG transparente. No se intenta obtener un logotipo de juego a partir de RAWG, que aquí aporta carátulas.
 

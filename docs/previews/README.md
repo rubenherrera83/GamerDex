@@ -2,6 +2,8 @@
 
 Capturas reales del emulador Android 15:
 
+- [Tema Escritorio Aurora, 0.9.0](render-tests/vault-DESKTOP.png)
+- [Tema Órbita Verde, 0.9.0](render-tests/vault-XBOX.png)
 - [Tema Azul 16-bit, 0.8.0](render-tests/vault-SEGA.png)
 - [Curiosidades y ranking de sistema, 0.8.0](render-tests/system-insights.png)
 - [Filtros de año y plataforma, 0.8.0](render-tests/spending-filters.png)
@@ -32,6 +34,8 @@ Capturas reales del emulador Android 15:
 
 Gamertags PNG generados por el mismo renderer que usa la app:
 
+- [PC con diez componentes · Escritorio Aurora](render-tests/gamertag-pc-DESKTOP.png)
+- [PC con diez componentes · Órbita Verde](render-tests/gamertag-pc-XBOX.png)
 - [Azul 16-bit sin portada](render-tests/gamertag-SEGA.png)
 - [Ejemplo Portal con arte de RAWG](render-tests/gamertag-live-CYBERPUNK.png)
 - [Cyberpunk sin portada](render-tests/gamertag-CYBERPUNK.png)

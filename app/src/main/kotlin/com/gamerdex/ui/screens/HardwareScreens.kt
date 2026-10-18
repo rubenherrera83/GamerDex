@@ -69,7 +69,7 @@ fun HardwareKind.label() = when(this) { HardwareKind.CONSOLE -> "Consola"; Hardw
     Scaffold(containerColor=Color.Transparent, topBar={ TopAppBar(title={Text("Mis sistemas")},navigationIcon={TextButton(onClick=menu){Text("☰")}}) },
         floatingActionButton={ExtendedFloatingActionButton(onClick=add){Text("+ AÑADIR SISTEMA")}}) { padding ->
         LazyColumn(Modifier.fillMaxSize().padding(padding), contentPadding=PaddingValues(20.dp,12.dp,20.dp,100.dp), verticalArrangement=Arrangement.spacedBy(16.dp)) {
-            item { Text("${hardware.size} sistemas · ${hardware.sumOf { h -> h.controllers.sumOf { it.quantity } }} mandos", style=MaterialTheme.typography.titleMedium) }
+            item { Text("${hardware.size} sistemas · ${hardware.sumOf { h -> h.controllers.sumOf { it.quantity } }} accesorios / componentes", style=MaterialTheme.typography.titleMedium) }
             item { OutlinedTextField(query,{query=it},label={Text("Buscar en mis sistemas")},modifier=Modifier.fillMaxWidth()) }
             if(hardware.isEmpty()) item { Text("Registra cada consola u ordenador que conservas, con su caja, accesorios y datos de compra.") }
             items(hardware.filter { (it.name+" "+it.platform+" "+it.serialNumber).contains(query,true) },key={it.id}) { item ->
@@ -77,7 +77,7 @@ fun HardwareKind.label() = when(this) { HardwareKind.CONSOLE -> "Consola"; Hardw
                     HardwareImage(item,Modifier.fillMaxWidth().height(170.dp))
                     Row(Modifier.padding(16.dp),verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(14.dp)) {
                         BrandLogo(item.platform,item.logoUrl,Modifier.size(44.dp),platform=true)
-                        Column(Modifier.weight(1f)) { Text(item.name,style=MaterialTheme.typography.titleLarge); Text(item.platform); Text("${item.condition.label()} · ${item.controllers.sumOf { it.quantity }} mandos",style=MaterialTheme.typography.bodySmall) }
+                        Column(Modifier.weight(1f)) { Text(item.name,style=MaterialTheme.typography.titleLarge); Text(item.platform); Text("${item.condition.label()} · ${item.controllers.sumOf { it.quantity }} accesorios / componentes",style=MaterialTheme.typography.bodySmall) }
                     }
                 }
             }
@@ -86,7 +86,7 @@ fun HardwareKind.label() = when(this) { HardwareKind.CONSOLE -> "Consola"; Hardw
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Composable fun HardwareDetailScreen(item: Hardware, back: () -> Unit, edit: () -> Unit, delete: () -> Unit) {
+@Composable fun HardwareDetailScreen(item: Hardware, back: () -> Unit, edit: () -> Unit, delete: () -> Unit, gamertag:()->Unit={}) {
     var confirm by remember { mutableStateOf(false) }
     Scaffold(containerColor=Color.Transparent,topBar={TopAppBar(title={Text("Mi sistema")},navigationIcon={TextButton(onClick=back){Text("Volver")}},actions={TextButton(onClick=edit){Text("Editar")}})}) { padding ->
         Column(Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState()).padding(20.dp),verticalArrangement=Arrangement.spacedBy(16.dp)) {
@@ -99,8 +99,9 @@ fun HardwareKind.label() = when(this) { HardwareKind.CONSOLE -> "Consola"; Hardw
             Text("Número de serie: ${item.serialNumber.ifBlank { "No registrado" }}")
             Text("Fecha de compra: ${item.purchasedOn ?: "Desconocida"}")
             Text("Precio pagado: ${item.pricePaidCents?.let { formatPrice(it,item.currency) } ?: "Desconocido"}")
-            SectionLabel("02","Mandos y accesorios")
-            if(item.controllers.isEmpty()) Text("Sin mandos registrados")
+            OutlinedButton(onClick=gamertag,modifier=Modifier.fillMaxWidth()){Text("Crear gamertag de este sistema")}
+            SectionLabel("02","Componentes y accesorios")
+            if(item.controllers.isEmpty()) Text("Sin componentes ni accesorios registrados")
             item.controllers.forEach { c -> OutlinedCard(Modifier.fillMaxWidth()) { Column(Modifier.padding(14.dp),verticalArrangement=Arrangement.spacedBy(6.dp)) { Text("${c.quantity} × ${c.name}",style=MaterialTheme.typography.titleMedium); Text(c.condition.label()); if(c.serialNumber.isNotBlank()) Text("Serie: ${c.serialNumber}"); if(c.notes.isNotBlank()) Text(c.notes) } } }
             if(item.notes.isNotBlank()) Text(item.notes)
             HardwareInsights(item.platform)
@@ -148,16 +149,17 @@ fun HardwareKind.label() = when(this) { HardwareKind.CONSOLE -> "Consola"; Hardw
             OutlinedTextField(date,{date=it},label={Text("Fecha de compra (AAAA-MM-DD)")},supportingText={Text("Opcional; deja en blanco si no la sabes")},isError=!dateValid,modifier=Modifier.fillMaxWidth(),enabled=!saving)
             OutlinedTextField(price,{price=it},label={Text("Precio pagado")},keyboardOptions=KeyboardOptions(keyboardType=KeyboardType.Decimal),isError=!priceValid,modifier=Modifier.fillMaxWidth(),enabled=!saving)
             FlowRow(horizontalArrangement=Arrangement.spacedBy(8.dp)) { supportedCurrencies.forEach{FilterChip(currency==it,{currency=it},label={Text(it)},enabled=!saving)} }
-            SectionLabel("02","Mandos y accesorios")
+            SectionLabel("02","Componentes y accesorios")
+            Text("En un PC puedes registrar CPU, GPU, RAM, discos y periféricos. En consolas, mandos y otros accesorios.",style=MaterialTheme.typography.bodySmall)
             controllers.forEachIndexed { index,c -> OutlinedCard { Column(Modifier.padding(12.dp),verticalArrangement=Arrangement.spacedBy(8.dp)) {
-                OutlinedTextField(c.name,{if(it.isNotBlank())update(index,c.copy(name=it))},label={Text("Mando ${index+1}: modelo / edición")},modifier=Modifier.fillMaxWidth(),enabled=!saving)
+                OutlinedTextField(c.name,{if(it.isNotBlank())update(index,c.copy(name=it))},label={Text(if(kind==HardwareKind.COMPUTER || kind==HardwareKind.MICROCOMPUTER)"Componente ${index+1}: nombre / modelo" else "Mando ${index+1}: modelo / edición")},modifier=Modifier.fillMaxWidth(),enabled=!saving)
                 Row(verticalAlignment=Alignment.CenterVertically) { Text("Cantidad: ${c.quantity}",Modifier.weight(1f)); TextButton(onClick={update(index,c.copy(quantity=c.quantity-1))},enabled=!saving && c.quantity>1){Text("−")}; TextButton(onClick={update(index,c.copy(quantity=c.quantity+1))},enabled=!saving && c.quantity<99){Text("+")} }
                 FlowRow(horizontalArrangement=Arrangement.spacedBy(6.dp)) { PhysicalCondition.entries.forEach{FilterChip(c.condition==it,{update(index,c.copy(condition=it))},label={Text(it.label())},enabled=!saving)} }
                 OutlinedTextField(c.serialNumber,{update(index,c.copy(serialNumber=it))},label={Text("Serie del mando / accesorio")},modifier=Modifier.fillMaxWidth(),enabled=!saving)
                 OutlinedTextField(c.notes,{update(index,c.copy(notes=it))},label={Text("Detalles: especial, color, funcionamiento…")},modifier=Modifier.fillMaxWidth(),enabled=!saving)
                 TextButton(onClick={controllerJson=Json.encodeToString(controllers.filterIndexed{i,_->i!=index})},enabled=!saving){Text("Quitar mando ${index+1}")}
             } } }
-            OutlinedButton(onClick={controllerJson=Json.encodeToString(controllers+Controller("Mando estándar"))},enabled=!saving && controllers.size<100){Text("+ Añadir mando / accesorio")}
+            OutlinedButton(onClick={controllerJson=Json.encodeToString(controllers+Controller(if(kind==HardwareKind.COMPUTER || kind==HardwareKind.MICROCOMPUTER)"Nuevo componente" else "Mando estándar"))},enabled=!saving && controllers.size<100){Text(if(kind==HardwareKind.COMPUTER || kind==HardwareKind.MICROCOMPUTER)"+ Añadir componente / accesorio" else "+ Añadir mando / accesorio")}
             SectionLabel("03","Imagen y notas")
             photos.forEachIndexed { i,p -> Row(verticalAlignment=Alignment.CenterVertically) { Cover(p,"Foto del sistema ${i+1}",Modifier.size(80.dp)); TextButton(onClick={photos=photos-p},enabled=!saving){Text("Quitar foto ${i+1}")} } }
             OutlinedButton(onClick={picker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))},enabled=!saving){Text("Elegir fotos del sistema")}

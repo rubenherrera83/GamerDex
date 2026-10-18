@@ -22,6 +22,22 @@ object ThemeArtwork {
             canvas.drawRect(x, y, x + w, y + h, paint)
         }
         when (theme) {
+            VisualTheme.DESKTOP -> {
+                for(i in 0..5){
+                    paint.color=if(i%2==0)primary else secondary;paint.alpha=22+i*3
+                    val ribbon=Path().apply{moveTo(180f+i*12,-30f);cubicTo(420f,35f,160f,135f,420f,240f);lineTo(470f,240f);cubicTo(200f,130f,460f,30f,210f+i*12,-30f);close()}
+                    canvas.drawPath(ribbon,paint)
+                }
+                for(i in 0..2){rect(280f+i*18,140f-i*20,75f,42f,primary,20);line(285f+i*18,147f-i*20,345f+i*18,147f-i*20,secondary,55)}
+            }
+            VisualTheme.XBOX -> {
+                paint.style=Paint.Style.STROKE;paint.strokeWidth=1.5f
+                for(i in 0..4){paint.color=primary;paint.alpha=25+i*8;canvas.drawOval(RectF(210f-i*13,20f+i*9,415f+i*13,200f-i*9),paint)}
+                paint.strokeWidth=7f;paint.color=secondary;paint.alpha=30
+                canvas.drawArc(240f,-45f,440f,155f,35f,125f,false,paint)
+                paint.style=Paint.Style.FILL
+                for(i in 0..5)rect(240f+i*27,200f,15f,3f,primary,50)
+            }
             VisualTheme.SEGA -> {
                 for(i in 0..7)line(0f,155f+i*7,400f,155f+i*7,primary,40)
                 paint.color=secondary;paint.alpha=95;paint.style=Paint.Style.STROKE;paint.strokeWidth=3f
