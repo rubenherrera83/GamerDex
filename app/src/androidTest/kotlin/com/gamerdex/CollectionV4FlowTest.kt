@@ -82,7 +82,8 @@ class CollectionV4FlowTest {
             compose.onNodeWithText("☰").performClick(); compose.onNodeWithText("Gamertags").performClick()
             compose.onNodeWithText("Tu gamertag / alias").assert(hasText("NEKRO PLAYER"))
             compose.waitUntil(15_000) { compose.onAllNodesWithContentDescription("Vista previa del gamertag").fetchSemanticsNodes().isNotEmpty() }
-            compose.onNodeWithText("Compartir gamertag").performScrollTo().assertIsEnabled()
+            compose.onNodeWithTag("gamertag-editor").performScrollToNode(hasText("Compartir gamertag"))
+            compose.onNodeWithText("Compartir gamertag").assertIsEnabled()
         } finally { prefs.setAlias(previous) }
     }
     @Test fun shareProducesReadablePngAndTemporaryContentGrant() = runBlocking {

@@ -12,4 +12,5 @@ import dagger.hilt.components.SingletonComponent
 interface CollectionV3Dependencies {
     fun collection(): CollectionRepository
     fun preferences(): AppPreferences
+    fun gamertagSettings(): com.gamerdex.gamertag.GamertagSettings
 }

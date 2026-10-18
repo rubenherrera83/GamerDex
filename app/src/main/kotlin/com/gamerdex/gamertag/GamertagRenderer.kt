@@ -15,15 +15,20 @@ import kotlinx.coroutines.*
 import javax.inject.Inject
 import kotlin.random.Random
 import com.gamerdex.branding.GamerDexBrand
+import com.gamerdex.ui.components.PlatformCatalog
 
-data class GamertagInput(val alias: String, val title: String, val subtitle: String, val metrics: String, val cover: String?, val theme: VisualTheme) : java.io.Serializable
+data class GamertagInput(val alias: String, val title: String, val subtitle: String, val metrics: String, val cover: String?, val theme: VisualTheme,
+    val totalGames: Int = 0, val totalSystems: Int = 0, val logos: List<GamertagLogo> = emptyList()) : java.io.Serializable {
+    init { require(totalGames >= 0 && totalSystems >= 0 && logos.size <= 6) }
+}
 
 class GamertagRenderer @Inject constructor(@ApplicationContext private val context: Context) {
     suspend fun render(input: GamertagInput): Bitmap = withContext(Dispatchers.Default) {
         val p = input.theme.palette()
-        val art = input.cover?.let { url ->
-            val result = SingletonImageLoader.get(context).execute(ImageRequest.Builder(context).data(url).size(700, 900).allowHardware(false).build())
-            (result as? SuccessResult)?.image?.toBitmap()
+        val (art, logoImages) = coroutineScope {
+            val cover=async { input.cover?.let { loadImage(it,700,900) } }
+            val images=input.logos.map { logo -> async { logo.image?.let { loadImage(it,240,100) } } }
+            cover.await() to images.awaitAll()
         }
         ensureActive()
         val bitmap = Bitmap.createBitmap(1600, 900, Bitmap.Config.ARGB_8888)
@@ -54,14 +59,44 @@ class GamertagRenderer @Inject constructor(@ApplicationContext private val conte
         paint.color = primary; canvas.drawRect(80f, 125f, 960f, 132f, paint)
         label(canvas, paint, input.alias.ifBlank { "PLAYER ONE" }.uppercase(), 80f, 235f, 65f, text, 900f)
         label(canvas, paint, "${input.theme.title.uppercase()} / COLLECTION ID", 84f, 287f, 23f, secondary)
-        drawWrapped(canvas, paint, input.title.uppercase(), 80f, 400f, 870f, primary)
+        paint.color=p.surface.toArgb(); canvas.drawRect(80f,307f,950f,350f,paint)
+        val numbers=java.text.NumberFormat.getIntegerInstance()
+        label(canvas,paint,"${numbers.format(input.totalGames)} VIDEOJUEGOS  /  ${numbers.format(input.totalSystems)} SISTEMAS",98f,339f,27f,secondary,835f)
+        drawWrapped(canvas, paint, input.title.uppercase(), 80f, 428f, 870f, primary)
         label(canvas, paint, input.subtitle, 84f, 650f, 30f, text, 860f)
-        paint.color = p.surface.toArgb(); canvas.drawRect(80f, 704f, 950f, 790f, paint)
-        paint.color = primary; canvas.drawRect(80f, 704f, 86f, 790f, paint)
-        label(canvas, paint, input.metrics, 110f, 758f, 26f, text, 810f)
-        label(canvas, paint, "OWN THE GAME. KEEP THE STORY.", 80f, 850f, 20f, secondary)
-        label(canvas, paint, "GD / 02", 1340f, 862f, 22f, primary)
+        paint.color = p.surface.toArgb(); canvas.drawRect(80f, 680f, 950f, 736f, paint)
+        paint.color = primary; canvas.drawRect(80f, 680f, 86f, 736f, paint)
+        label(canvas, paint, input.metrics, 110f, 717f, 24f, text, 810f)
+        drawLogos(canvas,paint,input.logos,logoImages,p.surface.toArgb(),primary,text)
+        label(canvas, paint, "OWN THE GAME. KEEP THE STORY.", 80f, 878f, 20f, secondary)
+        label(canvas, paint, "GD / 03", 1340f, 878f, 22f, primary)
         bitmap
+    }
+    private suspend fun loadImage(source:String,width:Int,height:Int):Bitmap? = withTimeoutOrNull(8_000) {
+        val result=SingletonImageLoader.get(context).execute(ImageRequest.Builder(context).data(source).size(width,height).allowHardware(false).build())
+        (result as? SuccessResult)?.image?.toBitmap()
+    }
+    private fun drawLogos(canvas:Canvas,paint:Paint,logos:List<GamertagLogo>,images:List<Bitmap?>,surface:Int,primary:Int,text:Int) {
+        if(logos.isEmpty()) return
+        val width=minOf(270f,(1445f-(logos.size-1)*14f)/logos.size)
+        logos.forEachIndexed { index,logo ->
+            val left=80f+index*(width+14f)
+            paint.color=surface; paint.alpha=245; canvas.drawRoundRect(RectF(left,748f,left+width,842f),10f,10f,paint); paint.alpha=255
+            val image=images[index]
+            val local=when(logo.kind) {
+                GamertagLogoKind.PLATFORM -> PlatformCatalog.logo(logo.name)
+                GamertagLogoKind.COMPANY -> when(logo.name.lowercase()) { "sega" -> com.gamerdex.R.drawable.platform_sega; "nintendo" -> com.gamerdex.R.drawable.platform_nintendo; "atari" -> com.gamerdex.R.drawable.platform_atari; else -> null }
+                else -> null
+            }
+            if(image!=null) {
+                val scale=minOf((width-20f)/image.width,58f/image.height)
+                val w=image.width*scale;val h=image.height*scale
+                canvas.drawBitmap(image,null,RectF(left+(width-w)/2,755f+(58f-h)/2,left+(width+w)/2,755f+(58f+h)/2),paint)
+            } else if(local!=null) {
+                androidx.core.content.res.ResourcesCompat.getDrawable(context.resources,local,context.theme)?.mutate()?.let { drawable -> drawable.setTint(primary); drawable.bounds=Rect((left+width/2-29).toInt(),755,(left+width/2+29).toInt(),813);drawable.draw(canvas) }
+            } else label(canvas,paint,logo.name.take(3).uppercase(),left+16f,794f,32f,primary,width-32f)
+            label(canvas,paint,logo.name,left+12f,831f,18f,text,width-24f)
+        }
     }
     suspend fun write(uri: Uri, bitmap: Bitmap) = withContext(Dispatchers.IO) {
         requireNotNull(context.contentResolver.openOutputStream(uri, "wt")).use { check(bitmap.compress(Bitmap.CompressFormat.PNG, 100, it)) }
@@ -72,14 +107,14 @@ class GamertagRenderer @Inject constructor(@ApplicationContext private val conte
         canvas.drawText(rendered, x, y, paint)
     }
     private fun drawWrapped(canvas: Canvas, paint: Paint, value: String, x: Float, y: Float, width: Float, color: Int) {
-        paint.typeface = Typeface.create("sans-serif-condensed", Typeface.BOLD); paint.textSize = 88f; paint.color = color
+        paint.typeface = Typeface.create("sans-serif-condensed", Typeface.BOLD); paint.textSize = 76f; paint.color = color
         var remaining = value
         repeat(3) { line ->
             if (remaining.isNotEmpty()) {
                 val count = paint.breakText(remaining, true, width, null).coerceAtLeast(1)
                 val split = if (count < remaining.length) remaining.substring(0, count).lastIndexOf(' ').takeIf { it > count / 2 } ?: count else count
                 val text = if (line == 2) android.text.TextUtils.ellipsize(remaining, android.text.TextPaint(paint), width, android.text.TextUtils.TruncateAt.END).toString() else remaining.take(split)
-                canvas.drawText(text, x, y + line * 92, paint)
+                canvas.drawText(text, x, y + line * 80, paint)
                 remaining = remaining.drop(split).trimStart()
             }
         }

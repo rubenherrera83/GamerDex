@@ -16,15 +16,19 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gamerdex.core.domain.Game
+import com.gamerdex.core.domain.Hardware
 import com.gamerdex.gamertag.*
 import com.gamerdex.ui.components.*
 import com.gamerdex.ui.theme.VisualTheme
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import android.content.Intent
 import kotlinx.coroutines.launch
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.contentDescription
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
-@Composable fun GamertagScreen(games: List<Game>, theme: VisualTheme, initialGame: Long, menu: () -> Unit, defaultAlias: String = "", viewModel: GamertagViewModel = hiltViewModel()) {
+@Composable fun GamertagScreen(games: List<Game>, theme: VisualTheme, initialGame: Long, menu: () -> Unit, defaultAlias: String = "", hardware: List<Hardware> = emptyList(), viewModel: GamertagViewModel = hiltViewModel()) {
     var alias by rememberSaveable(defaultAlias) { mutableStateOf(defaultAlias.ifBlank { "PLAYER ONE" }) }
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -36,17 +40,19 @@ import kotlinx.coroutines.launch
     var choosing by remember { mutableStateOf(false) }
     var query by remember { mutableStateOf("") }
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val logos by viewModel.logos.collectAsStateWithLifecycle()
+    var customize by rememberSaveable { mutableStateOf(false) }
     val selected = games.firstOrNull { it.id == gameId }
     val subset = if (target == "Plataforma") games.filter { it.platform == platform } else games
     val input = when (target) {
         "Juego" -> GamertagInput(alias, selected?.title ?: "Elige un juego", selected?.let { "${it.platform} / ${it.company}" }.orEmpty(), selected?.let { "${it.contentsLabel}   /   ${it.releaseYear ?: "SIN FECHA"}" } ?: "MI ARCHIVO PERSONAL", selected?.coverUrl, theme)
         "Plataforma" -> GamertagInput(alias, platform.ifBlank { "MI PLATAFORMA" }, "ARCHIVO DE PLATAFORMA", "${subset.size} JUEGOS   /   ${subset.count { it.isComplete }} COMPLETOS", subset.firstOrNull()?.coverUrl, theme)
-        else -> GamertagInput(alias, "MI COLECCIÓN", "CADA JUEGO TIENE UNA HISTORIA", "${games.size} JUEGOS   /   ${games.map { it.platform }.distinct().size} PLATAFORMAS", games.firstOrNull()?.coverUrl, theme)
-    }
+        else -> GamertagInput(alias, "MI COLECCIÓN", "CADA JUEGO TIENE UNA HISTORIA", "${games.count { it.isComplete }} COMPLETOS   /   ${games.map { it.platform }.distinct().size} PLATAFORMAS", games.firstOrNull()?.coverUrl, theme)
+    }.copy(totalGames=games.size,totalSystems=hardware.size,logos=logos)
     LaunchedEffect(input) { viewModel.generate(input) }
     val export = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("image/png")) { it?.let(viewModel::export) }
     Scaffold(containerColor = androidx.compose.ui.graphics.Color.Transparent, topBar = { TopAppBar(title = { Text("Gamertags") }, navigationIcon = { TextButton(onClick = menu) { Text("☰") } }) }) { padding ->
-        LazyColumn(Modifier.fillMaxSize().padding(padding), contentPadding = PaddingValues(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        LazyColumn(Modifier.fillMaxSize().padding(padding).testTag("gamertag-editor"), contentPadding = PaddingValues(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
             item { SectionLabel("CREATOR", "Tu identidad. Tu colección.") }
             item { Text("Llévate tu estilo.", style = MaterialTheme.typography.headlineLarge) }
             item { Text("Genera una tarjeta de un juego, una plataforma o tu colección. El diseño sigue el tema elegido en preferencias.", color = MaterialTheme.colorScheme.onSurfaceVariant) }
@@ -54,6 +60,18 @@ import kotlinx.coroutines.launch
             item { FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) { listOf("Juego", "Plataforma", "Colección").forEach { kind -> FilterChip(target == kind, { target = kind }, label = { Text(kind) }) } } }
             if (target != "Colección") item {
                 OutlinedButton(onClick = { query = ""; choosing = true }, modifier = Modifier.fillMaxWidth(), enabled = games.isNotEmpty()) { Text(if (target == "Juego") selected?.title ?: "Elegir juego" else platform.ifBlank { "Elegir plataforma" }) }
+            }
+            item { Text("Totales de tu colección: ${games.size} videojuegos · ${hardware.size} sistemas",style=MaterialTheme.typography.titleMedium)
+                Text("Cuenta todas las copias de juegos y las unidades registradas en Mis sistemas, también en las tarjetas de un solo juego o plataforma.",style=MaterialTheme.typography.bodySmall) }
+            item { OutlinedButton(onClick={customize=true},modifier=Modifier.fillMaxWidth()){Text("Personalizar logotipos (${logos.size}/6)")} }
+            items(logos) { logo ->
+                val index=logos.indexOf(logo)
+                Row(Modifier.fillMaxWidth(),verticalAlignment=androidx.compose.ui.Alignment.CenterVertically) {
+                    Text(logo.name,Modifier.weight(1f),style=MaterialTheme.typography.bodySmall,maxLines=2,overflow=androidx.compose.ui.text.style.TextOverflow.Ellipsis)
+                    TextButton(onClick={viewModel.setLogos(logos.toMutableList().apply{add(index-1,removeAt(index))})},enabled=index>0,modifier=Modifier.semantics{contentDescription="Subir ${logo.name}"}){Text("↑")}
+                    TextButton(onClick={viewModel.setLogos(logos.toMutableList().apply{add(index+1,removeAt(index))})},enabled=index<logos.lastIndex,modifier=Modifier.semantics{contentDescription="Bajar ${logo.name}"}){Text("↓")}
+                    IconButton(onClick={viewModel.setLogos(logos-logo)},modifier=Modifier.semantics{contentDescription="Quitar ${logo.name}"}){Text("×")}
+                }
             }
             item {
                 if (state.bitmap != null) Image(state.bitmap!!.asImageBitmap(), contentDescription = "Vista previa del gamertag", modifier = Modifier.fillMaxWidth().aspectRatio(16f / 9f))
@@ -75,6 +93,7 @@ import kotlinx.coroutines.launch
             item { Text("PNG · 1600 × 900 · Sin subir tus datos a servicios externos", style = MaterialTheme.typography.labelSmall) }
         }
     }
+    if(customize) GamertagLogoPicker(games,hardware,logos,viewModel::setLogos){customize=false}
     if (choosing) ModalBottomSheet(onDismissRequest = { choosing = false }) {
         Column(Modifier.padding(20.dp)) {
             OutlinedTextField(query, { query = it }, label = { Text("Buscar ${target.lowercase()}") }, modifier = Modifier.fillMaxWidth())

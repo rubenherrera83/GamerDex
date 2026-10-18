@@ -102,7 +102,7 @@ class MainActivity : ComponentActivity() {
             }
             composable("preferences") { PreferencesScreen(menu) }
             composable("gamertag/{gameId}", arguments = listOf(navArgument("gameId") { type = NavType.LongType })) { tagEntry ->
-                GamertagScreen(state.games, theme, tagEntry.arguments?.getLong("gameId") ?: 0, menu, nickname)
+                GamertagScreen(state.games, theme, tagEntry.arguments?.getLong("gameId") ?: 0, menu, nickname, hardware)
             }
             composable("detail/{id}", arguments = listOf(navArgument("id") { type = NavType.LongType })) { entry ->
                 val id = entry.arguments!!.getLong("id")

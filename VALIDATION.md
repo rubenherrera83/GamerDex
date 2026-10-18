@@ -1,12 +1,22 @@
 # Validación de GamerDex
 
-Versión validada: 0.6.0 · Room v5 · formato de copia portable v4 (lectura v1–v4).
+Versión validada: 0.6.1 · Room v5 · formato de copia portable v4 (lectura v1–v4).
 
 Fecha: 18 de octubre de 2026.
 
 Entorno: Windows, JDK Microsoft 21.0.8, Gradle 8.11.1, Android SDK 35 y emulador Medium Phone Android 15 (API 35, x86_64).
 
 ## Resultados
+
+- Validación 0.6.1: APK e instrumentación compilados; Lint con 0 errores y las mismas 82 advertencias anteriores, sin baseline ni supresiones.
+- Nueve pruebas Android relevantes correctas: personalización/exportación (2), editor de gamertag (1), copias/gamertags en los nueve temas (3) y recorrido de progreso, apodo y compartición (3). Las pruebas nuevas se corrigieron para devolver Unit a JUnit y desplazar la lista hasta elementos todavía no compuestos.
+- Totales: el editor usa el número de copias de todos los juegos y las unidades del inventario de hardware, conservándolos al cambiar entre colección, juego y plataforma. Cambiar las cifras modifica la banda correspondiente en el PNG renderizado.
+- Logotipos: seleccionar consola/compañía, recrear Activity, recordar orden, subir un elemento, eliminarlo y habilitar compartición cuando está lista la imagen. Preferencias persisten al crear otra instancia; configuración inválida o categorías futuras no impiden abrir el editor y el límite de seis se valida antes de guardar.
+- Exportación: input con seis logotipos y totales serializado/restaurado, recreación de ViewModel con exportInput, escritura y lectura del PNG 1600 × 900. Los píxeles de una imagen transparente propia están presentes en la fila de logotipos; una imagen ausente genera una insignia sin bloquear el archivo. Se conserva el comportamiento del FileProvider y su permiso temporal de lectura.
+- Revisión visual del artefacto real `docs/previews/render-tests/gamertag-customized.png`: totales, textos, emblemas y seis posiciones sin solapamiento. Incluye imágenes sintéticas para comprobar transparencias y el caso de imagen no disponible; no son datos de la colección del usuario.
+- No cambian el esquema Room ni las copias portables. La selección de logotipos pertenece a las preferencias locales y no se añade al ZIP de juegos/sistemas.
+
+Los resultados 0.6.0 que siguen se conservan como historial.
 
 - Validación 0.6.0: APK, instrumentación Android y Room compilados; Lint con 0 errores y 82 advertencias, sin baseline ni supresiones. APK definitivo instalado y arranque en frío correcto en API 35.
 - 58 pruebas distintas correctas: dominio (10), ZIP (10), proveedores HTTP (7), Room/migraciones (10) y Android (21). La batería inicial Android completó 20 casos; después de ajustar el espacio del buscador y añadir el recorrido ScanDex se completaron siete casos focalizados, incluido el nuevo caso con servicios reales.

@@ -27,7 +27,7 @@ class BackupAndGamertagTest {
         val renderer = GamertagRenderer(context)
         val input = GamertagInput("PLAYER ONE", "COLLECTION", "ARCHIVO PERSONAL", "4 JUEGOS", null, VisualTheme.CYBERPUNK)
         val state = SavedStateHandle(mapOf("exportInput" to input))
-        val viewModel = GamertagViewModel(renderer, state)
+        val viewModel = GamertagViewModel(renderer, state, GamertagSettings(context))
         val file = File(context.cacheDir, "recovered-export-${UUID.randomUUID()}.png")
         try {
             viewModel.export(Uri.fromFile(file))

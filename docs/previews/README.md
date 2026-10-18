@@ -2,6 +2,8 @@
 
 Capturas reales del emulador Android 15:
 
+- [Gamertag con totales y seis logotipos, 0.6.1](render-tests/gamertag-customized.png)
+
 - [Ficha de sistema con mandos, 0.6.0](render-tests/hardware-detail.png)
 
 - [Cuadrícula compacta, 0.5.0](render-tests/compact-grid.png)

@@ -11,7 +11,9 @@ import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 
 data class GamertagState(val bitmap: Bitmap? = null, val message: String? = null)
-@HiltViewModel class GamertagViewModel @Inject constructor(private val renderer: GamertagRenderer, private val savedState: SavedStateHandle) : ViewModel() {
+@HiltViewModel class GamertagViewModel @Inject constructor(private val renderer: GamertagRenderer, private val savedState: SavedStateHandle, private val settings: GamertagSettings) : ViewModel() {
+    val logos=settings.logos
+    fun setLogos(value:List<GamertagLogo>)=settings.setLogos(value)
     private val mutable = MutableStateFlow(GamertagState())
     val state = mutable.asStateFlow()
     private var job: Job? = null

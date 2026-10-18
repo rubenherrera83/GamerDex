@@ -1,6 +1,15 @@
 # GamerDex
 
-Versión 0.6.0: inventario de sistemas y accesorios, catálogo internacional y búsqueda asistida por códigos de barras.
+Versión 0.6.1: gamertags con totales globales y logotipos personalizables.
+
+## Novedades 0.6.1
+
+- Todos los gamertags, también los de un juego o plataforma, muestran el total de copias de videojuegos y de unidades registradas en Mis sistemas.
+- Hasta seis logotipos ordenables y eliminables: consolas del catálogo, compañías de la colección, carátulas y cualquier logotipo propio mediante imagen local o URL HTTPS. Los logotipos específicos de juegos se añaden como imagen propia; una carátula no se presenta como si fuera un logotipo.
+- La selección persiste entre sesiones. PNG de 1600 × 900 con banda de totales y fila de marcas, incluida al guardar y compartir. Se conserva la proporción de las imágenes.
+- No cambia Room v5 ni el formato de copia v4. La personalización del gamertag es una preferencia local, separada del ZIP de la colección.
+
+[Detalles del editor y las imágenes](docs/gamertags.md).
 
 ## Novedades 0.6.0
 
