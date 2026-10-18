@@ -23,7 +23,7 @@ import com.gamerdex.branding.GamerDexLogo
 
 @Composable fun VaultScreen(state: CollectionState, add: () -> Unit, open: (Long) -> Unit,
     menu: () -> Unit, platform: String?, genre: String?, setPlatform: (String?) -> Unit, clearFilters: () -> Unit,
-    mode: CollectionView = CollectionView.LIST, setMode: (CollectionView) -> Unit = {}, titles: () -> Unit = {}, systems: () -> Unit = {}, specials: () -> Unit = {}, toggleFavorite: (com.gamerdex.core.domain.Game) -> Unit = {}) {
+    mode: CollectionView = CollectionView.LIST, setMode: (CollectionView) -> Unit = {}, titles: () -> Unit = {}, systems: () -> Unit = {}, specials: () -> Unit = {}, toggleFavorite: (com.gamerdex.core.domain.Game) -> Unit = {}, systemCount:Int=0) {
     var query by rememberSaveable { mutableStateOf("") }
     val platforms = remember(state.games) { state.games.map { it.platform }.distinct().sorted() }
     val visible = remember(state.games, platform, genre, query) { state.games.filter { (platform == null || it.platform == platform) && (genre == null || genre in it.genres || (genre == "Sin género" && it.genres.isEmpty())) && it.title.contains(query, true) } }
@@ -44,7 +44,7 @@ import com.gamerdex.branding.GamerDexLogo
             item(span = { GridItemSpan(maxLineSpan) }) {
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Metric("%02d".format(state.games.size), "TÍTULOS", Modifier.weight(1f).clickable(onClickLabel = "Ver todos los títulos", onClick = titles))
-                    Metric("%02d".format(platforms.size), "SISTEMAS", Modifier.weight(1f).clickable(onClickLabel = "Ver plataformas", onClick = systems))
+                    Metric("%02d".format(systemCount), "SISTEMAS", Modifier.weight(1f).testTag("owned-systems-counter").clickable(onClickLabel = "Ver mis sistemas", onClick = systems))
                     Metric("%02d".format(state.games.count { it.effectiveEdition != com.gamerdex.core.domain.EditionType.STANDARD }), "ESPECIALES", Modifier.weight(1f).clickable(onClickLabel = "Ver ediciones especiales", onClick = specials))
                 }
             }

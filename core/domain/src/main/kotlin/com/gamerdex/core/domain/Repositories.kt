@@ -20,6 +20,7 @@ data class CommunityRating(val score: Float, val votes: Int) {
     init { require(score.isFinite() && score in 0f..100f && votes > 0) }
 }
 interface MetadataRepository {
+    suspend fun topForPlatform(platformId:Int):List<Metadata> = emptyList()
     suspend fun search(query: String): List<Metadata>
     suspend fun details(id: Long): Metadata
     suspend fun media(id: Long): GameMedia = GameMedia()

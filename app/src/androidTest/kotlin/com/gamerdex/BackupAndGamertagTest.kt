@@ -75,7 +75,7 @@ class BackupAndGamertagTest {
         val directory = File(context.getExternalFilesDir(null), "render-tests").apply { mkdirs() }
         val colors = mutableSetOf<Int>()
         VisualTheme.entries.forEach { theme ->
-            val bitmap = renderer.render(GamertagInput("PLAYER ONE", "CYBERPUNK 2077", "PC / COLECCIONISTA", "24 JUEGOS / 4 PLATAFORMAS", null, theme))
+            val bitmap = renderer.render(GamertagInput("PLAYER ONE", "CYBERPUNK 2077", "PC / COLECCIONISTA", "EDICIÓN COLECCIONISTA", null, theme,totalGames=24,totalSystems=4))
             assertEquals(1600, bitmap.width); assertEquals(900, bitmap.height)
             colors += bitmap.getPixel(2, 2)
             val file = File(directory, "gamertag-${theme.name}.png")

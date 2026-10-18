@@ -3,7 +3,19 @@ package com.gamerdex.core.network
 import com.gamerdex.core.domain.*
 import kotlinx.coroutines.*
 
-class RawgRepository(private val api: RawgApi, private val configured: Boolean) : MetadataRepository {
+class RawgRepository(private val api: RawgApi, private val configured: Boolean,private val ranking:RawgRankingApi?=null) : MetadataRepository {
+    override suspend fun topForPlatform(platformId:Int):List<Metadata> {
+        checkKey();require(platformId>0)
+        val endpoint=checkNotNull(ranking){"Ranking RAWG no disponible."}
+        val candidates=linkedMapOf<Long,Metadata>()
+        for(page in 1..5) {
+            val response=endpoint.ranked(platformId,page)
+            val batch=response.results
+            batch.map{it.toDomain()}.filter{game->game.communityRating?.votes?.let{it>=10}==true && game.platforms.any{SystemKnowledge.rawgId(it)==platformId}}.forEach{candidates[it.id]=it}
+            if(candidates.size>=5 || response.next==null)break
+        }
+        return candidates.values.sortedByDescending{it.communityRating!!.score}.take(5)
+    }
     private fun checkKey() = check(configured) { "Configura RAWG_API_KEY en local.properties para buscar. Puedes añadir juegos manualmente sin conexión." }
     override suspend fun search(query: String): List<Metadata> {
         checkKey()

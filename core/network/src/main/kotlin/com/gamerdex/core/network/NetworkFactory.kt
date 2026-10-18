@@ -29,9 +29,9 @@ object NetworkFactory {
                     cached
                 }
             }.build()
-        val api = Retrofit.Builder().baseUrl("https://api.rawg.io/api/").client(client)
+        val retrofit = Retrofit.Builder().baseUrl("https://api.rawg.io/api/").client(client)
             .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
-            .build().create(RawgApi::class.java)
-        return RawgRepository(api, apiKey.isNotBlank())
+            .build()
+        return RawgRepository(retrofit.create(RawgApi::class.java), apiKey.isNotBlank(),retrofit.create(RawgRankingApi::class.java))
     }
 }

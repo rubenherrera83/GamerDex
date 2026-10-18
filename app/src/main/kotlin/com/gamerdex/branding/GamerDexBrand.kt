@@ -67,6 +67,14 @@ object GamerDexBrand {
                 paint.color = if (i < 5) primary else secondary; paint.alpha = 255
                 canvas.drawRect(x, y, x + 7, y + 7, paint)
             } } } }
+        } else if(theme==VisualTheme.SEGA) {
+            paint.typeface=Typeface.create("sans-serif-black",Typeface.BOLD);paint.textSize=70f
+            paint.textScaleX=368f/paint.measureText("GAMERDEX")
+            val baseline=50f-(paint.ascent()+paint.descent())/2
+            paint.style=Paint.Style.STROKE;paint.strokeJoin=Paint.Join.ROUND;paint.strokeWidth=2.4f;paint.color=primary
+            canvas.drawText("GAMERDEX",124f,baseline,paint)
+            paint.style=Paint.Style.FILL;paint.color=secondary
+            canvas.drawRect(125f,87f,478f,89f,paint)
         } else if (theme == VisualTheme.POP) {
             paint.typeface = Typeface.create("sans-serif-black", Typeface.BOLD); paint.textSize = 65f
             "GAMERDEX".forEachIndexed { i, char ->

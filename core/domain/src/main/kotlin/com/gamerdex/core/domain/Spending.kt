@@ -27,3 +27,6 @@ fun spendingTotals(entries:List<Purchase>):SpendTotals {
     return SpendTotals(sum(entries.filter{it.kind==PurchaseKind.GAME}),sum(entries.filter{it.kind==PurchaseKind.HARDWARE}),sum(entries),entries.count{it.amount==null})
 }
 fun spendingByYear(entries:List<Purchase>)=entries.groupBy{it.purchasedOn?.take(4) ?: "Año desconocido"}.toSortedMap(compareByDescending<String>{it.toIntOrNull() ?: Int.MIN_VALUE}).mapValues{spendingTotals(it.value)}
+fun filterPurchases(entries:List<Purchase>,year:String?=null,platform:String?=null)=entries.filter {
+    (year==null || (it.purchasedOn?.take(4) ?: "Año desconocido")==year) && (platform==null || it.platform==platform)
+}

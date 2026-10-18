@@ -1,6 +1,15 @@
 # GamerDex
 
-Versión 0.7.1: búsqueda combinada ScanDex + UPCitemdb, catálogo Evercade, yenes e historial de gasto.
+Versión 0.8.0: filtros de gasto, tema Azul 16-bit y curiosidades/ranking de sistemas.
+
+## Novedades 0.8.0
+
+- El historial de gasto permite combinar año y plataforma, elegir Año desconocido y limpiar filtros. El resumen y los desgloses usan la misma selección, sin convertir monedas.
+- «Azul 16-bit», inspirado en la era Sega: fondo azul marino, acentos celestes/dorados, anillos, líneas de velocidad y wordmark delineado. Disponible en Preferencias y en los gamertags; el icono de app se conserva.
+- Las fichas de hardware incorporan curiosidades en español y cifras de unidades con fuentes y fecha de revisión. Catálogo inicial de 26 familias; una plataforma sin ficha lo indica y una cifra desconocida no se estima.
+- Top de hasta cinco juegos RAWG por plataforma, con al menos diez votos y nota global 0–100. Se consultan hasta 200 candidatos ordenados por nota; las valoraciones no son específicas de cada versión. Hay estados de carga, error, reintento, ausencia de votos y plataforma no soportada.
+- El contador de sistemas de portada cuenta unidades del inventario, también modelos repetidos, y abre «Mis sistemas». Los filtros de colección no cambian ese total.
+- APK `GamerDex-0.8.0-debug.apk`; Room v6 y copias v5 no cambian. [Criterios y fuentes](docs/systems-and-statistics.md).
 
 ## Novedades 0.7.1
 
@@ -109,7 +118,7 @@ Room es la fuente de verdad y las operaciones de colección funcionan sin red. R
 3. Para buscar metadatos, añade tu `RAWG_API_KEY` de https://rawg.io/apidocs. Sin clave funciona el formulario manual.
 4. Ejecuta `./gradlew.bat :app:assembleDebug` o abre el proyecto en Android Studio.
 
-Los APK llevan nombre y versión de la app: `GamerDex-0.7.1-debug.apk` para esta versión. El nombre se toma automáticamente de `versionName`; se conserva el sufijo de variante para distinguir compilaciones debug y release.
+Los APK llevan nombre y versión de la app: `GamerDex-0.8.0-debug.apk` para esta versión. El nombre se toma automáticamente de `versionName`; se conserva el sufijo de variante para distinguir compilaciones debug y release.
 
 La API key de RAWG se inyecta en BuildConfig y puede extraerse del APK. Para distribución pública, sustituir el acceso directo por un backend con credenciales y cuotas propias. No se usan secretos Twitch. El formulario y buscador atribuyen metadatos a RAWG; comprobar sus condiciones de uso para la distribución prevista.
 

@@ -124,7 +124,7 @@ class GamertagRenderer @Inject constructor(@ApplicationContext private val conte
         for (x in 0..1600 step 80) canvas.drawLine(x.toFloat(), 0f, x.toFloat(), 900f, paint)
         for (y in 0..900 step 80) canvas.drawLine(0f, y.toFloat(), 1600f, y.toFloat(), paint)
         when (theme) {
-            VisualTheme.POP, VisualTheme.ARCADE, VisualTheme.VOXEL, VisualTheme.ROYALE, VisualTheme.TACTICAL ->
+            VisualTheme.POP, VisualTheme.ARCADE, VisualTheme.VOXEL, VisualTheme.ROYALE, VisualTheme.TACTICAL,VisualTheme.SEGA ->
                 ThemeArtwork.draw(canvas, theme, RectF(0f, 0f, 1600f, 900f), primary, secondary)
             VisualTheme.CYBERPUNK -> {
                 val random = Random(seed); paint.color = secondary; paint.alpha = 30

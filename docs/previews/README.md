@@ -2,6 +2,9 @@
 
 Capturas reales del emulador Android 15:
 
+- [Tema Azul 16-bit, 0.8.0](render-tests/vault-SEGA.png)
+- [Curiosidades y ranking de sistema, 0.8.0](render-tests/system-insights.png)
+- [Filtros de año y plataforma, 0.8.0](render-tests/spending-filters.png)
 - [Gasto histórico por sistema y año, 0.7.0](render-tests/spending-by-system.png)
 
 - [Gamertag con totales y seis logotipos, 0.6.1](render-tests/gamertag-customized.png)
@@ -29,6 +32,7 @@ Capturas reales del emulador Android 15:
 
 Gamertags PNG generados por el mismo renderer que usa la app:
 
+- [Azul 16-bit sin portada](render-tests/gamertag-SEGA.png)
 - [Ejemplo Portal con arte de RAWG](render-tests/gamertag-live-CYBERPUNK.png)
 - [Cyberpunk sin portada](render-tests/gamertag-CYBERPUNK.png)
 - [Competitivo sin portada](render-tests/gamertag-COMPETITIVE.png)

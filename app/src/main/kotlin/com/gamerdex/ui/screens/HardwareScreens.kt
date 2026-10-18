@@ -103,6 +103,7 @@ fun HardwareKind.label() = when(this) { HardwareKind.CONSOLE -> "Consola"; Hardw
             if(item.controllers.isEmpty()) Text("Sin mandos registrados")
             item.controllers.forEach { c -> OutlinedCard(Modifier.fillMaxWidth()) { Column(Modifier.padding(14.dp),verticalArrangement=Arrangement.spacedBy(6.dp)) { Text("${c.quantity} × ${c.name}",style=MaterialTheme.typography.titleMedium); Text(c.condition.label()); if(c.serialNumber.isNotBlank()) Text("Serie: ${c.serialNumber}"); if(c.notes.isNotBlank()) Text(c.notes) } } }
             if(item.notes.isNotBlank()) Text(item.notes)
+            HardwareInsights(item.platform)
             item.localPhotos.drop(1).forEach { Cover(it,"Foto de ${item.name}",Modifier.fillMaxWidth().height(220.dp),contentScale=androidx.compose.ui.layout.ContentScale.Fit) }
             TextButton(onClick={confirm=true}){Text("Eliminar sistema",color=MaterialTheme.colorScheme.error)}
         }

@@ -22,6 +22,15 @@ object ThemeArtwork {
             canvas.drawRect(x, y, x + w, y + h, paint)
         }
         when (theme) {
+            VisualTheme.SEGA -> {
+                for(i in 0..7)line(0f,155f+i*7,400f,155f+i*7,primary,40)
+                paint.color=secondary;paint.alpha=95;paint.style=Paint.Style.STROKE;paint.strokeWidth=3f
+                for(i in 0..3)canvas.drawCircle(260f+i*38,75f-i*8,14f,paint)
+                paint.color=primary;paint.alpha=60;paint.strokeWidth=2f
+                for(i in 0..4)canvas.drawArc(220f+i*5,5f+i*5,410f-i*5,185f-i*5,195f,135f,false,paint)
+                paint.style=Paint.Style.FILL
+                for(i in 0..9)rect(i*40f,195f,20f,12f,secondary,30)
+            }
             VisualTheme.POP -> {
                 // Floating platforms, clouds and round tokens; no character artwork.
                 for (i in 0..3) {

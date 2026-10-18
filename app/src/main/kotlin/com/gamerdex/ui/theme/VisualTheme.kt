@@ -13,6 +13,7 @@ enum class VisualTheme(val title: String, val tagline: String, val dark: Boolean
     VOXEL("Mundo Vóxel", "Construye tu próxima aventura."),
     ROYALE("Zona Royale", "Tu escuadrón. Tu estilo. Tu victoria."),
     TACTICAL("Operación Táctica", "Cada pieza cuenta. Completa la misión."),
+    SEGA("Azul 16-bit", "Inspirado en la era Sega. Espíritu arcade."),
 }
 val LocalVisualTheme = staticCompositionLocalOf { VisualTheme.CYBERPUNK }
 fun VisualTheme.heroTitle() = when (this) {
@@ -25,6 +26,7 @@ fun VisualTheme.heroTitle() = when (this) {
     VisualTheme.VOXEL -> "BLOQUE A BLOQUE.\nCREA TU MUNDO."
     VisualTheme.ROYALE -> "TU ESCUADRÓN.\nTU VICTORIA."
     VisualTheme.TACTICAL -> "OBJETIVO:\nTU COLECCIÓN."
+    VisualTheme.SEGA -> "ESPÍRITU ARCADE.\nPOTENCIA AZUL."
 }
 data class ThemePalette(val background: Color, val surface: Color, val raised: Color, val primary: Color, val secondary: Color, val tertiary: Color, val text: Color)
 fun VisualTheme.palette() = when (this) {
@@ -37,4 +39,5 @@ fun VisualTheme.palette() = when (this) {
     VisualTheme.VOXEL -> ThemePalette(Color(0xFF101A14), Color(0xFF1A2B21), Color(0xFF2C4030), Color(0xFFA6D56A), Color(0xFFE1B887), Color(0xFFE8D16B), Color(0xFFF0F5E9))
     VisualTheme.ROYALE -> ThemePalette(Color(0xFF100D29), Color(0xFF211A43), Color(0xFF35285C), Color(0xFFC1A0FF), Color(0xFF68E6FF), Color(0xFFFFDF70), Color(0xFFF6F0FF))
     VisualTheme.TACTICAL -> ThemePalette(Color(0xFF131612), Color(0xFF20271E), Color(0xFF323B2B), Color(0xFFD1D8A2), Color(0xFFDFC596), Color(0xFFA9C2B6), Color(0xFFF0F1E6))
+    VisualTheme.SEGA -> ThemePalette(Color(0xFF050D26),Color(0xFF0B1D48),Color(0xFF15346B),Color(0xFF64C8FF),Color(0xFFFFD45C),Color(0xFFFF6386),Color(0xFFF1F6FF))
 }

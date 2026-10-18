@@ -66,7 +66,7 @@ class CollectionV4FlowTest {
             compose.onNodeWithText("🏆 Trofeo platino conseguido").assertExists()
             compose.onNodeWithText("Volver").performClick()
             compose.onNodeWithText("☰").performClick(); compose.onNodeWithText("Colección").performClick()
-            compose.onNodeWithText("SISTEMAS").performClick(); compose.onNode(hasText("Plataformas") and !hasClickAction()).assertExists()
+            compose.onNodeWithText("SISTEMAS").performClick(); compose.onNode(hasText("Mis sistemas") and !hasClickAction()).assertExists()
             compose.onNodeWithText("☰").performClick(); compose.onNodeWithText("Colección").performClick()
             compose.onNodeWithText("TÍTULOS").performClick(); compose.onNodeWithText("Todos los títulos").assertExists()
             compose.onNodeWithText("☰").performClick(); compose.onNodeWithText("Colección").performClick()

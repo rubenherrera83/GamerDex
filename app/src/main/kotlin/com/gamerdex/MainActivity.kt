@@ -86,7 +86,7 @@ class MainActivity : ComponentActivity() {
                 else MissingGame(false){nav.popBackStack()}
             }
             composable("vault") { VaultScreen(state, { nav.navigate("edit/0") }, { nav.navigate("detail/$it") }, menu, platform, genre, { platform = it }, { platform = null; genre = null }, mode, setMode,
-                { nav.navigate("library/ALL") }, { nav.navigate("browse/platforms") }, { nav.navigate("library/SPECIAL") }, { game -> viewModel.save(game.copy(isFavorite = !game.isFavorite)) {} }) }
+                { nav.navigate("library/ALL") }, { nav.navigate("hardware") }, { nav.navigate("library/SPECIAL") }, { game -> viewModel.save(game.copy(isFavorite = !game.isFavorite)) {} },hardware.size) }
             composable("library/{filter}") { listEntry ->
                 val filter = runCatching { CollectionFilter.valueOf(listEntry.arguments?.getString("filter").orEmpty()) }.getOrDefault(CollectionFilter.ALL)
                 LibraryScreen(state.games, filter, menu, { nav.navigate("detail/$it") }, { game -> viewModel.save(game.copy(isFavorite = !game.isFavorite)) {} })

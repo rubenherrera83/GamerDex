@@ -6,7 +6,7 @@ import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
 
-@Serializable data class RawgResults(val results: List<RawgGame> = emptyList())
+@Serializable data class RawgResults(val results: List<RawgGame> = emptyList(),val next:String?=null)
 @Serializable data class RawgName(val name: String)
 @Serializable data class RawgPlatform(val platform: RawgName)
 @Serializable data class RawgGame(
@@ -23,6 +23,9 @@ interface RawgApi {
     @GET("games/{id}") suspend fun details(@Path("id") id: Long): RawgGame
     @GET("games/{id}/screenshots") suspend fun screenshots(@Path("id") id: Long, @Query("page_size") size: Int = 12): RawgScreenshots
     @GET("games/{id}/movies") suspend fun movies(@Path("id") id: Long): RawgMovies
+}
+interface RawgRankingApi {
+    @GET("games") suspend fun ranked(@Query("platforms") platformId:Int,@Query("page") page:Int,@Query("ordering") ordering:String="-rating",@Query("page_size") size:Int=40):RawgResults
 }
 
 @Serializable data class RawgScreenshot(val image: String, val hidden: Boolean = false)

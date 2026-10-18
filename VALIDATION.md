@@ -1,12 +1,23 @@
 # Validación de GamerDex
 
-Versión validada: 0.7.1 · Room v6 · formato de copia portable v5 (lectura v1–v5).
+Versión validada: 0.8.0 · Room v6 · formato de copia portable v5 (lectura v1–v5).
 
 Fecha: 18 de octubre de 2026.
 
 Entorno: Windows, JDK Microsoft 21.0.8, Gradle 8.11.1, Android SDK 35 y emulador Medium Phone Android 15 (API 35, x86_64).
 
 ## Resultados
+
+- Validación 0.8.0: APK e instrumentación compilados; Lint con 0 errores y las mismas 82 advertencias anteriores, sin baseline ni supresiones. APK `GamerDex-0.8.0-debug.apk`, versión 0.8.0/código 12 en los metadatos de salida.
+- 45 pruebas distintas correctas para este cambio: dominio (14), red (20) y Android (11). Después se repitieron los dos casos que generan las capturas de filtros y gamertags, tras dar cifras coherentes al fixture de gamertag. Sin fallos pendientes.
+- Filtros: combinación 2021 + PC suma exactamente juego y hardware de ese año/plataforma, excluyendo otros años y JPY. Año desconocido incluye solo compras sin fecha. Una combinación vacía se indica y limpiar filtros recupera todas las monedas. Verificación tanto en dominio como en selectores Compose.
+- Sistemas: dos unidades Mega Drive/Genesis aumentan el contador en dos y el acceso de portada abre Mis sistemas. El recorrido de favoritos/progreso y los otros dos contadores siguen pasando tras cambiar el destino de SISTEMAS. Alta, recreación, edición y eliminación de hardware también correctas.
+- Azul 16-bit: selección en Preferencias, persistencia al recrear Activity y captura real de portada. Renderer genera PNG 1600 × 900 para los diez temas, incluido SEGA, con paletas distintas y lectura posterior correcta. Se revisan visualmente el wordmark delineado, fondos, textos y gamertag con 24 juegos/4 sistemas de prueba.
+- Curiosidades: alias comparten familia; generaciones distintas no toman rankings prestados. Plataforma sin correspondencia y cifra no verificada permanecen explícitas. Fuentes enlazadas y revisión de la ficha histórica visibles en el detalle. El catálogo inicial contiene 26 familias; no se presenta como cobertura de todos los sistemas.
+- Ranking: prueba HTTP verifica plataforma exacta, orden por rating, paginación, mínimo de diez votos, conversión a 0–100, exclusión de otro sistema y notas inválidas. Vacío y fallo HTTP se distinguen. Consulta real Compose desde la ficha Mega Drive muestra datos RAWG con votos; no son puntuaciones específicas de una versión de consola. Se conserva el límite declarado de 200 candidatos.
+- Capturas revisadas: `vault-SEGA.png`, `system-insights.png`, `spending-filters.png` y `gamertag-SEGA.png` en `docs/previews/render-tests/`. Son datos sintéticos del emulador, no la colección del usuario. No cambian Room v6 ni el ZIP v5.
+
+Los resultados 0.7.1 que siguen se conservan como historial.
 
 - Validación 0.7.1: APK e instrumentación compilados; Lint con 0 errores y las mismas 82 advertencias anteriores, sin baseline ni supresiones. Entregable `GamerDex-0.7.1-debug.apk`, versión 0.7.1/código 11 en los metadatos de salida.
 - 24 pruebas distintas correctas para este cambio: proveedores HTTP/combinación (18) y Android (6). Incluye las diez pruebas nuevas de UPCitemdb y combinación. El recorrido nuevo necesitó corregir su selector al apóstrofo tipográfico real del título RAWG; su repetición fue correcta, sin cambios de implementación adicionales.
