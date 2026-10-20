@@ -42,9 +42,9 @@ fun GameCondition.label() = when (this) {
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable fun EditorScreen(original: Game?, saving: Boolean, searchState: SearchState, search: (String) -> Unit,
-    choose: (Metadata, (Metadata) -> Unit) -> Unit, save: (Game, () -> Unit) -> Unit, back: () -> Unit, lookupBarcode: (String) -> Unit = {}, ownedHardware:List<Hardware> = emptyList()) {
+    choose: (Metadata, (Metadata) -> Unit) -> Unit, save: (Game, () -> Unit) -> Unit, back: () -> Unit, lookupBarcode: (String) -> Unit = {}, ownedHardware:List<Hardware> = emptyList(),initialPlatform:String="") {
     var title by rememberSaveable { mutableStateOf(original?.title.orEmpty()) }
-    var platform by rememberSaveable { mutableStateOf(original?.platform.orEmpty()) }
+    var platform by rememberSaveable { mutableStateOf(original?.platform ?: initialPlatform) }
     var company by rememberSaveable { mutableStateOf(original?.company.orEmpty()) }
     var year by rememberSaveable { mutableStateOf(original?.releaseYear?.toString().orEmpty()) }
     var cover by rememberSaveable { mutableStateOf(original?.coverUrl.orEmpty()) }

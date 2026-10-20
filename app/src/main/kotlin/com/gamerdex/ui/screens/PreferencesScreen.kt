@@ -14,6 +14,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gamerdex.ui.PreferencesViewModel
+import com.gamerdex.ui.StartScreen
 import com.gamerdex.ui.components.SectionLabel
 import com.gamerdex.ui.theme.*
 import java.text.DateFormat
@@ -23,6 +24,7 @@ import java.util.Date
 @Composable fun PreferencesScreen(menu: () -> Unit, viewModel: PreferencesViewModel = hiltViewModel()) {
     val theme by viewModel.theme.collectAsStateWithLifecycle()
     val alias by viewModel.alias.collectAsStateWithLifecycle()
+    val startScreen by viewModel.startScreen.collectAsStateWithLifecycle()
     val state by viewModel.state.collectAsStateWithLifecycle()
     val export = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/zip")) { it?.let(viewModel::export) }
     val restore = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { it?.let(viewModel::inspect) }
@@ -30,6 +32,10 @@ import java.util.Date
         LazyColumn(Modifier.fillMaxSize().padding(padding).testTag("preferences-list"), contentPadding = PaddingValues(20.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
             item { SectionLabel("PLAYER", "Tu identidad") }
             item { OutlinedTextField(alias, viewModel::setAlias, label = { Text("Apodo predeterminado") }, supportingText = { Text("Se usará al crear gamertags. Puedes cambiarlo en cada tarjeta.") }, singleLine = true, modifier = Modifier.fillMaxWidth()) }
+            item { Text("Pantalla inicial",style=MaterialTheme.typography.titleMedium)
+                Text("Elige dónde empezar una sesión nueva. Al volver a una sesión abierta se conserva su navegación.",style=MaterialTheme.typography.bodySmall)
+                StartScreen.entries.forEach{screen->FilterChip(startScreen==screen,{viewModel.setStartScreen(screen)},label={Text(screen.title)},modifier=Modifier.testTag("start-screen-${screen.name}"),enabled=!state.busy)}
+            }
             item { SectionLabel("01", "Elige tu universo") }
             VisualTheme.entries.forEach { candidate -> item {
                 val p = candidate.palette()

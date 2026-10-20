@@ -1,6 +1,7 @@
 package com.gamerdex.ui
 
 import android.content.Context
+import androidx.core.content.edit
 import com.gamerdex.ui.theme.VisualTheme
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -10,6 +11,13 @@ import javax.inject.Singleton
 
 @Singleton class AppPreferences @Inject constructor(@ApplicationContext context: Context) {
     private val preferences = context.getSharedPreferences("gamerdex_preferences", Context.MODE_PRIVATE)
+    private val initialScreen=MutableStateFlow(runCatching{StartScreen.valueOf(preferences.getString("start_screen",null).orEmpty())}.getOrElse{
+        if(preferences.contains("start_screen"))StartScreen.SYSTEMS
+        else if(preferences.all.isNotEmpty() || context.getDatabasePath("gamerdex.db").exists())StartScreen.GAMES else StartScreen.SYSTEMS
+    })
+    val startScreen=initialScreen.asStateFlow()
+    init {if(!preferences.contains("start_screen"))preferences.edit{putString("start_screen",initialScreen.value.name)}}
+    fun setStartScreen(value:StartScreen){preferences.edit{putString("start_screen",value.name)};initialScreen.value=value}
     private val selected = MutableStateFlow(runCatching { VisualTheme.valueOf(preferences.getString("theme", null).orEmpty()) }.getOrDefault(VisualTheme.CYBERPUNK))
     val theme = selected.asStateFlow()
     private val mode = MutableStateFlow(runCatching { CollectionView.valueOf(preferences.getString("collection_view", null).orEmpty()) }

@@ -27,7 +27,7 @@ class PcGamertagFlowTest {
                 compose.onNodeWithContentDescription("Abrir menú").performClick();compose.onNodeWithText("Preferencias").performClick()
                 compose.onNodeWithTag("preferences-list").performScrollToNode(hasText(theme.title));compose.onNodeWithText(theme.title).performClick()
                 compose.activityRule.scenario.recreate();assertEquals(theme,prefs.theme.value)
-                compose.onNodeWithText("☰").performClick();compose.onNodeWithText("Colección").performClick();compose.waitForIdle()
+                compose.onNodeWithText("☰").performClick();compose.onNodeWithText("Juegos").performClick();compose.waitForIdle()
                 instrumentation.uiAutomation.takeScreenshot().let{b->File(dir,"vault-${theme.name}.png").outputStream().use{b.compress(Bitmap.CompressFormat.PNG,100,it)}}
             }
             compose.onNodeWithTag("owned-systems-counter").performClick();compose.onNodeWithText("Buscar en mis sistemas").performTextInput("Aurora PC [v9 test]")

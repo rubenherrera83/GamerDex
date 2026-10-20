@@ -27,6 +27,9 @@ import dagger.hilt.android.AndroidEntryPoint
 import com.gamerdex.branding.GamerDexLogo
 import com.gamerdex.core.domain.CollectionFilter
 import com.gamerdex.ui.CollectionView
+import com.gamerdex.ui.StartScreen
+import com.gamerdex.core.domain.systemLibraries
+import android.net.Uri
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -43,13 +46,15 @@ class MainActivity : ComponentActivity() {
             }
             val mode by preferences.collectionView.collectAsStateWithLifecycle()
             val nickname by preferences.alias.collectAsStateWithLifecycle()
-            GamerDexTheme(theme) { GamerDexApp(theme, mode, preferences::setCollectionView, nickname) }
+            val startScreen by preferences.startScreen.collectAsStateWithLifecycle()
+            GamerDexTheme(theme) { GamerDexApp(theme, mode, preferences::setCollectionView, nickname,startScreen) }
         }
     }
 }
 
-@Composable private fun GamerDexApp(theme: VisualTheme, mode: CollectionView, setMode: (CollectionView) -> Unit, nickname: String, viewModel: CollectionViewModel = hiltViewModel()) {
+@Composable private fun GamerDexApp(theme: VisualTheme, mode: CollectionView, setMode: (CollectionView) -> Unit, nickname: String,startScreen:StartScreen, viewModel: CollectionViewModel = hiltViewModel()) {
     val nav = rememberNavController()
+    val initialRoute=rememberSaveable{if(startScreen==StartScreen.SYSTEMS)"systems" else "vault"}
     val state by viewModel.state.collectAsStateWithLifecycle()
     val hardware by viewModel.hardware.collectAsStateWithLifecycle()
     val purchases by viewModel.purchases.collectAsStateWithLifecycle()
@@ -61,19 +66,30 @@ class MainActivity : ComponentActivity() {
     val entry by nav.currentBackStackEntryAsState()
     var platform by rememberSaveable { mutableStateOf<String?>(null) }
     var genre by rememberSaveable { mutableStateOf<String?>(null) }
+    var allGamesEpoch by rememberSaveable{mutableIntStateOf(0)}
     val menu: () -> Unit = { scope.launch { drawer.open() } }
-    val destinations = listOf("vault" to "Colección", "hardware" to "Mis sistemas", "library/FAVORITES" to "Favoritos", "browse/platforms" to "Plataformas", "browse/genres" to "Géneros", "statistics" to "Estadísticas", "gamertag/0" to "Gamertags", "preferences" to "Preferencias")
+    fun navigateSection(route:String){nav.navigate(route){launchSingleTop=true;popUpTo(nav.graph.startDestinationId)}}
+    fun openAllGames(){platform=null;genre=null;allGamesEpoch++;navigateSection("vault")}
+    val destinations = listOf("systems" to "Sistemas","vault" to "Juegos", "hardware" to "Mis sistemas", "library/FAVORITES" to "Favoritos", "browse/genres" to "Géneros", "statistics" to "Estadísticas", "gamertag/0" to "Gamertags", "preferences" to "Preferencias")
     LaunchedEffect(state.error) { state.error?.let { snack.showSnackbar(it); viewModel.clearError() } }
     ModalNavigationDrawer(drawerState = drawer, gesturesEnabled = !saving, drawerContent = {
         ModalDrawerSheet(modifier = Modifier.width(300.dp)) {
             Column(Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) { GamerDexLogo(Modifier.fillMaxWidth()); Text("PLAYER HUB / 02", style = MaterialTheme.typography.labelSmall) }
             destinations.forEachIndexed { index, (route, title) -> NavigationDrawerItem(label = { Text(title) }, icon = { Text("0${index + 1}", color = MaterialTheme.colorScheme.primary) },
-                selected = entry?.destination?.route == route || (route == "library/FAVORITES" && entry?.destination?.route == "library/{filter}" && entry?.arguments?.getString("filter") == "FAVORITES") || (route == "gamertag/0" && entry?.destination?.route == "gamertag/{gameId}"), onClick = { scope.launch { drawer.close() }; nav.navigate(route) { launchSingleTop = true; popUpTo("vault") } }, modifier = Modifier.padding(horizontal = 12.dp, vertical = 3.dp)) }
+                selected = entry?.destination?.route == route || (route=="systems" && entry?.destination?.route=="system-games/{family}") || (route == "library/FAVORITES" && entry?.destination?.route == "library/{filter}" && entry?.arguments?.getString("filter") == "FAVORITES") || (route == "gamertag/0" && entry?.destination?.route in setOf("gamertag/{gameId}","gamertag-system/{id}")), onClick = { scope.launch { drawer.close() };if(route=="vault")openAllGames()else navigateSection(route) }, modifier = Modifier.padding(horizontal = 12.dp, vertical = 3.dp)) }
             Spacer(Modifier.weight(1f)); Text(theme.tagline, Modifier.padding(24.dp), color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }) {
     Scaffold(containerColor = androidx.compose.ui.graphics.Color.Transparent, snackbarHost = { SnackbarHost(snack) }) { outer ->
-        NavHost(nav, startDestination = "vault", modifier = Modifier.padding(bottom = outer.calculateBottomPadding())) {
+        NavHost(nav, startDestination = initialRoute, modifier = Modifier.padding(bottom = outer.calculateBottomPadding())) {
+            composable("systems") {SystemsHomeScreen(state,hardware,menu,{system->nav.navigate("system-games/${Uri.encode(system.key)}")},::openAllGames,{nav.navigate("edit/0")},{navigateSection("hardware")})}
+            composable("system-games/{family}",arguments=listOf(navArgument("family"){type=NavType.StringType})){systemEntry->
+                val family=systemEntry.arguments!!.getString("family").orEmpty()
+                val summary=systemLibraries(state.games,hardware).firstOrNull{it.key==family}
+                VaultScreen(state,{nav.navigate("edit/0?platform=${Uri.encode(summary?.platform ?: family)}")},{nav.navigate("detail/$it")},menu,null,null,{}, {},mode,setMode,
+                    {platform=null;genre=null;navigateSection("vault")},{navigateSection("hardware")},{nav.navigate("library/SPECIAL")},{game->viewModel.save(game.copy(isFavorite=!game.isFavorite)){}},hardware.size,
+                    family,summary?.title ?: family,{nav.popBackStack()})
+            }
             composable("hardware") { HardwareListScreen(hardware, menu, { nav.navigate("hardware/edit/0") }, { nav.navigate("hardware/detail/$it") }) }
             composable("hardware/edit/{id}",arguments=listOf(navArgument("id"){type=NavType.LongType})) { entry ->
                 val id=entry.arguments!!.getLong("id"); val item=hardware.find{it.id==id}
@@ -86,19 +102,19 @@ class MainActivity : ComponentActivity() {
                 else MissingGame(false){nav.popBackStack()}
             }
             composable("vault") { VaultScreen(state, { nav.navigate("edit/0") }, { nav.navigate("detail/$it") }, menu, platform, genre, { platform = it }, { platform = null; genre = null }, mode, setMode,
-                { nav.navigate("library/ALL") }, { nav.navigate("hardware") }, { nav.navigate("library/SPECIAL") }, { game -> viewModel.save(game.copy(isFavorite = !game.isFavorite)) {} },hardware.size) }
+                { nav.navigate("library/ALL") }, { nav.navigate("hardware") }, { nav.navigate("library/SPECIAL") }, { game -> viewModel.save(game.copy(isFavorite = !game.isFavorite)) {} },hardware.size,resetSearchKey=allGamesEpoch) }
             composable("library/{filter}") { listEntry ->
                 val filter = runCatching { CollectionFilter.valueOf(listEntry.arguments?.getString("filter").orEmpty()) }.getOrDefault(CollectionFilter.ALL)
                 LibraryScreen(state.games, filter, menu, { nav.navigate("detail/$it") }, { game -> viewModel.save(game.copy(isFavorite = !game.isFavorite)) {} })
             }
             composable("statistics") { StatisticsScreen(state.games, menu, { nav.navigate("library/${it.name}") },
-                { selected -> platform = selected; genre = null; nav.navigate("vault") { popUpTo("vault"); launchSingleTop = true } },
-                { selected -> genre = selected; platform = null; nav.navigate("vault") { popUpTo("vault"); launchSingleTop = true } },hardware,purchases,viewModel::removeArchivedPurchase) }
+                { selected -> platform = selected; genre = null; navigateSection("vault") },
+                { selected -> genre = selected; platform = null; navigateSection("vault") },hardware,purchases,viewModel::removeArchivedPurchase) }
             composable("browse/{kind}") { browse ->
                 val platforms = browse.arguments?.getString("kind") == "platforms"
                 BrowseScreen(state.games, platforms, menu) { selected ->
                     if (platforms) { platform = selected; genre = null } else { genre = selected; platform = null }
-                    nav.navigate("vault") { popUpTo("vault"); launchSingleTop = true }
+                    navigateSection("vault")
                 }
             }
             composable("preferences") { PreferencesScreen(menu) }
@@ -114,11 +130,11 @@ class MainActivity : ComponentActivity() {
                 if (game != null) DetailScreen(game, { nav.popBackStack() }, { nav.navigate("edit/$id") }, { viewModel.delete(id) { nav.popBackStack() } }, { nav.navigate("gamertag/$id") }, { viewModel.save(game.copy(isFavorite = !game.isFavorite)) {} })
                 else MissingGame(state.loading) { nav.popBackStack() }
             }
-            composable("edit/{id}", arguments = listOf(navArgument("id") { type = NavType.LongType })) { entry ->
+            composable("edit/{id}?platform={platform}", arguments = listOf(navArgument("id") { type = NavType.LongType },navArgument("platform"){type=NavType.StringType;defaultValue=""})) { entry ->
                 val id = entry.arguments!!.getLong("id")
                 val game = state.games.find { it.id == id }
                 if (id == 0L || game != null) EditorScreen(game, saving, search, viewModel::search, viewModel::choose,
-                    { gameToSave, committed -> viewModel.save(gameToSave) { committed(); nav.popBackStack() } }, { if (!saving) nav.popBackStack() }, viewModel::lookupBarcode,hardware)
+                    { gameToSave, committed -> viewModel.save(gameToSave) { committed(); nav.popBackStack() } }, { if (!saving) nav.popBackStack() }, viewModel::lookupBarcode,hardware,entry.arguments?.getString("platform").orEmpty())
                 else MissingGame(state.loading) { nav.popBackStack() }
             }
         }

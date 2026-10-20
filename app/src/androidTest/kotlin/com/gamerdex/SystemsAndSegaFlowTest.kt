@@ -25,7 +25,7 @@ class SystemsAndSegaFlowTest {
             compose.onNodeWithContentDescription("Abrir menú").performClick();compose.onNodeWithText("Preferencias").performClick()
             compose.onNodeWithTag("preferences-list").performScrollToNode(hasText("Azul 16-bit"));compose.onNodeWithText("Azul 16-bit").performClick()
             compose.activityRule.scenario.recreate();assertEquals(VisualTheme.SEGA,prefs.theme.value)
-            compose.onNodeWithText("☰").performClick();compose.onNodeWithText("Colección").performClick()
+            compose.onNodeWithText("☰").performClick();compose.onNodeWithText("Juegos").performClick()
             compose.waitUntil(10_000){compose.onAllNodesWithTag("owned-systems-counter").fetchSemanticsNodes().isNotEmpty()}
             compose.onNodeWithTag("owned-systems-counter").assert(hasText("%02d".format(base+2),substring=true))
             val dir=File(context.getExternalFilesDir(null),"render-tests").apply{mkdirs()}

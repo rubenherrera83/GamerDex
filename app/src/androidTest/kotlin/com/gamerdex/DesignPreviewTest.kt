@@ -25,7 +25,7 @@ class DesignPreviewTest {
             compose.onNodeWithTag("preferences-list").performScrollToNode(hasText(theme.title))
             compose.onNodeWithText(theme.title).performClick()
             compose.onNodeWithText("☰").performClick()
-            compose.onNodeWithText("Colección").performClick()
+            compose.onNodeWithText("Juegos").performClick()
             compose.waitForIdle()
             instrumentation.uiAutomation.takeScreenshot().let { bitmap ->
                 File(directory, "vault-${theme.name}.png").outputStream().use { bitmap.compress(Bitmap.CompressFormat.PNG, 100, it) }

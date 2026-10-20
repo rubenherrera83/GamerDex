@@ -65,11 +65,11 @@ class CollectionV4FlowTest {
             compose.onNodeWithText("ALTA").assertExists()
             compose.onNodeWithText("🏆 Trofeo platino conseguido").assertExists()
             compose.onNodeWithText("Volver").performClick()
-            compose.onNodeWithText("☰").performClick(); compose.onNodeWithText("Colección").performClick()
+            compose.onNodeWithText("☰").performClick(); compose.onNodeWithText("Juegos").performClick()
             compose.onNodeWithText("SISTEMAS").performClick(); compose.onNode(hasText("Mis sistemas") and !hasClickAction()).assertExists()
-            compose.onNodeWithText("☰").performClick(); compose.onNodeWithText("Colección").performClick()
+            compose.onNodeWithText("☰").performClick(); compose.onNodeWithText("Juegos").performClick()
             compose.onNodeWithText("TÍTULOS").performClick(); compose.onNodeWithText("Todos los títulos").assertExists()
-            compose.onNodeWithText("☰").performClick(); compose.onNodeWithText("Colección").performClick()
+            compose.onNodeWithText("☰").performClick(); compose.onNodeWithText("Juegos").performClick()
             compose.onNodeWithText("ESPECIALES").performClick(); compose.onNodeWithText("Ediciones especiales").assertExists()
         } finally { runBlocking { repository.snapshot().games.filter { it.title == title }.forEach { repository.delete(it.id) } } }
     }

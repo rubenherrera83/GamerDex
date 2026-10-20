@@ -1,12 +1,21 @@
 # Validación de GamerDex
 
-Versión validada: 0.9.0 · Room v6 · formato de copia portable v5 (lectura v1–v5).
+Versión validada: 0.10.0 · Room v6 · formato de copia portable v5 (lectura v1–v5).
 
-Fecha: 18 de octubre de 2026.
+Fecha: 20 de octubre de 2026.
 
 Entorno: Windows, JDK Microsoft 21.0.8, Gradle 8.11.1, Android SDK 35 y emulador Medium Phone Android 15 (API 35, x86_64).
 
 ## Resultados
+
+- Validación 0.10.0: APK e instrumentación compilados; Lint con 0 errores y las mismas 82 advertencias anteriores, sin baseline ni supresiones. Entregable `GamerDex-0.10.0-debug.apk`, versión 0.10.0/código 14 verificados en los metadatos de salida. Instalación sobre la versión anterior y arranque en frío correctos en API 35.
+- 51 pruebas distintas correctas: dominio (16) y Android (35). La batería Android completa tuvo un fallo de selector en el recorrido nuevo porque el buscador y la tarjeta contenían el mismo título. Tras distinguir el elemento clicable del campo editable, las tres pruebas nuevas se repitieron correctamente con el APK definitivo. No quedan fallos pendientes.
+- Sistemas: una tarjeta por familia con copias y unidades independientes. Dos copias Mega Drive/Genesis y dos unidades Mega Drive II/Genesis producen dos juegos y dos unidades, sin multiplicaciones. Dominio comprueba además grupos solo con juegos, solo con hardware, colección vacía y nombres personalizados. El total de grupos no sustituye el contador de unidades del inventario.
+- Recorrido Compose: abrir una familia, buscar un juego, entrar en la ficha y volver conservando búsqueda y total; cambiar Lista / Cuadrícula / Cover Flow; recrear Activity; regresar al buscador de sistemas. Una plataforma personalizada con espacios, barra y ampersand navega correctamente. Añadir desde su colección preselecciona la plataforma y actualiza la tarjeta de cero a un juego al guardar.
+- Preferencias: instalación nueva empieza en Sistemas; preferencias antiguas o base existente conservan Juegos y la vista previa, incluida la migración Cover Flow. Elegir Sistemas no abandona Preferencias; recrear Activity restaura el destino y una sesión nueva aplica la elección. «Juegos» limpia la búsqueda anterior.
+- La batería Android también conserva los recorridos anteriores de colección, favoritos/progreso, estadísticas, hardware, copias, gamertags, doce temas y búsquedas externas. Room v6 y ZIP v5 no cambian. Capturas revisadas con datos sintéticos: `systems-home.png` y `system-games.png` en `docs/previews/render-tests/`.
+
+Los resultados 0.9.0 del 18 de octubre que siguen se conservan como historial.
 
 - Validación 0.9.0: APK e instrumentación compilados; Lint con 0 errores y las mismas 82 advertencias anteriores, sin baseline ni supresiones. Entregable `GamerDex-0.9.0-debug.apk`, versión 0.9.0/código 13.
 - 13 pruebas Android distintas correctas: gamertag de hardware (2), recorrido PC/temas (1), backup y renderer de temas (3), personalización (2), editor previo (1), hardware (1) y progreso/apodo/compartición (3). El recorrido nuevo requirió selectores inequívocos para la tarjeta buscada, el destino del menú y la unidad del selector; su repetición final fue correcta. No quedan fallos pendientes.

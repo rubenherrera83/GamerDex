@@ -15,6 +15,8 @@ data class BackupState(val busy: Boolean = false, val message: String? = null, v
 @HiltViewModel class PreferencesViewModel @Inject constructor(private val preferences: AppPreferences, private val backup: PortableBackupService) : ViewModel() {
     val theme = preferences.theme
     val alias = preferences.alias
+    val startScreen=preferences.startScreen
+    fun setStartScreen(value:StartScreen)=preferences.setStartScreen(value)
     fun setAlias(value: String) = preferences.setAlias(value)
     private val mutableBackup = MutableStateFlow(BackupState())
     val state = mutableBackup.asStateFlow()
