@@ -70,30 +70,36 @@ class MainActivity : ComponentActivity() {
     val menu: () -> Unit = { scope.launch { drawer.open() } }
     fun navigateSection(route:String){nav.navigate(route){launchSingleTop=true;popUpTo(nav.graph.startDestinationId)}}
     fun openAllGames(){platform=null;genre=null;allGamesEpoch++;navigateSection("vault")}
-    val destinations = listOf("systems" to "Sistemas","vault" to "Juegos", "hardware" to "Mis sistemas", "library/FAVORITES" to "Favoritos", "browse/genres" to "Géneros", "statistics" to "Estadísticas", "gamertag/0" to "Gamertags", "preferences" to "Preferencias")
+    fun openSystem(family:String,equipment:Boolean=false){nav.navigate("system-games/${Uri.encode(family)}?tab=${if(equipment)"equipment" else "games"}")}
+    val destinations = listOf("systems" to "Sistemas","vault" to "Juegos", "library/FAVORITES" to "Favoritos", "browse/genres" to "Géneros", "statistics" to "Estadísticas", "gamertag/0" to "Gamertags", "preferences" to "Preferencias")
     LaunchedEffect(state.error) { state.error?.let { snack.showSnackbar(it); viewModel.clearError() } }
     ModalNavigationDrawer(drawerState = drawer, gesturesEnabled = !saving, drawerContent = {
         ModalDrawerSheet(modifier = Modifier.width(300.dp)) {
             Column(Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) { GamerDexLogo(Modifier.fillMaxWidth()); Text("PLAYER HUB / 02", style = MaterialTheme.typography.labelSmall) }
             destinations.forEachIndexed { index, (route, title) -> NavigationDrawerItem(label = { Text(title) }, icon = { Text("0${index + 1}", color = MaterialTheme.colorScheme.primary) },
-                selected = entry?.destination?.route == route || (route=="systems" && entry?.destination?.route=="system-games/{family}") || (route == "library/FAVORITES" && entry?.destination?.route == "library/{filter}" && entry?.arguments?.getString("filter") == "FAVORITES") || (route == "gamertag/0" && entry?.destination?.route in setOf("gamertag/{gameId}","gamertag-system/{id}")), onClick = { scope.launch { drawer.close() };if(route=="vault")openAllGames()else navigateSection(route) }, modifier = Modifier.padding(horizontal = 12.dp, vertical = 3.dp)) }
+                selected = entry?.destination?.route == route || (route=="systems" && (entry?.destination?.route?.startsWith("system-games/")==true || entry?.destination?.route?.startsWith("hardware")==true)) || (route == "library/FAVORITES" && entry?.destination?.route == "library/{filter}" && entry?.arguments?.getString("filter") == "FAVORITES") || (route == "gamertag/0" && entry?.destination?.route in setOf("gamertag/{gameId}","gamertag-system/{id}")), onClick = { scope.launch { drawer.close() };if(route=="vault")openAllGames()else navigateSection(route) }, modifier = Modifier.padding(horizontal = 12.dp, vertical = 3.dp)) }
             Spacer(Modifier.weight(1f)); Text(theme.tagline, Modifier.padding(24.dp), color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }) {
     Scaffold(containerColor = androidx.compose.ui.graphics.Color.Transparent, snackbarHost = { SnackbarHost(snack) }) { outer ->
         NavHost(nav, startDestination = initialRoute, modifier = Modifier.padding(bottom = outer.calculateBottomPadding())) {
-            composable("systems") {SystemsHomeScreen(state,hardware,menu,{system->nav.navigate("system-games/${Uri.encode(system.key)}")},::openAllGames,{nav.navigate("edit/0")},{navigateSection("hardware")})}
-            composable("system-games/{family}",arguments=listOf(navArgument("family"){type=NavType.StringType})){systemEntry->
+            composable("systems") {SystemsHomeScreen(state,hardware,menu,{system->openSystem(system.key)},::openAllGames,{nav.navigate("edit/0")},{nav.navigate("hardware/edit/0")})}
+            composable("system-games/{family}?tab={tab}",arguments=listOf(navArgument("family"){type=NavType.StringType},navArgument("tab"){type=NavType.StringType;defaultValue="games"})){systemEntry->
                 val family=systemEntry.arguments!!.getString("family").orEmpty()
                 val summary=systemLibraries(state.games,hardware).firstOrNull{it.key==family}
-                VaultScreen(state,{nav.navigate("edit/0?platform=${Uri.encode(summary?.platform ?: family)}")},{nav.navigate("detail/$it")},menu,null,null,{}, {},mode,setMode,
-                    {platform=null;genre=null;navigateSection("vault")},{navigateSection("hardware")},{nav.navigate("library/SPECIAL")},{game->viewModel.save(game.copy(isFavorite=!game.isFavorite)){}},hardware.size,
-                    family,summary?.title ?: family,{nav.popBackStack()})
+                SystemLibraryScreen(state,hardware,family,summary?.title ?: family,systemEntry.arguments?.getString("tab")=="equipment",mode,setMode,
+                    {nav.popBackStack()},{nav.navigate("edit/0?platform=${Uri.encode(summary?.platform ?: family)}")},{nav.navigate("detail/$it")},
+                    {game->viewModel.save(game.copy(isFavorite=!game.isFavorite)){}},{nav.navigate("hardware/edit/0?platform=${Uri.encode(summary?.platform ?: family)}")},{nav.navigate("hardware/detail/$it")})
             }
-            composable("hardware") { HardwareListScreen(hardware, menu, { nav.navigate("hardware/edit/0") }, { nav.navigate("hardware/detail/$it") }) }
-            composable("hardware/edit/{id}",arguments=listOf(navArgument("id"){type=NavType.LongType})) { entry ->
+            composable("hardware") { SystemsHomeScreen(state,hardware,menu,{system->openSystem(system.key)},::openAllGames,{nav.navigate("edit/0")},{nav.navigate("hardware/edit/0")}) }
+            composable("hardware/edit/{id}?platform={platform}",arguments=listOf(navArgument("id"){type=NavType.LongType},navArgument("platform"){type=NavType.StringType;defaultValue=""})) { entry ->
                 val id=entry.arguments!!.getLong("id"); val item=hardware.find{it.id==id}
-                if(id==0L || item!=null) HardwareEditorScreen(item,saving,{ value -> viewModel.saveHardware(value){nav.popBackStack()} },{if(!saving)nav.popBackStack()})
+                if(id==0L || item!=null) HardwareEditorScreen(item,saving,{ value -> viewModel.saveHardware(value){
+                    val previousFamily=nav.previousBackStackEntry?.arguments?.getString("family")
+                    nav.popBackStack()
+                    val savedFamily=com.gamerdex.core.domain.SystemKnowledge.family(value.platform)
+                    if(id==0L && previousFamily!=savedFamily)openSystem(savedFamily,equipment=true)
+                } },{if(!saving)nav.popBackStack()},entry.arguments?.getString("platform").orEmpty())
                 else MissingGame(false){nav.popBackStack()}
             }
             composable("hardware/detail/{id}",arguments=listOf(navArgument("id"){type=NavType.LongType})) { entry ->
@@ -102,7 +108,7 @@ class MainActivity : ComponentActivity() {
                 else MissingGame(false){nav.popBackStack()}
             }
             composable("vault") { VaultScreen(state, { nav.navigate("edit/0") }, { nav.navigate("detail/$it") }, menu, platform, genre, { platform = it }, { platform = null; genre = null }, mode, setMode,
-                { nav.navigate("library/ALL") }, { nav.navigate("hardware") }, { nav.navigate("library/SPECIAL") }, { game -> viewModel.save(game.copy(isFavorite = !game.isFavorite)) {} },hardware.size,resetSearchKey=allGamesEpoch) }
+                { nav.navigate("library/ALL") }, { navigateSection("systems") }, { nav.navigate("library/SPECIAL") }, { game -> viewModel.save(game.copy(isFavorite = !game.isFavorite)) {} },hardware.size,resetSearchKey=allGamesEpoch) }
             composable("library/{filter}") { listEntry ->
                 val filter = runCatching { CollectionFilter.valueOf(listEntry.arguments?.getString("filter").orEmpty()) }.getOrDefault(CollectionFilter.ALL)
                 LibraryScreen(state.games, filter, menu, { nav.navigate("detail/$it") }, { game -> viewModel.save(game.copy(isFavorite = !game.isFavorite)) {} })

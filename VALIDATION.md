@@ -1,12 +1,24 @@
 # Validación de GamerDex
 
-Versión validada: 0.10.0 · Room v6 · formato de copia portable v5 (lectura v1–v5).
+Versión validada: 0.11.0 · Room v6 · formato de copia portable v5 (lectura v1–v5).
 
-Fecha: 20 de octubre de 2026.
+Fecha: 21 de octubre de 2026.
 
 Entorno: Windows, JDK Microsoft 21.0.8, Gradle 8.11.1, Android SDK 35 y emulador Medium Phone Android 15 (API 35, x86_64).
 
 ## Resultados
+
+- Validación 0.11.0: APK e instrumentación compilados; Lint con 0 errores y las mismas 82 advertencias anteriores, sin baseline ni supresiones. Metadatos de salida: `GamerDex-0.11.0-debug.apk`, versión 0.11.0/código 15. Instalación sobre 0.10.0 y arranque en frío correctos en API 35.
+- 52 pruebas distintas correctas: dominio (16) y batería Android completa (36). Los recorridos antiguos se ejecutan con inicio en Juegos; los casos de navegación configuran y restauran Sistemas por separado. Se reinició la batería tras detectar que el emulador conservaba el inicio en Sistemas y dos pruebas antiguas esperaban tarjetas de juegos al guardar desde portada. La ejecución completa con esa precondición explícita terminó sin fallos.
+- Unificación: el menú no contiene Mis sistemas. Cada familia abre Juegos y Mis equipos, con totales separados y encabezado fijo. La navegación conserva grupos de alias, copias repetidas y plataformas solo con juegos o solo con hardware, además de Lista / Cuadrícula / Cover Flow y el alta de juegos con plataforma preseleccionada.
+- Nuevo recorrido de pestañas: una familia personalizada con barra/ampersand reúne un juego favorito y dos equipos, excluye una tercera unidad de otra plataforma y se encuentra desde portada por la serie de uno de sus equipos. Búsquedas independientes y pestaña seleccionada persisten al alternar y recrear Activity. Añadir equipo preselecciona plataforma, cambia el total a tres y vuelve a dos al eliminarlo, sin modificar el juego favorito.
+- Las búsquedas se conservan en el estado de la plataforma; cambiar pestaña o abrir una ficha/formulario cierra foco y teclado. La repetición visual detectó que cerrar el teclado después de vaciar el campo mediante la prueba podía confirmar un texto de composición antiguo. La prueba ahora cierra primero el teclado y comprueba explícitamente el valor vacío antes y después del formulario.
+- Tras ese ajuste se repitieron once pruebas sobre el APK definitivo: pestañas y navegación (2), hardware (1), PC/gamertag (1), curiosidades/ranking (1), inicio (1), colección/cámara (2) y progreso/favoritos/compartición (3). Todas correctas, sin fallos pendientes.
+- Hardware: alta desde Sistemas abre Mis equipos de la familia creada. El recorrido anterior conserva caja, serie, fecha, precio y mando de cantidad dos, recreación del formulario, edición y borrado. PC mantiene edición de componentes y acceso al gamertag desde la ficha alcanzada por la nueva pestaña. Curiosidades y ranking siguen accesibles desde una unidad Mega Drive/Genesis.
+- Regresión Android: colección y cámara/fotos, progreso/favoritos, estadísticas/gasto, proveedores externos, Evercade, backup, gamertags y temas pasan con la navegación nueva. No cambian Room v6, ZIP v5, historial de compras ni preferencias existentes.
+- Revisión visual con datos sintéticos del emulador: `systems-home.png`, `system-games.png` y `system-equipment.png` en `docs/previews/render-tests/`. Las capturas de las nuevas pestañas se regeneran con el mismo recorrido; Mis equipos muestra el campo de búsqueda activo.
+
+Los resultados 0.10.0 del 20 de octubre que siguen se conservan como historial.
 
 - Validación 0.10.0: APK e instrumentación compilados; Lint con 0 errores y las mismas 82 advertencias anteriores, sin baseline ni supresiones. Entregable `GamerDex-0.10.0-debug.apk`, versión 0.10.0/código 14 verificados en los metadatos de salida. Instalación sobre la versión anterior y arranque en frío correctos en API 35.
 - 51 pruebas distintas correctas: dominio (16) y Android (35). La batería Android completa tuvo un fallo de selector en el recorrido nuevo porque el buscador y la tarjeta contenían el mismo título. Tras distinguir el elemento clicable del campo editable, las tres pruebas nuevas se repitieron correctamente con el APK definitivo. No quedan fallos pendientes.

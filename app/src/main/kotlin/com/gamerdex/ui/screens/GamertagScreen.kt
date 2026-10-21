@@ -72,7 +72,7 @@ import androidx.compose.ui.semantics.contentDescription
             if(target=="Sistema / PC") {
                 item { Text("Componentes y accesorios",style=MaterialTheme.typography.titleMedium)
                     Text("Elige hasta 10 elementos de la ficha. Los textos largos se recortan en la imagen. No se copian los campos de precio, fecha o serie.",style=MaterialTheme.typography.bodySmall)
-                    if(selectedSystem==null)Text("Elige un equipo registrado en Mis sistemas.")
+                    if(selectedSystem==null)Text("Elige un equipo registrado en Sistemas → Mis equipos.")
                     else if(selectedSystem.controllers.isEmpty())Text("Puedes añadir CPU, GPU, RAM, discos y periféricos como accesorios en la ficha del sistema.")
                 }
                 items(selectedSystem?.controllers?.size ?: 0){index->
@@ -84,7 +84,7 @@ import androidx.compose.ui.semantics.contentDescription
                 item { Row(Modifier.fillMaxWidth().toggleable(includeNotes,role=androidx.compose.ui.semantics.Role.Checkbox,onValueChange={includeNotes=it}),verticalAlignment=androidx.compose.ui.Alignment.CenterVertically){Checkbox(includeNotes,null);Text("Incluir notas de componentes",Modifier.weight(1f))} }
             }
             item { Text("Totales de tu colección: ${games.size} videojuegos · ${hardware.size} sistemas",style=MaterialTheme.typography.titleMedium)
-                Text("Cuenta todas las copias de juegos y las unidades registradas en Mis sistemas, también en las tarjetas de un solo juego o plataforma.",style=MaterialTheme.typography.bodySmall) }
+                Text("Cuenta todas las copias de juegos y los equipos registrados en Sistemas, también en las tarjetas de un solo juego o plataforma.",style=MaterialTheme.typography.bodySmall) }
             item { OutlinedButton(onClick={customize=true},modifier=Modifier.fillMaxWidth()){Text("Personalizar logotipos (${logos.size}/6)")} }
             items(logos) { logo ->
                 val index=logos.indexOf(logo)

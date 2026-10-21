@@ -1,6 +1,6 @@
 # Navegación por sistemas
 
-El menú comienza con **Sistemas** y **Juegos**. **Mis sistemas** conserva el inventario de unidades físicas: por ejemplo, dos Mega Drive con sus números de serie y accesorios.
+El menú comienza con **Sistemas** y **Juegos**. Desde 0.11.0, Sistemas reúne la colección y las unidades físicas. Cada plataforma tiene las pestañas **Juegos** y **Mis equipos**; ya no hay una entrada independiente «Mis sistemas».
 
 ## Tarjetas y recuentos
 
@@ -12,9 +12,15 @@ La imagen procede de una unidad registrada, dando prioridad a las que tienen fot
 
 ## Colección de una plataforma
 
-Tocar una tarjeta abre los juegos de su familia. El encabezado muestra el total de copias de esa familia, incluso al buscar un título. Se conservan las vistas Lista, Cuadrícula y Cover Flow, los favoritos y el acceso a la ficha. Añadir un juego preselecciona la plataforma de una unidad del grupo o, si no existe, la de uno de sus juegos; se puede editar antes de guardar.
+Tocar una tarjeta abre Juegos. El encabezado fijo muestra el total de copias y equipos de esa familia, incluso al buscar un título o una unidad. Se conservan las vistas Lista, Cuadrícula y Cover Flow, los favoritos y el acceso a la ficha. Añadir un juego preselecciona la plataforma de una unidad del grupo o, si no existe, la de uno de sus juegos; se puede editar antes de guardar.
 
-Volver recupera el listado de sistemas y su búsqueda. **Juegos** en el menú y **Todos los juegos** en la portada abren la colección global y limpian búsqueda y filtros de plataforma/género.
+Mis equipos muestra exclusivamente las unidades de esa familia. Mantiene fotos, caja/manual/cables, funcionamiento, estado, serie, precio/fecha, accesorios y componentes, curiosidades/ranking y acceso al gamertag. Se puede buscar por nombre, plataforma o serie. La portada también encuentra la familia al buscar el nombre o serie de cualquiera de sus equipos.
+
+Añadir equipo desde una plataforma preselecciona su plataforma, que sigue siendo editable. Desde la portada permite elegir cualquier sistema; tras guardar abre Mis equipos de la familia creada. Si se elige otra plataforma durante el alta, se abre su familia de destino. Editar o eliminar una unidad conserva la separación entre inventario, juegos e historial de compras.
+
+Cada pestaña conserva búsqueda y desplazamiento al alternar, y la pestaña seleccionada se restaura al recrear Activity. Las fichas y formularios regresan a su pestaña de origen.
+
+Volver recupera el listado de sistemas y su búsqueda. **Juegos** en el menú y **Todos los juegos** en la portada abren la colección global y limpian búsqueda y filtros de plataforma/género. El contador de sistemas de la colección global conserva el total de unidades físicas y abre la portada unificada.
 
 ## Pantalla inicial
 

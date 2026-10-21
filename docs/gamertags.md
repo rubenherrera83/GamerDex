@@ -2,7 +2,7 @@
 
 ## PCs y sistemas
 
-En Mis sistemas, registra el PC como PC / ordenador y añade CPU, GPU, RAM, almacenamiento, placa, fuente, refrigeración y periféricos mediante Componentes y accesorios. Se reutilizan los accesorios existentes, sus cantidades y notas; no se añade un esquema independiente ni se convierten automáticamente los nombres de accesorios antiguos.
+En Sistemas, usa Añadir equipo o abre una plataforma → Mis equipos. Registra el PC como PC / ordenador y añade CPU, GPU, RAM, almacenamiento, placa, fuente, refrigeración y periféricos mediante Componentes y accesorios. Se reutilizan los accesorios existentes, sus cantidades y notas; no se añade un esquema independiente ni se convierten automáticamente los nombres de accesorios antiguos.
 
 «Crear gamertag de este sistema» abre su tarjeta directamente. También se puede entrar desde Gamertags → Sistema / PC y elegir una unidad del inventario. El selector busca por nombre y plataforma y distingue unidades con su ID. Funciona igualmente con consolas y microordenadores. Si no hay inventario, indica que hay que registrar el sistema; no permite exportar un objetivo inexistente.
 
@@ -16,7 +16,7 @@ Guardar y compartir utilizan el mismo bitmap. Los botones esperan a que la image
 
 «Escritorio Aurora» se inspira en PC/Windows con cintas azules/lavanda y un wordmark ligero y redondeado. «Órbita Verde» se inspira en Xbox con verdes, trazos orbitales y letras finas. Ambos se eligen en Preferencias, se aplican a toda la app y a los gamertags y conservan el icono existente. Los motivos son geométricos propios; no se incorporan fondos ni logotipos oficiales de Windows o Xbox al tema.
 
-Las tarjetas de colección, plataforma, juego y sistema/PC muestran siempre los totales de toda la colección: número de copias de videojuegos, incluidas las ediciones repetidas, y número de unidades de hardware guardadas en Mis sistemas. Dos consolas del mismo modelo cuentan como dos sistemas. El número de plataformas distintas sigue siendo un dato diferente en la tarjeta de colección.
+Las tarjetas de colección, plataforma, juego y sistema/PC muestran siempre los totales de toda la colección: número de copias de videojuegos, incluidas las ediciones repetidas, y número de equipos registrados en Sistemas. Dos consolas del mismo modelo cuentan como dos sistemas. El número de plataformas distintas sigue siendo un dato diferente en la tarjeta de colección.
 
 «Personalizar logotipos» permite combinar hasta seis elementos. Consolas ofrece todo el catálogo y los sistemas personalizados de la colección. Compañías utiliza los nombres/logotipos guardados y los emblemas locales disponibles. Juegos ofrece las carátulas de la colección. Para un logotipo específico de un juego o cualquier otra marca, Personalizado permite elegir una imagen desde Android o indicar una URL HTTPS; se recomienda PNG transparente. No se intenta obtener un logotipo de juego a partir de RAWG, que aquí aporta carátulas.
 

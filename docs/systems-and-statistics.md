@@ -6,7 +6,7 @@ Estadísticas → Ver gasto por año, plataforma y sistema incorpora selectores 
 
 Los nombres de plataforma son los registrados en cada compra, como en el desglose anterior: Genesis y Mega Drive no se fusionan automáticamente en el historial financiero. Cada moneda se suma por separado. La selección se mantiene al cambiar entre Por año, Por plataforma, Por sistema y Archivadas. En Archivadas el resumen solo incluye las compras archivadas que cumplen los filtros. Una combinación sin compras se explica y no modifica la colección. Los selectores y el contenido se desplazan dentro del diálogo para conservar acceso en pantallas pequeñas.
 
-El contador SISTEMAS de portada usa el número total de unidades del inventario de hardware; dos consolas del mismo modelo cuentan como dos. Abre Mis sistemas, también cuando el inventario está vacío. No se calcula a partir de las plataformas de los juegos ni cambia al filtrar la colección.
+El contador SISTEMAS de la colección global usa el número total de unidades del inventario de hardware; dos consolas del mismo modelo cuentan como dos. Abre Sistemas, también cuando el inventario está vacío. Desde 0.11.0 las unidades se consultan en cada plataforma → Mis equipos. El contador no se calcula a partir de las plataformas de los juegos ni cambia al filtrar la colección.
 
 ## Curiosidades
 

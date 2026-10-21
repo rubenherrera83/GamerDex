@@ -30,7 +30,9 @@ class SystemsAndSegaFlowTest {
             compose.onNodeWithTag("owned-systems-counter").assert(hasText("%02d".format(base+2),substring=true))
             val dir=File(context.getExternalFilesDir(null),"render-tests").apply{mkdirs()}
             compose.waitForIdle();InstrumentationRegistry.getInstrumentation().uiAutomation.takeScreenshot().let{bitmap->File(dir,"vault-SEGA.png").outputStream().use{bitmap.compress(Bitmap.CompressFormat.PNG,100,it)}}
-            compose.onNodeWithTag("owned-systems-counter").performClick();compose.onNodeWithText("Buscar en mis sistemas").performTextInput("[v8 test]")
+            compose.onNodeWithTag("owned-systems-counter").performClick();compose.onNodeWithText("Buscar sistema o plataforma").performTextInput("[v8 test]")
+            compose.onNodeWithTag("system-card-mega drive").performScrollTo().performClick();compose.onNodeWithTag("system-tab-equipment").performClick()
+            compose.onNodeWithText("Buscar en mis equipos").performTextInput("[v8 test]")
             compose.onNodeWithText(name).performScrollTo().performClick()
             compose.onNodeWithText("¿Sabías que…?").performScrollTo().assertExists()
             compose.onNodeWithText("En Norteamérica se llamó Genesis;",substring=true).performScrollTo().assertExists()

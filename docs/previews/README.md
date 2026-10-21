@@ -2,8 +2,9 @@
 
 Capturas reales del emulador Android 15:
 
-- [Portada por sistemas con totales, 0.10.0](render-tests/systems-home.png)
-- [Juegos de una familia de sistemas, 0.10.0](render-tests/system-games.png)
+- [Portada unificada por sistemas, 0.11.0](render-tests/systems-home.png)
+- [Pestaña Juegos de una plataforma, 0.11.0](render-tests/system-games.png)
+- [Pestaña Mis equipos de una plataforma, 0.11.0](render-tests/system-equipment.png)
 - [Tema Escritorio Aurora, 0.9.0](render-tests/vault-DESKTOP.png)
 - [Tema Órbita Verde, 0.9.0](render-tests/vault-XBOX.png)
 - [Tema Azul 16-bit, 0.8.0](render-tests/vault-SEGA.png)

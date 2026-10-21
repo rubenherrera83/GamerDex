@@ -2,7 +2,7 @@
 
 ## Inventario propio
 
-«Mis sistemas» es independiente de «Plataformas», que sigue filtrando los juegos. Permite registrar varias unidades del mismo modelo: consola, portátil, PC o microordenador; variante y región; caja, instrucciones, cables/fuente; estado físico y funcionamiento; serie; fecha opcional ISO AAAA-MM-DD; precio exacto en céntimos y moneda; notas y fotos.
+Desde 0.11.0, «Sistemas» reúne las plataformas y el inventario. Cada plataforma abre Juegos y Mis equipos. El inventario permite registrar varias unidades del mismo modelo: consola, portátil, PC o microordenador; variante y región; caja, instrucciones, cables/fuente; estado físico y funcionamiento; serie; fecha opcional ISO AAAA-MM-DD; precio exacto en céntimos y moneda; notas y fotos. Los juegos y las unidades mantienen registros independientes.
 
 Los mandos/accesorios tienen nombre o edición, cantidad 1–99, estado físico, serie y notas. Para unidades con series o estados distintos, crea entradas separadas de cantidad uno. No se deducen accesorios incluidos en una consola a partir de su modelo.
 

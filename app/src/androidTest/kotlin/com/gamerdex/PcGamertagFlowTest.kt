@@ -30,7 +30,9 @@ class PcGamertagFlowTest {
                 compose.onNodeWithText("☰").performClick();compose.onNodeWithText("Juegos").performClick();compose.waitForIdle()
                 instrumentation.uiAutomation.takeScreenshot().let{b->File(dir,"vault-${theme.name}.png").outputStream().use{b.compress(Bitmap.CompressFormat.PNG,100,it)}}
             }
-            compose.onNodeWithTag("owned-systems-counter").performClick();compose.onNodeWithText("Buscar en mis sistemas").performTextInput("Aurora PC [v9 test]")
+            compose.onNodeWithTag("owned-systems-counter").performClick();compose.onNodeWithText("Buscar sistema o plataforma").performTextInput(name)
+            compose.onNodeWithTag("system-card-pc").performScrollTo().performClick();compose.onNodeWithTag("system-tab-equipment").performClick()
+            compose.onNodeWithText("Buscar en mis equipos").performTextInput(name)
             compose.onNode(hasText(name) and hasClickAction() and !hasSetTextAction()).performScrollTo().performClick();compose.onNodeWithText("Editar").performClick()
             compose.onNodeWithText("Componente 1: nombre / modelo").performScrollTo().performTextReplacement("CPU Ryzen 7")
             compose.onNodeWithText("GUARDAR SISTEMA").performScrollTo().performClick()

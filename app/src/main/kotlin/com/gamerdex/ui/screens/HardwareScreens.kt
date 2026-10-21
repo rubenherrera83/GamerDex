@@ -18,6 +18,7 @@ import androidx.compose.ui.geometry.*
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.unit.dp
@@ -64,16 +65,15 @@ fun HardwareKind.label() = when(this) { HardwareKind.CONSOLE -> "Consola"; Hardw
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Composable fun HardwareListScreen(hardware: List<Hardware>, menu: () -> Unit, add: () -> Unit, open: (Long) -> Unit) {
-    var query by rememberSaveable { mutableStateOf("") }
-    Scaffold(containerColor=Color.Transparent, topBar={ TopAppBar(title={Text("Mis sistemas")},navigationIcon={TextButton(onClick=menu){Text("☰")}}) },
-        floatingActionButton={ExtendedFloatingActionButton(onClick=add){Text("+ AÑADIR SISTEMA")}}) { padding ->
-        LazyColumn(Modifier.fillMaxSize().padding(padding), contentPadding=PaddingValues(20.dp,12.dp,20.dp,100.dp), verticalArrangement=Arrangement.spacedBy(16.dp)) {
-            item { Text("${hardware.size} sistemas · ${hardware.sumOf { h -> h.controllers.sumOf { it.quantity } }} accesorios / componentes", style=MaterialTheme.typography.titleMedium) }
-            item { OutlinedTextField(query,{query=it},label={Text("Buscar en mis sistemas")},modifier=Modifier.fillMaxWidth()) }
+@Composable fun HardwareListScreen(hardware: List<Hardware>, menu: () -> Unit, add: () -> Unit, open: (Long) -> Unit,query:String,setQuery:(String)->Unit,embedded:Boolean=false) {
+    Scaffold(containerColor=Color.Transparent, topBar={ if(!embedded)TopAppBar(title={Text("Mis equipos")},navigationIcon={TextButton(onClick=menu){Text("☰")}}) },
+        floatingActionButton={ExtendedFloatingActionButton(onClick=add){Text("+ AÑADIR EQUIPO")}}) { padding ->
+        LazyColumn(Modifier.fillMaxSize().padding(padding).testTag("equipment-list"), contentPadding=PaddingValues(20.dp,12.dp,20.dp,100.dp), verticalArrangement=Arrangement.spacedBy(16.dp)) {
+            item { Text("${hardware.size} equipos · ${hardware.sumOf { h -> h.controllers.sumOf { it.quantity } }} accesorios / componentes", style=MaterialTheme.typography.titleMedium) }
+            item { OutlinedTextField(query,setQuery,label={Text("Buscar en mis equipos")},modifier=Modifier.fillMaxWidth(),singleLine=true) }
             if(hardware.isEmpty()) item { Text("Registra cada consola u ordenador que conservas, con su caja, accesorios y datos de compra.") }
             items(hardware.filter { (it.name+" "+it.platform+" "+it.serialNumber).contains(query,true) },key={it.id}) { item ->
-                OutlinedCard(onClick={open(item.id)},modifier=Modifier.fillMaxWidth()) {
+                OutlinedCard(onClick={open(item.id)},modifier=Modifier.fillMaxWidth().testTag("equipment-card-${item.id}")) {
                     HardwareImage(item,Modifier.fillMaxWidth().height(170.dp))
                     Row(Modifier.padding(16.dp),verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(14.dp)) {
                         BrandLogo(item.platform,item.logoUrl,Modifier.size(44.dp),platform=true)
@@ -113,9 +113,9 @@ fun HardwareKind.label() = when(this) { HardwareKind.CONSOLE -> "Consola"; Hardw
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
-@Composable fun HardwareEditorScreen(original: Hardware?, saving: Boolean, save: (Hardware) -> Unit, back: () -> Unit) {
-    var name by rememberSaveable { mutableStateOf(original?.name.orEmpty()) }; var platform by rememberSaveable { mutableStateOf(original?.platform.orEmpty()) }
-    var kind by rememberSaveable { mutableStateOf(original?.kind ?: HardwareKind.CONSOLE) }; var region by rememberSaveable { mutableStateOf(original?.region.orEmpty()) }
+@Composable fun HardwareEditorScreen(original: Hardware?, saving: Boolean, save: (Hardware) -> Unit, back: () -> Unit,initialPlatform:String="") {
+    var name by rememberSaveable { mutableStateOf(original?.name.orEmpty()) }; var platform by rememberSaveable { mutableStateOf(original?.platform ?: initialPlatform) }
+    var kind by rememberSaveable { mutableStateOf(original?.kind ?: if(SystemKnowledge.family(initialPlatform) in setOf("pc","linux","macos"))HardwareKind.COMPUTER else HardwareKind.CONSOLE) }; var region by rememberSaveable { mutableStateOf(original?.region.orEmpty()) }
     var box by rememberSaveable { mutableStateOf(original?.hasBox ?: false) }; var manual by rememberSaveable { mutableStateOf(original?.hasManual ?: false) }; var cables by rememberSaveable { mutableStateOf(original?.hasCables ?: false) }
     var condition by rememberSaveable { mutableStateOf(original?.condition ?: PhysicalCondition.UNSPECIFIED) }; var working by rememberSaveable { mutableStateOf(original?.working) }
     var serial by rememberSaveable { mutableStateOf(original?.serialNumber.orEmpty()) }; var date by rememberSaveable { mutableStateOf(original?.purchasedOn.orEmpty()) }

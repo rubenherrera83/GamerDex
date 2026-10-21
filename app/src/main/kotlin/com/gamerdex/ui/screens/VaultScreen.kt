@@ -23,8 +23,9 @@ import com.gamerdex.branding.GamerDexLogo
 
 @Composable fun VaultScreen(state: CollectionState, add: () -> Unit, open: (Long) -> Unit,
     menu: () -> Unit, platform: String?, genre: String?, setPlatform: (String?) -> Unit, clearFilters: () -> Unit,
-    mode: CollectionView = CollectionView.LIST, setMode: (CollectionView) -> Unit = {}, titles: () -> Unit = {}, systems: () -> Unit = {}, specials: () -> Unit = {}, toggleFavorite: (com.gamerdex.core.domain.Game) -> Unit = {}, systemCount:Int=0,familyFilter:String?=null,familyTitle:String?=null,back:(()->Unit)?=null,resetSearchKey:Int=0) {
-    var query by rememberSaveable(resetSearchKey) { mutableStateOf("") }
+    mode: CollectionView = CollectionView.LIST, setMode: (CollectionView) -> Unit = {}, titles: () -> Unit = {}, systems: () -> Unit = {}, specials: () -> Unit = {}, toggleFavorite: (com.gamerdex.core.domain.Game) -> Unit = {}, systemCount:Int=0,familyFilter:String?=null,familyTitle:String?=null,back:(()->Unit)?=null,resetSearchKey:Int=0,showHeader:Boolean=true,searchQuery:String?=null,setSearchQuery:((String)->Unit)?=null) {
+    var localQuery by rememberSaveable(resetSearchKey) { mutableStateOf("") }
+    val query=searchQuery ?: localQuery
     val platforms = remember(state.games) { state.games.map { it.platform }.distinct().sorted() }
     val familyGames=remember(state.games,familyFilter){if(familyFilter==null)state.games else com.gamerdex.core.domain.gamesForSystem(state.games,familyFilter)}
     val visible = remember(familyGames, platform, genre, query) { familyGames.filter { (platform == null || it.platform == platform) && (genre == null || genre in it.genres || (genre == "Sin género" && it.genres.isEmpty())) && it.title.contains(query, true) } }
@@ -32,7 +33,7 @@ import com.gamerdex.branding.GamerDexLogo
         BoxWithConstraints(Modifier.fillMaxSize().padding(padding)) {
         val columns = when (mode) { CollectionView.GRID -> GridCells.Fixed(if (maxWidth >= 600.dp) 4 else 3); CollectionView.COVER_FLOW -> GridCells.Fixed(1); CollectionView.LIST -> GridCells.Adaptive(155.dp) }
         LazyVerticalGrid(columns = columns, modifier = Modifier.fillMaxSize().testTag("collection-grid"), contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 12.dp, bottom = 110.dp), verticalArrangement = Arrangement.spacedBy(14.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            item(span = { GridItemSpan(maxLineSpan) }) {
+            if(showHeader)item(span = { GridItemSpan(maxLineSpan) }) {
                 Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
                     if(back!=null)TextButton(onClick=back){Text("Volver")}
                     else IconButton(onClick = menu, modifier = Modifier.then(Modifier.semantics { contentDescription = "Abrir menú" })) { Text("☰", color = CyberCyan, style = MaterialTheme.typography.headlineSmall) }
@@ -43,19 +44,19 @@ import com.gamerdex.branding.GamerDexLogo
                     Text("◆", color = NeonPurple)
                 }
             }
-            if(familyFilter!=null)item(span={GridItemSpan(maxLineSpan)}) { Column(verticalArrangement=Arrangement.spacedBy(6.dp)){
+            if(showHeader && familyFilter!=null)item(span={GridItemSpan(maxLineSpan)}) { Column(verticalArrangement=Arrangement.spacedBy(6.dp)){
                 Text(familyTitle.orEmpty(),style=MaterialTheme.typography.headlineMedium)
                 Text("${familyGames.size} ${if(familyGames.size==1)"videojuego" else "videojuegos"} en este sistema",style=MaterialTheme.typography.titleMedium,modifier=Modifier.testTag("system-games-total"))
             } }
             if(familyFilter==null)item(span = { GridItemSpan(maxLineSpan) }) {
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Metric("%02d".format(state.games.size), "TÍTULOS", Modifier.weight(1f).clickable(onClickLabel = "Ver todos los títulos", onClick = titles))
-                    Metric("%02d".format(systemCount), "SISTEMAS", Modifier.weight(1f).testTag("owned-systems-counter").clickable(onClickLabel = "Ver mis sistemas", onClick = systems))
+                    Metric("%02d".format(systemCount), "SISTEMAS", Modifier.weight(1f).testTag("owned-systems-counter").clickable(onClickLabel = "Ver sistemas y equipos", onClick = systems))
                     Metric("%02d".format(state.games.count { it.effectiveEdition != com.gamerdex.core.domain.EditionType.STANDARD }), "ESPECIALES", Modifier.weight(1f).clickable(onClickLabel = "Ver ediciones especiales", onClick = specials))
                 }
             }
             item(span = { GridItemSpan(maxLineSpan) }) {
-                OutlinedTextField(query, { query = it }, label = { Text("Buscar en tu colección") }, modifier = Modifier.fillMaxWidth(), singleLine = true, shape = MaterialTheme.shapes.medium)
+                OutlinedTextField(query, {value->if(setSearchQuery!=null)setSearchQuery(value) else localQuery=value}, label = { Text("Buscar en tu colección") }, modifier = Modifier.fillMaxWidth(), singleLine = true, shape = MaterialTheme.shapes.medium)
             }
             if (platform != null || genre != null) item(span = { GridItemSpan(maxLineSpan) }) {
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {

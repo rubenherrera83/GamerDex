@@ -19,8 +19,8 @@ class HardwareFlowTest {
         val name="Master System II [hardware test]"
         try {
             compose.onNodeWithContentDescription("Abrir menú").performClick()
-            compose.onNodeWithText("Mis sistemas").performClick()
-            compose.onNodeWithText("+ AÑADIR SISTEMA").performClick()
+            compose.onNode(hasText("Sistemas") and hasClickAction()).performClick()
+            compose.onNodeWithText("+ AÑADIR EQUIPO").performClick()
             compose.onNodeWithText("Modelo / nombre *").performTextInput(name)
             compose.onNodeWithText("Plataforma *").performTextInput("Master System II")
             compose.onNodeWithText("Con caja").performScrollTo()
@@ -48,7 +48,7 @@ class HardwareFlowTest {
             compose.onNodeWithText("$name PAL").assertExists()
             compose.onNodeWithText("Eliminar sistema").performScrollTo().performClick()
             compose.onNodeWithText("Eliminar",useUnmergedTree=true).performClick()
-            compose.waitUntil(10_000){compose.onAllNodesWithText("+ AÑADIR SISTEMA").fetchSemanticsNodes().isNotEmpty()}
+            compose.waitUntil(10_000){compose.onAllNodesWithText("+ AÑADIR EQUIPO").fetchSemanticsNodes().isNotEmpty()}
             assertFalse(repository.snapshot().hardware.any{it.name.startsWith(name)})
         } finally { repository.snapshot().hardware.filter{it.name.startsWith(name)}.forEach{repository.deleteHardware(it.id)} }
     }
