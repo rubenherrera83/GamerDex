@@ -83,9 +83,9 @@ class CollectionV4FlowTest {
             compose.onNodeWithText("Apodo predeterminado").assert(hasText("NEKRO PLAYER"))
             compose.onNodeWithText("☰").performClick(); compose.onNodeWithText("Gamertags").performClick()
             compose.onNodeWithText("Tu gamertag / alias").assert(hasText("NEKRO PLAYER"))
-            compose.waitUntil(15_000) { compose.onAllNodesWithContentDescription("Vista previa del gamertag").fetchSemanticsNodes().isNotEmpty() }
-            compose.onNodeWithTag("gamertag-editor").performScrollToNode(hasText("Compartir gamertag"))
-            compose.onNodeWithText("Compartir gamertag").assertIsEnabled()
+            compose.waitUntil(20_000){compose.onAllNodesWithTag("gamertag-share").fetchSemanticsNodes().any{androidx.compose.ui.semantics.SemanticsProperties.Disabled !in it.config}}
+            compose.onNodeWithTag("gamertag-share").assertIsDisplayed()
+            compose.onNodeWithTag("gamertag-share").assertIsEnabled()
         } finally { prefs.setAlias(previous) }
     }
     @Test fun shareProducesReadablePngAndTemporaryContentGrant() = runBlocking {

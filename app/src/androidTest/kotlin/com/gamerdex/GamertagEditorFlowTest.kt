@@ -27,13 +27,14 @@ class GamertagEditorFlowTest {
             compose.onNodeWithContentDescription("Abrir menú").performClick();compose.onNodeWithText("Gamertags").performClick()
             compose.onNodeWithTag("gamertag-editor").performScrollToNode(hasText(totals))
             compose.onNodeWithText(totals).assertIsDisplayed()
+            compose.onNodeWithTag("gamertag-jump-logos").performScrollTo().performClick()
             compose.onNodeWithText("Personalizar logotipos (0/6)").performScrollTo().performClick()
             compose.onNodeWithText("Buscar logotipo").performTextInput("PlayStation 5")
             compose.onNodeWithText("Añadir").performScrollTo().performClick()
-            compose.onNodeWithText("Compañías").performScrollTo().performClick()
+            compose.onNodeWithText("Compañías").performClick()
             compose.onNodeWithText("Buscar logotipo").performTextInput("SEGA")
             compose.onNodeWithText("Añadir").performScrollTo().performClick()
-            compose.onNodeWithText("Listo").performScrollTo().performClick()
+            compose.onNodeWithTag("gamertag-logos-done").performClick()
             compose.activityRule.scenario.recreate()
             compose.onNodeWithText("Personalizar logotipos (2/6)").performScrollTo().assertExists()
             compose.onNodeWithTag("gamertag-editor").performScrollToNode(hasContentDescription("Subir SEGA"))
@@ -42,15 +43,19 @@ class GamertagEditorFlowTest {
             assertEquals(settings.logos.value,GamertagSettings(context).logos.value)
             compose.onNodeWithTag("gamertag-editor").performScrollToNode(hasText("Juego"))
             compose.onNodeWithText("Juego").performClick()
+            compose.onNodeWithTag("gamertag-jump-preview").performScrollTo().performClick()
             compose.onNodeWithText(totals).performScrollTo().assertIsDisplayed()
             compose.onNodeWithTag("gamertag-editor").performScrollToNode(hasText("Plataforma"))
             compose.onNodeWithText("Plataforma").performClick()
+            compose.onNodeWithTag("gamertag-jump-preview").performScrollTo().performClick()
             compose.onNodeWithText(totals).performScrollTo().assertIsDisplayed()
+            compose.onNodeWithTag("gamertag-jump-logos").performScrollTo().performClick()
             compose.onNodeWithContentDescription("Quitar SEGA").performScrollTo().performClick()
             compose.waitUntil(5_000){settings.logos.value.size==1}
-            compose.waitUntil(20_000){compose.onAllNodesWithContentDescription("Vista previa del gamertag").fetchSemanticsNodes().isNotEmpty()}
-            compose.onNodeWithTag("gamertag-editor").performScrollToNode(hasText("Compartir gamertag"))
-            compose.onNodeWithText("Compartir gamertag").assertIsEnabled()
+            compose.onNodeWithTag("gamertag-jump-preview").performClick()
+            compose.waitUntil(20_000){compose.onAllNodesWithTag("gamertag-share").fetchSemanticsNodes().any{androidx.compose.ui.semantics.SemanticsProperties.Disabled !in it.config}}
+            compose.onNodeWithTag("gamertag-share").assertIsDisplayed()
+            compose.onNodeWithTag("gamertag-share").assertIsEnabled()
         } finally { settings.setLogos(previous);gameIds.forEach{repository.delete(it)};hardwareIds.forEach{repository.deleteHardware(it)} }
     }
 }

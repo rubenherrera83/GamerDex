@@ -12,6 +12,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.gamerdex.core.domain.*
 import com.gamerdex.gamertag.*
@@ -41,9 +42,14 @@ import com.gamerdex.ui.components.*
         }
     }
     ModalBottomSheet(onDismissRequest=dismiss,sheetState=rememberModalBottomSheetState(skipPartiallyExpanded=true)) {
-        LazyColumn(Modifier.fillMaxWidth(),contentPadding=PaddingValues(20.dp,8.dp,20.dp,32.dp),verticalArrangement=Arrangement.spacedBy(12.dp)) {
-            item { Text("Personalizar logotipos",style=MaterialTheme.typography.titleLarge);Text("Hasta 6 imágenes, en el orden que elijas. Se recuerdan para tus próximos gamertags.",style=MaterialTheme.typography.bodySmall) }
-            item { FlowRow(horizontalArrangement=Arrangement.spacedBy(8.dp)){listOf("Consolas","Compañías","Juegos","Personalizado").forEach{FilterChip(category==it,{category=it;query=""},label={Text(it)})}} }
+        Column(Modifier.fillMaxWidth()) {
+            Row(Modifier.fillMaxWidth().padding(horizontal=20.dp),verticalAlignment=androidx.compose.ui.Alignment.CenterVertically){
+                Column(Modifier.weight(1f)){Text("Personalizar logotipos",style=MaterialTheme.typography.titleMedium);Text("${selected.size}/6 seleccionados",style=MaterialTheme.typography.bodySmall)}
+                TextButton(dismiss,modifier=Modifier.testTag("gamertag-logos-done")){Text("Listo")}
+            }
+            FlowRow(Modifier.padding(horizontal=20.dp),horizontalArrangement=Arrangement.spacedBy(8.dp)){listOf("Consolas","Compañías","Juegos","Personalizado").forEach{FilterChip(category==it,{category=it;query=""},label={Text(it)})}}
+            if(category!="Personalizado")OutlinedTextField(query,{query=it},label={Text("Buscar logotipo")},modifier=Modifier.fillMaxWidth().padding(horizontal=20.dp),singleLine=true)
+            LazyColumn(Modifier.fillMaxWidth().weight(1f,fill=false).testTag("gamertag-logo-options"),contentPadding=PaddingValues(20.dp,8.dp,20.dp,32.dp),verticalArrangement=Arrangement.spacedBy(12.dp)) {
             if(category=="Personalizado") {
                 item { Text("Añade el logotipo de cualquier consola, compañía o juego. Un PNG transparente suele quedar mejor.") }
                 item { OutlinedTextField(name,{name=it.take(80)},label={Text("Nombre del logotipo")},modifier=Modifier.fillMaxWidth()) }
@@ -57,9 +63,10 @@ import com.gamerdex.ui.components.*
                     Button(onClick={change(selected+GamertagLogo(name.trim(),source));name="";url="";photo=null},enabled=valid){Text("Añadir logotipo personalizado")}
                 }
             } else {
-                item { OutlinedTextField(query,{query=it},label={Text("Buscar logotipo")},modifier=Modifier.fillMaxWidth(),singleLine=true) }
+
                 if(category=="Juegos") item { Text("Aquí se usan las carátulas disponibles. Para el logotipo del título, añade tu propia imagen en Personalizado.",style=MaterialTheme.typography.bodySmall) }
                 if(category=="Compañías") item { Text("Se usa el logotipo guardado, el emblema local cuando exista o una insignia de texto. También puedes añadir uno propio.",style=MaterialTheme.typography.bodySmall) }
+                if(candidates.none{it.name.contains(query,true)})item{Text("No hay coincidencias.")}
                 items(candidates.filter{it.name.contains(query,true)}) { logo ->
                     val checked=logo in selected
                     Row(Modifier.fillMaxWidth(),verticalAlignment=androidx.compose.ui.Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(12.dp)) {
@@ -70,7 +77,7 @@ import com.gamerdex.ui.components.*
                     }
                 }
             }
-            item { TextButton(onClick=dismiss,modifier=Modifier.fillMaxWidth()){Text("Listo") } }
+            }
         }
     }
 }

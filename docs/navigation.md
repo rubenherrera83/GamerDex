@@ -33,3 +33,5 @@ En Preferencias → Pantalla inicial se elige Sistemas o Todos los juegos. Desde
 La preferencia se utiliza en sesiones nuevas. Cambiarla no abandona la pantalla actual; una recreación de Activity o la recuperación de una sesión conserva el destino abierto. Las preferencias locales no forman parte del ZIP de la colección. Room v6 y el formato portable v5 permanecen iguales.
 
 Todas las pantallas comparten una cabecera compacta y fija, con logotipo del tema, título y navegación coherentes. [Cabeceras y preferencias](ux-preferences-and-headers.md).
+
+Desde 0.17.0, entrar, salir y volver entre destinos no utiliza fundidos. Gamertags mantiene su editor por secciones, vista previa ampliable y acciones fijas. [Uso del editor](ux-gamertags.md).

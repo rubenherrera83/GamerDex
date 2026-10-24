@@ -1,6 +1,15 @@
 # GamerDex
 
-Versión 0.16.0: cabeceras coherentes, preferencias reorganizadas e inicio en Sistemas.
+Versión 0.17.0: gamertags con vista previa prioritaria, controles agrupados y acciones fijas; navegación sin fundido.
+
+## Novedades 0.17.0
+
+- Editor de gamertags con vista previa al principio y ampliación; accesos a Contenido, Diseño, Componentes y Logos. Compartir y Guardar PNG siempre accesibles.
+- Diseño independiente por tarjeta entre los doce estilos, con opción de seguir el tema de la app. Se conservan apodo, contenido, componentes, notas opcionales y totales globales.
+- Selectores con búsqueda y contexto restaurables; juegos identificados por plataforma/edición y equipos por plataforma/serie. Selector de logos con Listo fijo, recuento y búsqueda accesibles.
+- La vista previa anterior permanece mientras se actualiza; las acciones esperan a la imagen vigente. Exportación con captura del diseño confirmado y cancelación de solicitudes pendientes.
+- Cambios entre pantallas sin fundido, también al volver. Room v6 y ZIP v5 no cambian.
+- APK `GamerDex-0.17.0-debug.apk`, versión 0.17.0/código 21. [Alcance y uso](docs/ux-gamertags.md).
 
 ## Novedades 0.16.0
 

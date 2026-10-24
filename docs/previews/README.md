@@ -2,6 +2,10 @@
 
 Capturas reales del emulador Android 15:
 
+- [Gamertags: vista previa y acciones fijas, 0.17.0](render-tests/gamertag-overview-v17.png)
+- [Diseño independiente de la tarjeta, 0.17.0](render-tests/gamertag-custom-design-v17.png)
+- [Tarjeta de PC con componentes, 0.17.0](render-tests/gamertag-hardware-v17.png)
+- [Selector de logotipos con Listo accesible, 0.17.0](render-tests/gamertag-logos-picker-v17.png)
 - [Cabecera de Sistemas · Azul 16-bit, 0.16.0](render-tests/header-systems-v16.png)
 - [Cabecera de Juegos y selector de vistas, 0.16.0](render-tests/header-games-v16.png)
 - [Cabecera de Estadísticas, 0.16.0](render-tests/header-statistics-v16.png)

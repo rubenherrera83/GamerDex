@@ -1,12 +1,22 @@
 # Validación de GamerDex
 
-Versión validada: 0.16.0 · Room v6 · formato de copia portable v5 (lectura v1–v5).
+Versión validada: 0.17.0 · Room v6 · formato de copia portable v5 (lectura v1–v5).
 
 Fecha: 24 de octubre de 2026.
 
 Entorno: Windows, JDK Microsoft 21.0.8, Gradle 8.11.1, Android SDK 35 y emulador Medium Phone Android 15 (API 35, x86_64).
 
 ## Resultados
+
+- Validación 0.17.0: APK e instrumentación compilados; Lint con 0 errores y las mismas 82 advertencias previas, sin baseline ni supresiones. APK `GamerDex-0.17.0-debug.apk`, versión 0.17.0/código 21. Actualización instalada y sesión nueva arrancada en frío correctamente en API 35; preferencias originales restauradas y verificadas. Room v6 y ZIP v5 no cambian.
+- Batería Android completa: 51 pruebas distintas correctas, incluidas dos nuevas de UX de gamertags y una de generación/exportación. Los recorridos anteriores usan los accesos por secciones y esperan a que Compartir esté habilitado: ver la imagen anterior ya no significa que haya terminado la actualización. Las esperas del reloj manual de navegación se sincronizan por fotogramas. No quedan fallos pendientes.
+- Vista previa antes de los controles y acciones fijas visibles tanto arriba como al consultar diseño/componentes. Diseño Kawaii independiente con la app en Cyberpunk, apodo personalizado y selección conservados al recrear Activity. Ampliación y cierre sin perder la tarjeta; la ampliación abierta se recupera tras recreación. Volver a Usar tema de la app recupera Cyberpunk sin modificar Preferencias.
+- Selección de equipos homónimos mediante búsqueda por serie y selector abierto restaurado tras recreación. Equipo sin accesorios con explicación y equipo con dos componentes/notas seleccionables. La selección anterior de diez elementos entre once y sus cantidades sigue pasando, igual que los totales globales, reordenación y retirada de logos.
+- Selector de logotipos con búsqueda sin coincidencias restaurada y Listo visible; cambio de categoría y selección persistidos. Cuatro capturas sintéticas verifican la portada, el diseño independiente, una tarjeta de PC y el selector con teclado abierto.
+- Generación/exportación: se conserva el bitmap anterior mientras se genera el siguiente y no se permite preparar otra exportación en ese estado. El PNG solicitado antes del cambio coincide píxel a píxel con la primera imagen aunque después termine el segundo diseño. Cancelar elimina la exportación pendiente y no crea otro archivo. Continúan pasando la recuperación de exportación tras recrear ViewModel y el URI temporal de lectura para compartir.
+- Navegación: tras seis fotogramas de reloj manual el destino anterior ya no permanece en la composición al cambiar entre secciones. Entrada, salida y regreso usan transiciones vacías en el NavHost. Se mantienen los recorridos de fichas, protección de formularios, doce temas, estadísticas/gasto, copias, RAWG, ScanDex/UPCitemdb y Evercade. [Alcance del bloque](docs/ux-gamertags.md).
+
+Los resultados 0.16.0 siguientes se conservan como historial.
 
 - Validación 0.16.0: APK e instrumentación compilados; Lint con 0 errores y las mismas 82 advertencias previas, sin baseline ni supresiones. Salida `GamerDex-0.16.0-debug.apk`, versión 0.16.0/código 20. Actualización instalada y arranque en frío correctos en API 35. Se restauraron las preferencias previas antes del arranque y se verificó la migración a Sistemas conservando las demás preferencias. Room v6 y ZIP v5 no cambian.
 - Batería Android completa: 48 pruebas distintas correctas, incluidas dos nuevas de cabeceras/preferencias. Ocho recorridos dirigidos iniciales y repetición de los dos nuevos con el APK final, sin fallos. Continúan pasando los doce temas, edición/cámara, RAWG, ScanDex/UPCitemdb/Evercade, navegación, fichas, estadísticas/gasto, copias y gamertags.

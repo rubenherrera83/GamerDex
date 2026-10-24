@@ -28,9 +28,9 @@ class CollectionV2FlowTest {
         compose.onNodeWithText("Falta: instrucciones").performScrollTo().assertExists()
         compose.onNodeWithText("Precio pagado:", substring = true).assert(hasText("39", substring = true))
         compose.onNodeWithText("Crear gamertag de este juego").performScrollTo().performClick()
-        compose.waitUntil(20_000) { compose.onAllNodesWithContentDescription("Vista previa del gamertag").fetchSemanticsNodes().isNotEmpty() }
-        compose.onNodeWithTag("gamertag-editor").performScrollToNode(hasText("Guardar gamertag como imagen"))
-        compose.onNodeWithText("Guardar gamertag como imagen").performScrollTo().assertIsEnabled()
+        compose.waitUntil(20_000){compose.onAllNodesWithTag("gamertag-share").fetchSemanticsNodes().any{androidx.compose.ui.semantics.SemanticsProperties.Disabled !in it.config}}
+        compose.onNodeWithTag("gamertag-save").assertIsDisplayed()
+        compose.onNodeWithTag("gamertag-save").assertIsEnabled()
         compose.onNodeWithText("☰").performClick()
         compose.onNodeWithText("Géneros").performClick()
         compose.onNodeWithText("RPG").performClick()

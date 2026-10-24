@@ -36,6 +36,29 @@ class BackupAndGamertagTest {
             assertNull(state.get<GamertagInput>("exportInput"))
         } finally { file.delete() }
     }
+    @Test fun renderingKeepsPreviewAndExportUsesConfirmedImageWhileNewInputRenders():Unit=runBlocking {
+        val renderer=GamertagRenderer(context);val saved=SavedStateHandle();val vm=GamertagViewModel(renderer,saved,GamertagSettings(context))
+        val firstInput=GamertagInput("FIRST PLAYER","COLLECTION","ARCHIVO","1 JUEGO",null,VisualTheme.CYBERPUNK)
+        val secondInput=firstInput.copy(alias="SECOND PLAYER",theme=VisualTheme.KAWAII)
+        val output=File(context.cacheDir,"snapshot-${UUID.randomUUID()}.png")
+        val cancelled=File(context.cacheDir,"cancelled-${UUID.randomUUID()}.png")
+        val instrumentation=InstrumentationRegistry.getInstrumentation()
+        try {
+            instrumentation.runOnMainSync{vm.generate(firstInput)}
+            val first=withTimeout(15_000){vm.state.first{it.renderedInput==firstInput && !it.rendering}}
+            instrumentation.runOnMainSync{
+                assertTrue(vm.prepareExport());vm.generate(secondInput)
+                assertTrue(vm.state.value.rendering);assertSame(first.bitmap,vm.state.value.bitmap);assertFalse(vm.prepareExport())
+                vm.export(Uri.fromFile(output))
+            }
+            withTimeout(15_000){vm.state.first{it.renderedInput==secondInput && !it.rendering && !it.exporting && it.message?.startsWith("Gamertag guardado")==true}}
+            val decoded=BitmapFactory.decodeFile(output.path)
+            assertTrue(decoded.sameAs(first.bitmap));assertNull(saved.get<GamertagInput>("exportInput"))
+            instrumentation.runOnMainSync{assertTrue(vm.prepareExport());vm.cancelExport();vm.export(Uri.fromFile(cancelled))}
+            assertNull(saved.get<GamertagInput>("exportInput"));assertFalse(cancelled.exists())
+            assertEquals("Genera el gamertag antes de guardarlo.",vm.state.value.message)
+        }finally{output.delete();cancelled.delete()}
+    }
     private val context get() = InstrumentationRegistry.getInstrumentation().targetContext
     @Test fun portableBackupRestoresPhotosAfterOriginalFileDisappears(): Unit = runBlocking {
         val db = Room.inMemoryDatabaseBuilder(context, GamerDexDatabase::class.java).build()

@@ -5,6 +5,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.SystemBarStyle
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -103,7 +105,8 @@ class MainActivity : ComponentActivity() {
     val showingDetail=route.startsWith("detail/") || route.startsWith("hardware/detail/")
     Scaffold(containerColor = androidx.compose.ui.graphics.Color.Transparent, snackbarHost = { SnackbarHost(snack) },
         bottomBar={if(!editing && !showingDetail && drawer.isClosed)CollectionNavigation(primary,{navigateSection(it)},menu)}) { outer ->
-        NavHost(nav, startDestination = initialRoute, modifier = Modifier.padding(bottom = outer.calculateBottomPadding()).consumeWindowInsets(PaddingValues(bottom=outer.calculateBottomPadding()))) {
+        NavHost(nav, startDestination = initialRoute, enterTransition={EnterTransition.None}, exitTransition={ExitTransition.None},
+            popEnterTransition={EnterTransition.None}, popExitTransition={ExitTransition.None}, modifier = Modifier.padding(bottom = outer.calculateBottomPadding()).consumeWindowInsets(PaddingValues(bottom=outer.calculateBottomPadding()))) {
             composable("systems") {SystemsHomeScreen(state,hardware,menu,{system->openSystem(system.key)},::openAllGames,{nav.navigate("edit/0")},{nav.navigate("hardware/edit/0")})}
             composable("system-games/{family}?tab={tab}",arguments=listOf(navArgument("family"){type=NavType.StringType},navArgument("tab"){type=NavType.StringType;defaultValue="games"})){systemEntry->
                 val family=systemEntry.arguments!!.getString("family").orEmpty()

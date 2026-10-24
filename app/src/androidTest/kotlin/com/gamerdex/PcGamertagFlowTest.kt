@@ -46,15 +46,16 @@ class PcGamertagFlowTest {
             compose.activityRule.scenario.recreate()
             compose.onNodeWithTag("gamertag-editor").performScrollToNode(hasText("1 × Component 10"))
             compose.onNode(hasText("1 × Component 10") and isToggleable()).assertIsOn()
-            compose.onNodeWithTag("gamertag-editor").performScrollToNode(hasText("Compartir gamertag"))
-            compose.waitUntil(20_000){compose.onAllNodesWithContentDescription("Vista previa del gamertag").fetchSemanticsNodes().isNotEmpty()}
-            compose.onNodeWithText("Compartir gamertag").assertIsEnabled()
+            compose.onNodeWithTag("gamertag-share").assertIsDisplayed()
+            compose.onNodeWithTag("gamertag-jump-preview").performClick()
+            compose.waitUntil(20_000){compose.onAllNodesWithTag("gamertag-share").fetchSemanticsNodes().any{androidx.compose.ui.semantics.SemanticsProperties.Disabled !in it.config}}
+            compose.onNodeWithTag("gamertag-share").assertIsEnabled()
             compose.onNodeWithText("☰").performClick();compose.onNode(hasText("Gamertags") and hasClickAction()).performClick()
             compose.onNodeWithTag("gamertag-editor").performScrollToNode(hasText("Sistema / PC"));compose.onNodeWithText("Sistema / PC").performClick()
             compose.onNodeWithTag("gamertag-editor").performScrollToNode(hasTestTag("gamertag-target-picker"))
             compose.onNodeWithTag("gamertag-target-picker").performClick()
             compose.onNodeWithText("Buscar sistema / pc").performTextInput("sin accesorios")
-            compose.onNodeWithText("$other · PC · #${id+1}").performClick()
+            compose.onNodeWithTag("gamertag-system-${id+1}").performClick()
             compose.onNodeWithTag("gamertag-editor").performScrollToNode(hasText("Puedes añadir CPU",substring=true))
             compose.onNodeWithText("Puedes añadir CPU",substring=true).assertExists()
         }finally{
