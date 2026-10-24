@@ -20,6 +20,8 @@ Añadir equipo desde una plataforma preselecciona su plataforma, que sigue siend
 
 Cada pestaña conserva búsqueda y desplazamiento al alternar, y la pestaña seleccionada se restaura al recrear Activity. Las fichas y formularios regresan a su pestaña de origen.
 
+Desde 0.14.0, las fichas de juegos y equipos agrupan los datos en secciones abiertas y ofrecen accesos rápidos en su barra superior. Volver/Editar permanecen accesibles; fotos ampliables y confirmación de borrado se conservan al recrear Activity. [Uso de las fichas](ux-third-block.md).
+
 Volver recupera el listado de sistemas y su búsqueda. **Juegos** en el menú antiguo y **Todos los juegos** en la portada abren la colección global y limpian búsqueda y filtros. **Juegos** en la barra inferior recupera el estado de la colección. El contador **Equipos** de la colección global conserva el total de unidades físicas y abre la portada unificada. [Filtros, ordenación y restauración de estado](ux-second-block.md).
 
 ## Pantalla inicial

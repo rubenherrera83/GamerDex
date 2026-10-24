@@ -24,7 +24,7 @@ import com.gamerdex.ui.components.SectionLabel
 @Composable fun RawgMediaSection(id: Long?, screenshot: (String) -> Unit, linkRawg: () -> Unit, state: RawgMediaState, retry: () -> Unit) {
     SectionLabel("RAWG", "Capturas y vídeos")
     if (id == null) {
-        Text("Este juego no está vinculado a RAWG. Edita y usa «Autocompletar con RAWG» para asociar su multimedia.", style = MaterialTheme.typography.bodySmall)
+        Text("Este juego no está vinculado a RAWG. Edita y usa «Buscar por nombre» para asociar su multimedia.", style = MaterialTheme.typography.bodySmall)
         TextButton(onClick = linkRawg) { Text("Vincular con RAWG") }
         return
     }

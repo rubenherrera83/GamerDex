@@ -1,12 +1,21 @@
 # Validación de GamerDex
 
-Versión validada: 0.13.0 · Room v6 · formato de copia portable v5 (lectura v1–v5).
+Versión validada: 0.14.0 · Room v6 · formato de copia portable v5 (lectura v1–v5).
 
 Fecha: 24 de octubre de 2026.
 
 Entorno: Windows, JDK Microsoft 21.0.8, Gradle 8.11.1, Android SDK 35 y emulador Medium Phone Android 15 (API 35, x86_64).
 
 ## Resultados
+
+- Validación 0.14.0: APK e instrumentación compilados; Lint con 0 errores y las mismas 82 advertencias anteriores, sin baseline ni supresiones. Salida `GamerDex-0.14.0-debug.apk`, versión 0.14.0/código 18. Instalación sobre 0.13.0 y arranque en frío correctos en API 35. Room v6 y ZIP v5 no cambian.
+- Batería Android completa de 44 pruebas correctas, sin fallos, incluidas dos nuevas de fichas. Se mantienen los recorridos de cámara/edición, doce temas, búsquedas y multimedia RAWG, código de barras/Evercade, favoritos, navegación, estadísticas/gasto, copias y gamertags de juegos/equipos.
+- Juego sintético coleccionista: nota 95/100, finalizado al 100 %, platino, instrucciones ausentes, compra en JPY con fecha, equipo asociado, notas y foto. Se comprueba estrella de favorito persistida, saltos a partida/copia/compra/notas/fotos y conservación de datos al entrar/salir de editar. La posición se recupera al recrear Activity y al regresar del formulario.
+- Foto abierta y confirmación de borrado se restauran al recrear Activity. Cancelar no elimina el juego/equipo ni modifica importes, progreso, accesorios o fotos originales. El visor de fotos de juegos mantiene la ampliación y se comparte con las fotos de hardware.
+- Equipo sintético en Kawaii: funcionamiento negativo, serie, región, dos modelos con tres piezas, precio cero JPY y fecha desconocida. Se mantienen cantidades y serie de componentes; la galería recorre dos entradas de una misma URI sin colisión de claves, amplía la segunda foto y permite volver a la ficha. Una plataforma sin ficha histórica lo indica expresamente.
+- Revisión visual en Cyberpunk y Kawaii con datos e imágenes de prueba: `game-detail-overview.png`, `game-detail-media.png` y `hardware-detail-overview-v14.png`. Los accesos permanecen arriba y los contenidos se agrupan en tarjetas abiertas. [Alcance y compatibilidad](docs/ux-third-block.md).
+
+Los resultados 0.13.0 siguientes se conservan como historial.
 
 - Validación 0.13.0: APK e instrumentación compilados; Lint con 0 errores y las mismas 82 advertencias anteriores, sin baseline ni supresiones. Salida `GamerDex-0.13.0-debug.apk`, versión 0.13.0/código 17. Instalación sobre la versión anterior y arranque en frío correctos en API 35; preferencias del emulador restauradas al terminar. Room v6 y ZIP v5 no cambian.
 - 60 pruebas distintas correctas: 18 de dominio (dos nuevas de consulta/ordenación) y batería Android completa de 42 (dos recorridos nuevos de UX). La primera batería completa detectó dos regresiones al restaurar listados secundarios desde Juegos/Géneros; se corrigió la navegación a la pantalla principal y se repitieron las 42 pruebas completas sin fallos.

@@ -1,97 +1,118 @@
 package com.gamerdex.ui.screens
 
 import androidx.compose.foundation.*
-import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.pager.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.blur
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
-import com.gamerdex.core.domain.*
-import com.gamerdex.ui.components.*
-import com.gamerdex.ui.theme.*
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.gamerdex.core.domain.*
 import com.gamerdex.ui.RawgMediaViewModel
+import com.gamerdex.ui.components.*
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Composable fun DetailScreen(game: Game, back: () -> Unit, edit: () -> Unit, delete: () -> Unit, gamertag: () -> Unit, favorite: () -> Unit = {}) {
-    var confirm by remember { mutableStateOf(false) }
-    var zoomPhoto by remember { mutableStateOf<String?>(null) }
-    val uriHandler = androidx.compose.ui.platform.LocalUriHandler.current
-    val rawgViewModel: RawgMediaViewModel = hiltViewModel()
+@Composable fun DetailScreen(game: Game, back: () -> Unit, edit: () -> Unit, delete: () -> Unit,
+    gamertag: () -> Unit, favorite: () -> Unit = {}, hardware: List<Hardware> = emptyList()) {
+    var confirm by rememberSaveable(game.id) { mutableStateOf(false) }
+    var zoomPhoto by rememberSaveable(game.id) { mutableStateOf<String?>(null) }
+    val uriHandler=LocalUriHandler.current
+    val rawgViewModel:RawgMediaViewModel=hiltViewModel()
     val rawgState by rawgViewModel.state.collectAsStateWithLifecycle()
-    LaunchedEffect(game.rawgId) { game.rawgId?.let(rawgViewModel::load) ?: rawgViewModel.clear() }
-    val retryRawg: () -> Unit = { game.rawgId?.let(rawgViewModel::load) }
-    Scaffold(containerColor = androidx.compose.ui.graphics.Color.Transparent, topBar = { TopAppBar(title = { Text("Archivo / %04d".format(game.id)) }, navigationIcon = { TextButton(onClick = back) { Text("Volver") } }, actions = { TextButton(onClick = edit) { Text("Editar") } }) }) { padding ->
-        Column(Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState()).padding(bottom = 32.dp)) {
-            Box(Modifier.fillMaxWidth().height(330.dp)) {
-                Cover(game.coverUrl, game.title, Modifier.fillMaxSize().blur(28.dp).graphicsLayer { alpha = .35f })
-                Cover(game.coverUrl, game.title, Modifier.align(androidx.compose.ui.Alignment.Center).width(210.dp).height(290.dp).neonBorder(game.isSpecialEdition).padding(4.dp))
-            }
-            Column(Modifier.padding(horizontal = 24.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
-                if (game.effectiveEdition != EditionType.STANDARD) Text("✦ ${game.effectiveEdition.label().uppercase()}", color = AcidGreen, style = MaterialTheme.typography.labelLarge)
-                Text(game.title, style = MaterialTheme.typography.headlineLarge)
-                FilterChip(game.isFavorite, favorite, label = { Text(if (game.isFavorite) "★ Favorito" else "☆ Marcar favorito") })
-                Text(listOfNotNull(game.platform, game.company, game.releaseYear?.toString()).joinToString(" · "), color = CyberCyan)
-                Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
-                    BrandLogo(game.platform, game.platformLogoUrl, Modifier.size(36.dp), platform = true)
-                    Text(game.platform, modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodySmall)
-                    BrandLogo(game.company, game.companyLogoUrl, Modifier.size(36.dp))
-                    Text(game.company, modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodySmall)
-                }
-                game.specialEditionDetails?.let { Text(it, color = NeonPurple) }
-                if (game.coverUrl?.contains("rawg.io") == true) TextButton(onClick = { uriHandler.openUri("https://rawg.io") }) { Text("Imágenes y metadatos: RAWG ↗") }
-                Text(game.contentsLabel, color = MaterialTheme.colorScheme.primary)
-                Text(game.physicalCondition.label())
-                GameRatings(game.rating, rawgState.communityRating, game.rawgId != null, rawgState.ratingLoading, rawgState.ratingError, retryRawg)
-                Text("${if (game.isFinished) "Finalizado" else "Sin finalizar"} · ${game.completionPercent} % completado", style = MaterialTheme.typography.titleMedium)
-                if (game.hasPlatinum) Text("🏆 Trofeo platino conseguido", color = MaterialTheme.colorScheme.secondary)
-                game.pricePaidCents?.let { Text("Precio pagado: ${com.gamerdex.core.domain.formatPrice(it, game.priceCurrency)}", style = MaterialTheme.typography.titleMedium) }
-                Text("Fecha de compra: ${game.purchasedOn ?: "Desconocida"}")
-                game.catalogUrl?.let{url->TextButton(onClick={uriHandler.openUri(url)}){Text("Catálogo oficial Evercade ↗")}}
-                if (game.genres.isNotEmpty()) Text(game.genres.joinToString(" / "), color = MaterialTheme.colorScheme.secondary)
-                OutlinedButton(onClick = gamertag, modifier = Modifier.fillMaxWidth()) { Text("Crear gamertag de este juego") }
-                game.notes?.let { Text("NOTAS", style = MaterialTheme.typography.labelSmall, color = CyberCyan); Text(it) }
-                RawgMediaSection(game.rawgId, { zoomPhoto = it }, edit, rawgState, retryRawg)
-                if (game.localCustomPhotos.isNotEmpty()) {
-                    Text("TU COPIA · Desliza para explorar; toca para ampliar", style = MaterialTheme.typography.labelSmall)
-                    val pager = rememberPagerState(pageCount = { game.localCustomPhotos.size })
-                    HorizontalPager(pager, key = { game.localCustomPhotos[it] }) { page ->
-                        Cover(game.localCustomPhotos[page], "Foto ${page + 1} de ${game.title}", Modifier.fillMaxWidth().height(300.dp)
-                            .clickable { zoomPhoto = game.localCustomPhotos[page] }, contentScale = androidx.compose.ui.layout.ContentScale.Fit)
+    LaunchedEffect(game.rawgId){game.rawgId?.let(rawgViewModel::load) ?: rawgViewModel.clear()}
+    val retryRawg:()->Unit={game.rawgId?.let(rawgViewModel::load)}
+    val anchors=remember(game.id){listOf("progress","copy","purchase","notes","media").associateWith{DetailAnchor()}}
+    val scroll=rememberScrollState()
+    Scaffold(containerColor=androidx.compose.ui.graphics.Color.Transparent,topBar={
+        Surface {Column {
+            TopAppBar(title={Text("Ficha del juego")},navigationIcon={TextButton(back){Text("Volver")}},actions={TextButton(edit){Text("Editar")}})
+            DetailJumpBar("game",listOf("progress" to "Partida","copy" to "Tu copia","purchase" to "Compra","notes" to "Notas","media" to "Fotos").map{(id,title)->DetailJump(id,title,anchors.getValue(id))},scroll)
+        }}
+    }){padding->
+        Column(Modifier.fillMaxSize().padding(padding).consumeWindowInsets(padding).verticalScroll(scroll).testTag("game-detail"),horizontalAlignment=Alignment.CenterHorizontally){
+            Column(Modifier.widthIn(max=840.dp).fillMaxWidth().padding(16.dp),verticalArrangement=Arrangement.spacedBy(16.dp)){
+                BoxWithConstraints(Modifier.fillMaxWidth()){
+                    val coverWidth=if(maxWidth<340.dp || LocalDensity.current.fontScale>1.3f)88.dp else 120.dp
+                    Row(horizontalArrangement=Arrangement.spacedBy(16.dp),verticalAlignment=Alignment.Top){
+                        val cover=game.coverUrl ?: game.localCustomPhotos.firstOrNull()
+                        Cover(cover,game.title,Modifier.width(coverWidth).height(coverWidth*1.4f).then(if(cover!=null)Modifier.clickable(onClickLabel="Ampliar carátula"){zoomPhoto=cover}else Modifier),contentScale=ContentScale.Fit)
+                        Column(Modifier.weight(1f),verticalArrangement=Arrangement.spacedBy(8.dp)){
+                            Text(game.title,style=MaterialTheme.typography.headlineSmall)
+                            Row(verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(8.dp)){
+                                BrandLogo(game.platform,game.platformLogoUrl,Modifier.size(28.dp),platform=true)
+                                Text(game.platform,style=MaterialTheme.typography.bodyMedium)
+                            }
+                            if(game.company!=UNSPECIFIED_COMPANY)Row(verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(8.dp)){
+                                BrandLogo(game.company,game.companyLogoUrl,Modifier.size(24.dp))
+                                Text(game.company,style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
+                            FilterChip(game.isFavorite,favorite,label={Text(if(game.isFavorite)"★ Favorito" else "☆ Marcar favorito")},modifier=Modifier.testTag("game-detail-favorite"))
+                        }
                     }
-                    Text("${pager.currentPage + 1} / ${game.localCustomPhotos.size}", style = MaterialTheme.typography.labelSmall)
                 }
-                TextButton(onClick = { confirm = true }) { Text("Eliminar de la colección", color = MaterialTheme.colorScheme.error) }
+                OutlinedButton(gamertag,Modifier.fillMaxWidth()){Text("Crear gamertag de este juego")}
+                DetailSection("progress","Tu partida",anchors.getValue("progress")){
+                    GameRatings(game.rating,rawgState.communityRating,game.rawgId!=null,rawgState.ratingLoading,rawgState.ratingError,retryRawg)
+                    Text("${if(game.isFinished)"Finalizado" else "Sin finalizar"} · ${game.completionPercent} % completado",style=MaterialTheme.typography.titleMedium)
+                    LinearProgressIndicator(progress={game.completionPercent/100f},modifier=Modifier.fillMaxWidth(),color=MaterialTheme.colorScheme.primary)
+                    if(game.hasPlatinum)Text("🏆 Trofeo platino conseguido",color=MaterialTheme.colorScheme.secondary)
+                }
+                DetailSection("copy","Tu copia",anchors.getValue("copy")){
+                    FlowRow(horizontalArrangement=Arrangement.spacedBy(8.dp),verticalArrangement=Arrangement.spacedBy(8.dp)){
+                        DetailBadge(game.effectiveEdition.label())
+                        DetailBadge(game.contentsLabel,if(game.condition==GameCondition.DIGITAL)null else game.isComplete)
+                    }
+                    game.specialEditionDetails?.takeIf{it.isNotBlank()}?.let{Text(it)}
+                    if(game.condition!=GameCondition.DIGITAL){
+                        FlowRow(horizontalArrangement=Arrangement.spacedBy(8.dp),verticalArrangement=Arrangement.spacedBy(8.dp)){
+                            DetailBadge(if(game.hasBox)"✓ Caja" else "Sin caja",game.hasBox)
+                            DetailBadge(if(game.hasManual)"✓ Instrucciones" else "Sin instrucciones",game.hasManual)
+                            DetailBadge(if(game.hasMedia)"✓ Juego" else "Sin juego",game.hasMedia)
+                        }
+                        DetailFact("Estado físico",game.physicalCondition.label())
+                    }else DetailFact("Formato","Digital · sin componentes físicos")
+                }
+                DetailSection("purchase","Compra",anchors.getValue("purchase")){
+                    DetailFact("Precio pagado",game.pricePaidCents?.let{formatPrice(it,game.priceCurrency)} ?: "Desconocido")
+                    DetailFact("Fecha de compra",game.purchasedOn ?: "Desconocida")
+                    game.ownedSystemId?.let{id->DetailFact("Equipo asociado",hardware.firstOrNull{it.id==id}?.let{"${it.name} · ${it.platform}"} ?: "No disponible en el inventario (#$id)")}
+                }
+                OutlinedCard(Modifier.fillMaxWidth()){
+                    Column(Modifier.padding(16.dp),verticalArrangement=Arrangement.spacedBy(12.dp)){
+                        Text("Datos del juego",style=MaterialTheme.typography.titleLarge)
+                        if(game.company==UNSPECIFIED_COMPANY)DetailFact("Compañía","No indicada")
+                        DetailFact("Año de lanzamiento",game.releaseYear?.toString() ?: "Desconocido")
+                        DetailFact("Géneros",game.genres.takeIf{it.isNotEmpty()}?.joinToString(" / ") ?: "Sin indicar")
+                        game.catalogUrl?.let{url->TextButton(onClick={uriHandler.openUri(url)}){Text("Catálogo oficial Evercade ↗")}}
+                        if(game.coverUrl?.contains("rawg.io")==true)TextButton(onClick={uriHandler.openUri("https://rawg.io")}){Text("Imágenes y metadatos: RAWG ↗")}
+                    }
+                }
+                DetailSection("notes","Notas",anchors.getValue("notes")){
+                    Text(game.notes?.takeIf{it.isNotBlank()} ?: "Sin notas sobre este juego.")
+                    if(game.notes.isNullOrBlank())TextButton(edit){Text("Añadir notas")}
+                }
+                DetailSection("media","Fotos y multimedia",anchors.getValue("media")){
+                    RawgMediaSection(game.rawgId,{zoomPhoto=it},edit,rawgState,retryRawg)
+                    HorizontalDivider()
+                    Text("Fotos de tu copia",style=MaterialTheme.typography.titleMedium)
+                    if(game.localCustomPhotos.isEmpty()){
+                        Text("Aún no hay fotos de tu ejemplar.",style=MaterialTheme.typography.bodyMedium)
+                        TextButton(edit){Text("Añadir fotos")}
+                    }else DetailPhotoGallery(game.localCustomPhotos,game.title,{zoomPhoto=it})
+                }
+                HorizontalDivider()
+                TextButton(onClick={confirm=true},modifier=Modifier.fillMaxWidth()){Text("Eliminar de la colección",color=MaterialTheme.colorScheme.error)}
             }
         }
     }
-    zoomPhoto?.let { uri ->
-        Dialog(onDismissRequest = { zoomPhoto = null }, properties = DialogProperties(usePlatformDefaultWidth = false)) {
-            var scale by remember(uri) { mutableFloatStateOf(1f) }
-            var offset by remember(uri) { mutableStateOf(androidx.compose.ui.geometry.Offset.Zero) }
-            Column(Modifier.fillMaxSize().background(VaultBlack).padding(20.dp)) {
-                TextButton(onClick = { zoomPhoto = null }) { Text("Cerrar · Pellizca para ampliar") }
-                Box(Modifier.fillMaxWidth().weight(1f).pointerInput(uri) {
-                    detectTransformGestures { _, pan, zoom, _ ->
-                        scale = (scale * zoom).coerceIn(1f, 4f)
-                        val maxX = size.width * (scale - 1f) / 2f
-                        val maxY = size.height * (scale - 1f) / 2f
-                        offset = androidx.compose.ui.geometry.Offset((offset.x + pan.x).coerceIn(-maxX, maxX), (offset.y + pan.y).coerceIn(-maxY, maxY))
-                    }
-                }) {
-                    Cover(uri, "Foto ampliada de ${game.title}", Modifier.fillMaxSize().graphicsLayer { scaleX = scale; scaleY = scale; translationX = offset.x; translationY = offset.y }, contentScale = androidx.compose.ui.layout.ContentScale.Fit)
-                }
-            }
-        }
-    }
-    if (confirm) AlertDialog(onDismissRequest = { confirm = false }, title = { Text("¿Eliminar este juego?") }, text = { Text("Se eliminará ${game.title} de tu colección. Tus fotos originales y su compra en el historial de gasto se conservarán. Las compras archivadas se pueden quitar desde Estadísticas.") },
-        confirmButton = { TextButton(onClick = { confirm = false; delete() }) { Text("Eliminar") } }, dismissButton = { TextButton(onClick = { confirm = false }) { Text("Cancelar") } })
+    DetailPhotoViewer(zoomPhoto,game.title){zoomPhoto=null}
+    if(confirm)AlertDialog(onDismissRequest={confirm=false},title={Text("¿Eliminar este juego?")},text={Text("Se eliminará ${game.title} de tu colección. Tus fotos originales y su compra en el historial de gasto se conservarán. Las compras archivadas se pueden quitar desde Estadísticas.")},
+        confirmButton={TextButton(onClick={confirm=false;delete()}){Text("Eliminar")}},dismissButton={TextButton(onClick={confirm=false}){Text("Cancelar")}})
 }

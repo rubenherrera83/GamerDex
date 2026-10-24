@@ -11,7 +11,7 @@ android {
     namespace = "com.gamerdex"
     compileSdk = 35
     buildFeatures { compose = true; buildConfig = true }
-    defaultConfig { applicationId = "com.gamerdex"; minSdk = 26; targetSdk = 35; versionCode = 17; versionName = "0.13.0"; testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner" }
+    defaultConfig { applicationId = "com.gamerdex"; minSdk = 26; targetSdk = 35; versionCode = 18; versionName = "0.14.0"; testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner" }
     val properties = Properties().apply { rootProject.file("local.properties").takeIf { it.exists() }?.inputStream()?.use { load(it) } }
     defaultConfig {
         buildConfigField("String", "RAWG_API_KEY", "\"" + properties.getProperty("RAWG_API_KEY", "").replace("\\", "\\\\").replace("\"", "\\\"") + "\"")

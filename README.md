@@ -1,6 +1,14 @@
 # GamerDex
 
-Versión 0.13.0: navegación inferior, filtros combinables y ordenación de la colección.
+Versión 0.14.0: fichas de juegos y equipos agrupadas por secciones, con accesos rápidos y fotos ampliables.
+
+## Novedades 0.14.0
+
+- Fichas con resumen compacto y Volver/Editar siempre accesibles. Una fila superior permite saltar a partida, copia, compra, notas, fotos, componentes e historia según el tipo de ficha.
+- Juegos: partida/valoraciones y progreso separados del contenido físico, edición/estado, compra con equipo asociado, datos del juego, notas y multimedia. Se mantienen favoritos, platino, créditos RAWG y catálogo Evercade.
+- Equipos: estado/funcionamiento y contenidos, compra, componentes con cantidades/serie/notas, galería completa y curiosidades/ranking de su plataforma. Precio cero y datos desconocidos se distinguen.
+- Visor compartido con ampliación para fotos de juegos y equipos; foto abierta y confirmación de borrado conservadas al recrear Activity. El desplazamiento se recupera al volver de editar. Gamertags accesibles junto al resumen y borrado separado al final.
+- APK `GamerDex-0.14.0-debug.apk`, versión 0.14.0/código 18. Room v6 y ZIP v5 permanecen iguales. [Alcance y uso](docs/ux-third-block.md).
 
 ## Novedades 0.13.0
 

@@ -30,7 +30,7 @@ import java.math.BigDecimal
 
 fun HardwareKind.label() = when(this) { HardwareKind.CONSOLE -> "Consola"; HardwareKind.COMPUTER -> "PC / ordenador"; HardwareKind.MICROCOMPUTER -> "Microordenador"; HardwareKind.HANDHELD -> "Portátil" }
 
-@Composable fun HardwareImage(item: Hardware, modifier: Modifier = Modifier) {
+@Composable fun HardwareImage(item: Hardware, modifier: Modifier = Modifier, showCaption:Boolean=true) {
     val photo = item.localPhotos.firstOrNull() ?: item.imageUrl
     if (photo != null) Cover(photo, "Imagen de ${item.name}", modifier, contentScale = androidx.compose.ui.layout.ContentScale.Fit)
     else {
@@ -59,7 +59,7 @@ fun HardwareKind.label() = when(this) { HardwareKind.CONSOLE -> "Consola"; Hardw
                     repeat(2) { drawRoundRect(accent.copy(alpha=.7f),Offset(w*(.24f+it*.24f),h*.68f),Size(w*.12f,h*.06f),CornerRadius(3f)) }
                 }
             }
-            Text("Ilustración genérica · añade tu foto", style = MaterialTheme.typography.labelSmall, modifier = Modifier.padding(bottom=8.dp))
+            if(showCaption)Text("Ilustración genérica · añade tu foto", style = MaterialTheme.typography.labelSmall, modifier = Modifier.padding(bottom=8.dp))
         }
     }
 }
@@ -87,31 +87,81 @@ fun HardwareKind.label() = when(this) { HardwareKind.CONSOLE -> "Consola"; Hardw
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable fun HardwareDetailScreen(item: Hardware, back: () -> Unit, edit: () -> Unit, delete: () -> Unit, gamertag:()->Unit={}) {
-    var confirm by remember { mutableStateOf(false) }
-    Scaffold(containerColor=Color.Transparent,topBar={TopAppBar(title={Text("Mi sistema")},navigationIcon={TextButton(onClick=back){Text("Volver")}},actions={TextButton(onClick=edit){Text("Editar")}})}) { padding ->
-        Column(Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState()).padding(20.dp),verticalArrangement=Arrangement.spacedBy(16.dp)) {
-            HardwareImage(item,Modifier.fillMaxWidth().height(240.dp))
-            Row(verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(16.dp)) { BrandLogo(item.platform,item.logoUrl,Modifier.size(60.dp),platform=true); Text(item.name,style=MaterialTheme.typography.headlineMedium) }
-            Text(listOf(item.platform,item.kind.label(),item.region).filter(String::isNotBlank).joinToString(" · "))
-            Text("Caja: ${if(item.hasBox) "Sí" else "No"} · Instrucciones: ${if(item.hasManual) "Sí" else "No"} · Cables: ${if(item.hasCables) "Sí" else "No"}")
-            Text("Estado: ${item.condition.label()}")
-            Text("Funcionamiento: ${when(item.working){true->"Funciona";false->"No funciona";null->"Sin comprobar"}}")
-            Text("Número de serie: ${item.serialNumber.ifBlank { "No registrado" }}")
-            Text("Fecha de compra: ${item.purchasedOn ?: "Desconocida"}")
-            Text("Precio pagado: ${item.pricePaidCents?.let { formatPrice(it,item.currency) } ?: "Desconocido"}")
-            OutlinedButton(onClick=gamertag,modifier=Modifier.fillMaxWidth()){Text("Crear gamertag de este sistema")}
-            SectionLabel("02","Componentes y accesorios")
-            if(item.controllers.isEmpty()) Text("Sin componentes ni accesorios registrados")
-            item.controllers.forEach { c -> OutlinedCard(Modifier.fillMaxWidth()) { Column(Modifier.padding(14.dp),verticalArrangement=Arrangement.spacedBy(6.dp)) { Text("${c.quantity} × ${c.name}",style=MaterialTheme.typography.titleMedium); Text(c.condition.label()); if(c.serialNumber.isNotBlank()) Text("Serie: ${c.serialNumber}"); if(c.notes.isNotBlank()) Text(c.notes) } } }
-            if(item.notes.isNotBlank()) Text(item.notes)
-            HardwareInsights(item.platform)
-            item.localPhotos.drop(1).forEach { Cover(it,"Foto de ${item.name}",Modifier.fillMaxWidth().height(220.dp),contentScale=androidx.compose.ui.layout.ContentScale.Fit) }
-            TextButton(onClick={confirm=true}){Text("Eliminar sistema",color=MaterialTheme.colorScheme.error)}
+    var confirm by rememberSaveable(item.id){mutableStateOf(false)}
+    var zoomPhoto by rememberSaveable(item.id){mutableStateOf<String?>(null)}
+    val anchors=remember(item.id){listOf("status","purchase","components","notes","photos","history").associateWith{DetailAnchor()}}
+    val scroll=rememberScrollState()
+    Scaffold(containerColor=Color.Transparent,topBar={Surface{Column{
+        TopAppBar(title={Text("Mi equipo")},navigationIcon={TextButton(back){Text("Volver")}},actions={TextButton(edit){Text("Editar")}})
+        DetailJumpBar("hardware",listOf("status" to "Estado","purchase" to "Compra","components" to "Componentes","notes" to "Notas","photos" to "Fotos","history" to "Historia").map{(id,title)->DetailJump(id,title,anchors.getValue(id))},scroll)
+    }}}){padding->
+        Column(Modifier.fillMaxSize().padding(padding).consumeWindowInsets(padding).verticalScroll(scroll).testTag("hardware-detail"),horizontalAlignment=Alignment.CenterHorizontally){
+            Column(Modifier.widthIn(max=840.dp).fillMaxWidth().padding(16.dp),verticalArrangement=Arrangement.spacedBy(16.dp)){
+                Row(horizontalArrangement=Arrangement.spacedBy(16.dp),verticalAlignment=Alignment.Top){
+                    val heroPhoto=item.localPhotos.firstOrNull() ?: item.imageUrl
+                    HardwareImage(item,Modifier.size(112.dp).then(if(heroPhoto!=null)Modifier.clickable(onClickLabel="Ampliar foto"){zoomPhoto=heroPhoto}else Modifier),showCaption=false)
+                    Column(Modifier.weight(1f),verticalArrangement=Arrangement.spacedBy(8.dp)){
+                        Text(item.name,style=MaterialTheme.typography.headlineSmall)
+                        Row(verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(8.dp)){
+                            BrandLogo(item.platform,item.logoUrl,Modifier.size(28.dp),platform=true)
+                            Text(item.platform,style=MaterialTheme.typography.bodyMedium)
+                        }
+                        Text(listOf(item.kind.label(),item.region).filter(String::isNotBlank).joinToString(" · "),style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text("${item.controllers.sumOf{it.quantity}} accesorios / componentes",style=MaterialTheme.typography.labelMedium)
+                    }
+                }
+                OutlinedButton(gamertag,Modifier.fillMaxWidth()){Text("Crear gamertag de este sistema")}
+                DetailSection("status","Estado y contenido",anchors.getValue("status")){
+                    DetailFact("Estado",item.condition.label())
+                    DetailFact("Funcionamiento",when(item.working){true->"Funciona";false->"No funciona";null->"Sin comprobar"})
+                    FlowRow(horizontalArrangement=Arrangement.spacedBy(8.dp),verticalArrangement=Arrangement.spacedBy(8.dp)){
+                        DetailBadge(if(item.hasBox)"✓ Caja" else "Sin caja",item.hasBox)
+                        DetailBadge(if(item.hasManual)"✓ Instrucciones" else "Sin instrucciones",item.hasManual)
+                        DetailBadge(if(item.hasCables)"✓ Cables" else "Sin cables",item.hasCables)
+                    }
+                    DetailFact("Número de serie",item.serialNumber.ifBlank{"No registrado"})
+                }
+                DetailSection("purchase","Compra",anchors.getValue("purchase")){
+                    DetailFact("Precio pagado",item.pricePaidCents?.let{formatPrice(it,item.currency)} ?: "Desconocido")
+                    DetailFact("Fecha de compra",item.purchasedOn ?: "Desconocida")
+                }
+                DetailSection("components","Componentes y accesorios",anchors.getValue("components"),"${item.controllers.size} modelos · ${item.controllers.sumOf{it.quantity}} unidades"){
+                    if(item.controllers.isEmpty()){
+                        Text("Sin componentes ni accesorios registrados")
+                        TextButton(edit){Text("Añadir componentes o accesorios")}
+                    }
+                    item.controllers.forEachIndexed{index,c->
+                        if(index>0)HorizontalDivider()
+                        Column(verticalArrangement=Arrangement.spacedBy(6.dp)){
+                            Text("${c.quantity} × ${c.name}",style=MaterialTheme.typography.titleMedium)
+                            Text(c.condition.label(),color=MaterialTheme.colorScheme.onSurfaceVariant)
+                            if(c.serialNumber.isNotBlank())DetailFact("Serie",c.serialNumber)
+                            if(c.notes.isNotBlank())Text(c.notes)
+                        }
+                    }
+                }
+                DetailSection("notes","Notas",anchors.getValue("notes")){
+                    Text(item.notes.ifBlank{"Sin notas sobre este equipo."})
+                    if(item.notes.isBlank())TextButton(edit){Text("Añadir notas")}
+                }
+                DetailSection("photos","Fotos del equipo",anchors.getValue("photos")){
+                    val photos=item.localPhotos.ifEmpty{listOfNotNull(item.imageUrl)}
+                    if(photos.isEmpty()){
+                        Text("Aún no hay fotos de esta unidad. La cabecera utiliza una ilustración genérica.")
+                        TextButton(edit){Text("Añadir fotos")}
+                    }else DetailPhotoGallery(photos,item.name,{zoomPhoto=it})
+                }
+                DetailSection("history","Historia y comunidad",anchors.getValue("history")){
+                    HardwareInsights(item.platform,framed=false)
+                }
+                HorizontalDivider()
+                TextButton(onClick={confirm=true},modifier=Modifier.fillMaxWidth()){Text("Eliminar sistema",color=MaterialTheme.colorScheme.error)}
+            }
         }
     }
-    if(confirm) AlertDialog(onDismissRequest={confirm=false},title={Text("¿Eliminar este sistema?")},text={Text("Se eliminará esta ficha y sus mandos. Los juegos y su compra en el historial de gasto se conservan. Las compras archivadas se pueden quitar desde Estadísticas.")},confirmButton={TextButton(onClick=delete){Text("Eliminar")}},dismissButton={TextButton(onClick={confirm=false}){Text("Cancelar")}})
+    DetailPhotoViewer(zoomPhoto,item.name){zoomPhoto=null}
+    if(confirm)AlertDialog(onDismissRequest={confirm=false},title={Text("¿Eliminar este sistema?")},text={Text("Se eliminará esta ficha y sus componentes y accesorios. Los juegos y su compra en el historial de gasto se conservan. Las compras archivadas se pueden quitar desde Estadísticas.")},confirmButton={TextButton(onClick={confirm=false;delete()}){Text("Eliminar")}},dismissButton={TextButton(onClick={confirm=false}){Text("Cancelar")}})
 }
-
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable fun HardwareEditorScreen(original: Hardware?, saving: Boolean, save: (Hardware) -> Unit, back: () -> Unit,initialPlatform:String="") {
     var name by rememberSaveable { mutableStateOf(original?.name.orEmpty()) }; var platform by rememberSaveable { mutableStateOf(original?.platform ?: initialPlatform) }

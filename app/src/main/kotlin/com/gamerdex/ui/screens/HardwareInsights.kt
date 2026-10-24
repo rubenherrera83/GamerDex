@@ -30,13 +30,13 @@ data class RankingState(val loading:Boolean=false,val games:List<Metadata> = emp
         }
     }
 }
-@Composable fun HardwareInsights(platform:String,viewModel:HardwareInsightsViewModel=hiltViewModel()) {
+@Composable fun HardwareInsights(platform:String,viewModel:HardwareInsightsViewModel=hiltViewModel(),framed:Boolean=true) {
     val history=remember(platform){SystemKnowledge.history(platform)}
     val platformId=remember(platform){SystemKnowledge.rawgId(platform)}
     val uri=LocalUriHandler.current
     val ranking by viewModel.state.collectAsStateWithLifecycle()
     LaunchedEffect(platformId){platformId?.let{viewModel.load(it)}}
-    OutlinedCard(Modifier.fillMaxWidth()) {Column(Modifier.padding(16.dp),verticalArrangement=Arrangement.spacedBy(10.dp)) {
+    val content:@Composable ColumnScope.()->Unit={
         Text("¿Sabías que…?",style=MaterialTheme.typography.titleLarge)
         Text("Datos de la familia de consola, no de esta unidad. Ficha revisada: 18/10/2026.",style=MaterialTheme.typography.bodySmall)
         if(history==null)Text("Todavía no hay una ficha histórica verificada para esta plataforma.")
@@ -62,5 +62,7 @@ data class RankingState(val loading:Boolean=false,val games:List<Metadata> = emp
             }
             TextButton(onClick={uri.openUri("https://rawg.io/games?platforms=$platformId&ordering=-rating")}){Text("Fuente: RAWG ↗")}
         }
-    }}
+    }
+    if(framed)OutlinedCard(Modifier.fillMaxWidth()){Column(Modifier.padding(16.dp),verticalArrangement=Arrangement.spacedBy(10.dp),content=content)}
+    else Column(Modifier.fillMaxWidth(),verticalArrangement=Arrangement.spacedBy(10.dp),content=content)
 }

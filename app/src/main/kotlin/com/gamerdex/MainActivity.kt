@@ -151,7 +151,7 @@ class MainActivity : ComponentActivity() {
             composable("detail/{id}", arguments = listOf(navArgument("id") { type = NavType.LongType })) { entry ->
                 val id = entry.arguments!!.getLong("id")
                 val game = state.games.find { it.id == id }
-                if (game != null) DetailScreen(game, { nav.popBackStack() }, { nav.navigate("edit/$id") }, { viewModel.delete(id) { nav.popBackStack() } }, { nav.navigate("gamertag/$id") }, { viewModel.save(game.copy(isFavorite = !game.isFavorite)) {} })
+                if (game != null) DetailScreen(game, { nav.popBackStack() }, { nav.navigate("edit/$id") }, { viewModel.delete(id) { nav.popBackStack() } }, { nav.navigate("gamertag/$id") }, { viewModel.save(game.copy(isFavorite = !game.isFavorite)) {} },hardware)
                 else MissingGame(state.loading) { nav.popBackStack() }
             }
             composable("edit/{id}?platform={platform}", arguments = listOf(navArgument("id") { type = NavType.LongType },navArgument("platform"){type=NavType.StringType;defaultValue=""})) { entry ->

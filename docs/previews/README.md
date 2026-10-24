@@ -2,6 +2,9 @@
 
 Capturas reales del emulador Android 15:
 
+- [Ficha de juego por secciones · Cyberpunk, 0.14.0](render-tests/game-detail-overview.png)
+- [Fotos de la copia y multimedia, 0.14.0](render-tests/game-detail-media.png)
+- [Ficha de equipo por secciones · Kawaii, 0.14.0](render-tests/hardware-detail-overview-v14.png)
 - [Barra inferior y portada de Sistemas, 0.13.0](render-tests/navigation-systems.png)
 - [Colección con filtros combinados y ordenación, 0.13.0](render-tests/collection-tools.png)
 - [Panel de filtros, 0.13.0](render-tests/collection-filters.png)
