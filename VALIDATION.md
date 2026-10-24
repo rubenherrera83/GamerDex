@@ -1,12 +1,18 @@
 # Validación de GamerDex
 
-Versión validada: 0.19.0 · Room v6 · formato de copia portable v5 (lectura v1–v5).
+Versión validada: 0.19.1 · Room v6 · formato de copia portable v5 (lectura v1–v5).
 
 Fecha: 24 de octubre de 2026.
 
 Entorno: Windows, JDK Microsoft 21.0.8, Gradle 8.11.1, Android SDK 35 y emulador Medium Phone Android 15 (API 35, x86_64).
 
 ## Resultados
+
+- Validación 0.19.1: APK e instrumentación compilados; Lint con 0 errores y las mismas 83 advertencias, sin baseline ni supresiones. APK `GamerDex-0.19.1-debug.apk`, versión 0.19.1/código 24. Room v6 y ZIP v5 no cambian.
+- Batería dirigida final: 10 pruebas correctas de navegación, adaptación, cabeceras y vistas de colección. Incluye una regresión nueva con iconos visibles, etiquetas sin recortar y selección correcta al cambiar de destino. Actualización instalada y arranque en frío correctos; preferencias y tamaño de letra originales restaurados y verificados.
+- Iconos y nombres presentes en las cuatro secciones inferiores con letra al 200 % en 411 × 914 dp, al 160 % en 320 × 640 dp y en horizontal 640 × 320 dp. Iconos apilados sobre el nombre en ventanas altas, junto al texto en ventanas bajas; la selección sigue destacada con el tema. Dos capturas revisadas y publicadas en Vistas previas.
+
+Los resultados 0.19.0 siguientes se conservan como historial.
 
 - Validación 0.19.0: APK e instrumentación compilados; Lint con 0 errores y 83 advertencias en dependencias/código previo, sin baseline ni supresiones. APK `GamerDex-0.19.0-debug.apk`, versión 0.19.0/código 23. Room v6 y ZIP v5 no cambian.
 - Batería Android completa: 56 pruebas distintas correctas en la repetición final, incluidas las dos nuevas. Se conservan las comprobaciones de letra ampliada, horizontal, doce temas, fichas, copias, gamertags y proveedores de metadatos. Actualización instalada y arranque en frío correctos en API 35; preferencias originales, tamaño/densidad de pantalla y tamaño de letra restaurados y verificados.

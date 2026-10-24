@@ -2,6 +2,9 @@
 
 Capturas reales del emulador Android 15:
 
+- [Navegación con iconos y letra al 200 %, 0.19.1](render-tests/navigation-icons-large-v191.png)
+- [Navegación con iconos en horizontal, 0.19.1](render-tests/navigation-icons-landscape-v191.png)
+
 - [Lista compacta de juegos y orden A–Z, 0.19.0](render-tests/compact-games-v19.png)
 - [Lista compacta de sistemas, 0.19.0](render-tests/compact-systems-v19.png)
 - [Cuadrícula de sistemas, 0.19.0](render-tests/grid-systems-v19.png)

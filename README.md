@@ -1,6 +1,11 @@
 # GamerDex
 
-Versión 0.19.0: listados compactos para colecciones grandes y juegos ordenados por título A–Z.
+Versión 0.19.1: iconos visibles en la navegación inferior también con letra grande y en horizontal.
+
+## Novedades 0.19.1
+
+- La navegación inferior conserva iconos, nombres y selección activa en todas sus distribuciones. Icono sobre el nombre en ventanas altas; junto al nombre cuando falta altura.
+- Se mantiene la adaptación al ancho y al tamaño de letra elegido. APK GamerDex-0.19.1-debug.apk, código 24.
 
 ## Novedades 0.19.0
 

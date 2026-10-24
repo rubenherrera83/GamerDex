@@ -43,7 +43,9 @@ private val navigationIcons = listOf(
     val labelWidth=with(density){destinations.maxOf{measurer.measure(AnnotatedString(it.second),labelStyle).size.width}.toDp()}+24.dp
     BoxWithConstraints {
         if(short || maxWidth/4<labelWidth){
-            val columns=if(maxWidth-16.dp>=labelWidth*4+24.dp)4 else if(maxWidth-16.dp>=labelWidth*2+8.dp)2 else 1
+            // Short windows use a horizontal icon/label row; tall windows stack them.
+            val itemWidth=labelWidth+if(short)32.dp else 0.dp
+            val columns=if(maxWidth-16.dp>=itemWidth*4+24.dp)4 else if(maxWidth-16.dp>=itemWidth*2+8.dp)2 else 1
             Surface(color=MaterialTheme.colorScheme.surface){
                 Column(Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal=8.dp,vertical=4.dp),verticalArrangement=Arrangement.spacedBy(4.dp)){
                     destinations.chunked(columns).forEach{row->Row(horizontalArrangement=Arrangement.spacedBy(8.dp)){
@@ -51,14 +53,21 @@ private val navigationIcons = listOf(
                             contentColor=if(selected==route)MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
                             shape=MaterialTheme.shapes.small,modifier=Modifier.weight(1f).testTag("nav-$route")
                                 .selectable(selected==route,role=Role.Tab,onClick={open(route)})){
-                            Box(Modifier.fillMaxWidth().heightIn(min=48.dp).padding(8.dp),contentAlignment=androidx.compose.ui.Alignment.Center){Text(title,modifier=Modifier.fillMaxWidth(),style=labelStyle,textAlign=TextAlign.Center)}
+                            val icon=navigationIcons[destinations.indexOfFirst{it.first==route}]
+                            if(short)Row(Modifier.fillMaxWidth().heightIn(min=48.dp).padding(8.dp),verticalAlignment=androidx.compose.ui.Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(8.dp)){
+                                Icon(icon,contentDescription=null,modifier=Modifier.size(24.dp).testTag("nav-icon-$route"))
+                                Text(title,modifier=Modifier.weight(1f),style=labelStyle,textAlign=TextAlign.Center)
+                            }else Column(Modifier.fillMaxWidth().heightIn(min=64.dp).padding(8.dp),horizontalAlignment=androidx.compose.ui.Alignment.CenterHorizontally,verticalArrangement=Arrangement.spacedBy(4.dp)){
+                                Icon(icon,contentDescription=null,modifier=Modifier.size(24.dp).testTag("nav-icon-$route"))
+                                Text(title,modifier=Modifier.fillMaxWidth(),style=labelStyle,textAlign=TextAlign.Center)
+                            }
                         }}
                     }}
                 }
             }
         }else NavigationBar {
             destinations.forEachIndexed{index,(route,title)->NavigationBarItem(selected=selected==route,onClick={open(route)},
-                icon={Icon(navigationIcons[index],contentDescription=null,modifier=Modifier.size(24.dp))},label={Text(title,maxLines=1)},modifier=Modifier.testTag("nav-$route"))}
+                icon={Icon(navigationIcons[index],contentDescription=null,modifier=Modifier.size(24.dp).testTag("nav-icon-$route"))},label={Text(title,maxLines=1)},modifier=Modifier.testTag("nav-$route"))}
         }
     }
 }
