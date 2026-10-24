@@ -66,7 +66,7 @@ class CollectionV3FlowTest {
             compose.onNodeWithTag("cover-flow").performScrollTo().assertExists()
             val directory = File(context.getExternalFilesDir(null), "render-tests").apply { mkdirs() }
             instrumentation.uiAutomation.takeScreenshot().let { bitmap -> File(directory, "cover-flow.png").outputStream().use { bitmap.compress(Bitmap.CompressFormat.PNG, 100, it) } }
-            compose.onNode(hasText("Nintendo Switch") and hasClickAction()).performScrollTo().performClick()
+            compose.onNodeWithTag("collection-grid").performScrollToNode(hasTestTag("collection-filters"));compose.onNodeWithTag("collection-filters").performClick();compose.onNodeWithTag("filter-platform").performClick();compose.onNodeWithTag("filter-option-Plataforma-Nintendo Switch").performClick();compose.onNodeWithText("Ver resultados").performClick()
             compose.onNodeWithText("1 / 1").assertExists()
             compose.onNodeWithContentDescription("Juego siguiente").assertIsNotEnabled()
             compose.onNodeWithText("Buscar en tu colección").performScrollTo().performTextInput("sin coincidencias v3")

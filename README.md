@@ -1,6 +1,14 @@
 # GamerDex
 
-Versión 0.12.0: primera mejora UX, con Sistemas compacto, alta rápida y formularios protegidos.
+Versión 0.13.0: navegación inferior, filtros combinables y ordenación de la colección.
+
+## Novedades 0.13.0
+
+- Barra inferior: Sistemas, Juegos, Estadísticas y Más. Recupera el estado de cada sección; se oculta al consultar fichas o editar para conservar la protección de cambios pendientes.
+- Búsqueda, filtros y vistas compartidos por colección global, plataformas, favoritos y listados derivados. Combina plataforma, género, favoritos, finalizados y especiales; etiquetas activas y limpieza independiente de la búsqueda.
+- Orden por título, alta reciente, nota y precio. Importes agrupados por moneda, valores desconocidos al final y sin conversión. Se conserva búsqueda, orden, filtros y desplazamiento al volver de una ficha.
+- Recuento «N de M juegos», contadores Ejemplares / Equipos / Especiales y número de plataformas con juegos. Carátulas compactas con favorito, especial y finalizado. Se mantienen Lista, Cuadrícula y Cover Flow.
+- APK `GamerDex-0.13.0-debug.apk`, versión 0.13.0/código 17. Room v6 y ZIP v5 permanecen iguales. [Alcance y uso](docs/ux-second-block.md).
 
 ## Novedades 0.12.0
 

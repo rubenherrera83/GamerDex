@@ -28,6 +28,8 @@ import com.gamerdex.core.domain.EditionType
             }
             if (game.effectiveEdition != EditionType.STANDARD) Text("◆", color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.align(Alignment.BottomStart).background(MaterialTheme.colorScheme.surface.copy(alpha = .9f)).padding(5.dp).semantics { contentDescription = "Edición especial" })
+            if (game.isFinished) Text("✓", color = MaterialTheme.colorScheme.onSecondaryContainer,
+                modifier = Modifier.align(Alignment.BottomEnd).background(MaterialTheme.colorScheme.secondaryContainer).padding(5.dp).semantics { contentDescription = "Juego finalizado" })
         }
         Column(Modifier.padding(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text(game.title, maxLines = 2, minLines = 2, overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.labelMedium)

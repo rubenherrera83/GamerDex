@@ -2,6 +2,9 @@
 
 Capturas reales del emulador Android 15:
 
+- [Barra inferior y portada de Sistemas, 0.13.0](render-tests/navigation-systems.png)
+- [Colección con filtros combinados y ordenación, 0.13.0](render-tests/collection-tools.png)
+- [Panel de filtros, 0.13.0](render-tests/collection-filters.png)
 - [Sistemas compacto, 0.12.0](render-tests/systems-compact.png)
 - [Alta rápida por secciones, 0.12.0](render-tests/editor-quick.png)
 - [Protección de cambios pendientes, 0.12.0](render-tests/editor-unsaved.png)

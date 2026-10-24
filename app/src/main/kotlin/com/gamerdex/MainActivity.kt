@@ -30,6 +30,10 @@ import com.gamerdex.ui.CollectionView
 import com.gamerdex.ui.StartScreen
 import com.gamerdex.core.domain.systemLibraries
 import android.net.Uri
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import com.gamerdex.ui.components.CollectionNavigation
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -63,13 +67,21 @@ class MainActivity : ComponentActivity() {
     val snack = remember { SnackbarHostState() }
     val drawer = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+    val focus=LocalFocusManager.current
+    val keyboard=LocalSoftwareKeyboardController.current
     val entry by nav.currentBackStackEntryAsState()
     var platform by rememberSaveable { mutableStateOf<String?>(null) }
     var genre by rememberSaveable { mutableStateOf<String?>(null) }
     var allGamesEpoch by rememberSaveable{mutableIntStateOf(0)}
-    val menu: () -> Unit = { scope.launch { drawer.open() } }
-    fun navigateSection(route:String){nav.navigate(route){launchSingleTop=true;popUpTo(nav.graph.startDestinationId)}}
-    fun openAllGames(){platform=null;genre=null;allGamesEpoch++;navigateSection("vault")}
+    val menu: () -> Unit = { focus.clearFocus();keyboard?.hide();scope.launch { drawer.open() } }
+    fun navigateSection(route:String,restore:Boolean=true){
+        focus.clearFocus();keyboard?.hide()
+        if(!restore)nav.clearBackStack(route)
+        nav.navigate(route){launchSingleTop=true;restoreState=restore;popUpTo(nav.graph.findStartDestination().id){saveState=true}}
+        // A saved stack may include a detail/list opened from its root. A section button opens that root.
+        if(route in setOf("systems","vault","statistics") && nav.currentDestination?.route!=route)nav.popBackStack(route,false)
+    }
+    fun openAllGames(){platform=null;genre=null;allGamesEpoch++;navigateSection("vault",restore=false)}
     fun openSystem(family:String,equipment:Boolean=false){nav.navigate("system-games/${Uri.encode(family)}?tab=${if(equipment)"equipment" else "games"}")}
     val destinations = listOf("systems" to "Sistemas","vault" to "Juegos", "library/FAVORITES" to "Favoritos", "browse/genres" to "Géneros", "statistics" to "Estadísticas", "gamertag/0" to "Gamertags", "preferences" to "Preferencias")
     LaunchedEffect(state.error) { state.error?.let { snack.showSnackbar(it); viewModel.clearError() } }
@@ -81,8 +93,13 @@ class MainActivity : ComponentActivity() {
             Spacer(Modifier.weight(1f)); Text(theme.tagline, Modifier.padding(24.dp), color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }) {
-    Scaffold(containerColor = androidx.compose.ui.graphics.Color.Transparent, snackbarHost = { SnackbarHost(snack) }) { outer ->
-        NavHost(nav, startDestination = initialRoute, modifier = Modifier.padding(bottom = outer.calculateBottomPadding())) {
+    val route=entry?.destination?.route.orEmpty()
+    val primary=when{route=="vault"->"vault";route=="statistics"->"statistics";route=="systems" || route=="hardware" || route.startsWith("system-games/")->"systems";else->"more"}
+    val editing=route.startsWith("edit/") || route.startsWith("hardware/edit/")
+    val showingDetail=route.startsWith("detail/") || route.startsWith("hardware/detail/")
+    Scaffold(containerColor = androidx.compose.ui.graphics.Color.Transparent, snackbarHost = { SnackbarHost(snack) },
+        bottomBar={if(!editing && !showingDetail && drawer.isClosed)CollectionNavigation(primary,{navigateSection(it)},menu)}) { outer ->
+        NavHost(nav, startDestination = initialRoute, modifier = Modifier.padding(bottom = outer.calculateBottomPadding()).consumeWindowInsets(PaddingValues(bottom=outer.calculateBottomPadding()))) {
             composable("systems") {SystemsHomeScreen(state,hardware,menu,{system->openSystem(system.key)},::openAllGames,{nav.navigate("edit/0")},{nav.navigate("hardware/edit/0")})}
             composable("system-games/{family}?tab={tab}",arguments=listOf(navArgument("family"){type=NavType.StringType},navArgument("tab"){type=NavType.StringType;defaultValue="games"})){systemEntry->
                 val family=systemEntry.arguments!!.getString("family").orEmpty()
@@ -108,19 +125,20 @@ class MainActivity : ComponentActivity() {
                 else MissingGame(false){nav.popBackStack()}
             }
             composable("vault") { VaultScreen(state, { nav.navigate("edit/0") }, { nav.navigate("detail/$it") }, menu, platform, genre, { platform = it }, { platform = null; genre = null }, mode, setMode,
-                { nav.navigate("library/ALL") }, { navigateSection("systems") }, { nav.navigate("library/SPECIAL") }, { game -> viewModel.save(game.copy(isFavorite = !game.isFavorite)) {} },hardware.size,resetSearchKey=allGamesEpoch) }
+                { nav.navigate("library/ALL") }, { navigateSection("systems") }, { nav.navigate("library/SPECIAL") }, { game -> viewModel.save(game.copy(isFavorite = !game.isFavorite)) {} },hardware.size,resetSearchKey=allGamesEpoch,setGenre={genre=it}) }
             composable("library/{filter}") { listEntry ->
                 val filter = runCatching { CollectionFilter.valueOf(listEntry.arguments?.getString("filter").orEmpty()) }.getOrDefault(CollectionFilter.ALL)
-                LibraryScreen(state.games, filter, menu, { nav.navigate("detail/$it") }, { game -> viewModel.save(game.copy(isFavorite = !game.isFavorite)) {} })
+                LibraryScreen(state.games, filter, menu, { nav.navigate("detail/$it") }, { game -> viewModel.save(game.copy(isFavorite = !game.isFavorite)) {} },mode,setMode)
             }
             composable("statistics") { StatisticsScreen(state.games, menu, { nav.navigate("library/${it.name}") },
-                { selected -> platform = selected; genre = null; navigateSection("vault") },
-                { selected -> genre = selected; platform = null; navigateSection("vault") },hardware,purchases,viewModel::removeArchivedPurchase) }
+                { selected -> platform = selected; genre = null; allGamesEpoch++;navigateSection("vault",restore=false) },
+                { selected -> genre = selected; platform = null; allGamesEpoch++;navigateSection("vault",restore=false) },hardware,purchases,viewModel::removeArchivedPurchase) }
             composable("browse/{kind}") { browse ->
                 val platforms = browse.arguments?.getString("kind") == "platforms"
                 BrowseScreen(state.games, platforms, menu) { selected ->
                     if (platforms) { platform = selected; genre = null } else { genre = selected; platform = null }
-                    navigateSection("vault")
+                    allGamesEpoch++
+                    navigateSection("vault",restore=false)
                 }
             }
             composable("preferences") { PreferencesScreen(menu) }

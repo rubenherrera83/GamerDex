@@ -1,12 +1,22 @@
 # Validación de GamerDex
 
-Versión validada: 0.12.0 · Room v6 · formato de copia portable v5 (lectura v1–v5).
+Versión validada: 0.13.0 · Room v6 · formato de copia portable v5 (lectura v1–v5).
 
 Fecha: 24 de octubre de 2026.
 
 Entorno: Windows, JDK Microsoft 21.0.8, Gradle 8.11.1, Android SDK 35 y emulador Medium Phone Android 15 (API 35, x86_64).
 
 ## Resultados
+
+- Validación 0.13.0: APK e instrumentación compilados; Lint con 0 errores y las mismas 82 advertencias anteriores, sin baseline ni supresiones. Salida `GamerDex-0.13.0-debug.apk`, versión 0.13.0/código 17. Instalación sobre la versión anterior y arranque en frío correctos en API 35; preferencias del emulador restauradas al terminar. Room v6 y ZIP v5 no cambian.
+- 60 pruebas distintas correctas: 18 de dominio (dos nuevas de consulta/ordenación) y batería Android completa de 42 (dos recorridos nuevos de UX). La primera batería completa detectó dos regresiones al restaurar listados secundarios desde Juegos/Géneros; se corrigió la navegación a la pantalla principal y se repitieron las 42 pruebas completas sin fallos.
+- Filtros: combinación de plataforma, género, favoritos, finalizados y ediciones especiales, búsqueda independiente, retirada individual y limpieza. Un caso sintético de 36 ejemplares produce seis coincidencias con los cinco filtros; limpiar recupera los 36. El dominio comprueba también copias repetidas, Sin género y juegos que incumplen uno de los criterios.
+- Ordenación: título, fecha de alta, nota personal y precio. Los valores desconocidos quedan al final; nota cero se conserva como valoración válida. Los importes se agrupan por moneda y se ordenan dentro de cada grupo, sin convertir EUR/JPY ni confundir importe desconocido con cero.
+- Estado: búsqueda, filtros y orden se conservan al alternar Juegos/Estadísticas y recrear Activity. Abrir una ficha y volver recupera la carátula en su posición anterior. Sistemas recupera su búsqueda al alternar secciones. Juegos desde el menú limpia la consulta; la barra inferior recupera la colección. Un acceso por género abre su filtro y permite retirarlo.
+- Seguridad de formularios: barra inferior oculta en fichas y edición. Se mantienen las cuatro pruebas del primer bloque, incluida la confirmación de cambios pendientes, validación de campos cerrados, recreación, calendario, nota numérica y componentes. Se mantienen además cámara, doce temas, RAWG, Evercade, estadísticas/gasto, copias y gamertags/compartición.
+- Revisión visual de tres capturas reales con datos sintéticos: `navigation-systems.png`, `collection-tools.png` y `collection-filters.png` en `docs/previews/render-tests/`. Se revisaron barra inferior, contadores, filtros activos, carátulas y panel de filtros. [Alcance](docs/ux-second-block.md).
+
+Los resultados 0.12.0 siguientes se conservan como historial.
 
 - Validación 0.12.0: APK e instrumentación compilados; Lint con 0 errores y las mismas 82 advertencias anteriores, sin baseline ni supresiones. Salida `GamerDex-0.12.0-debug.apk`, versión 0.12.0/código 16. No cambian Room v6 ni ZIP v5.
 - 40 pruebas Android distintas correctas, incluidas cuatro nuevas de UX. La batería completa tuvo dos fallos de selector: al abrir todas las secciones para los recorridos antiguos, el botón Buscar por nombre quedaba fuera de la zona visible. Se añadió desplazamiento explícito y se repitieron correctamente las tres pruebas RAWG y las dos de edición/cámara. No quedan fallos pendientes.
