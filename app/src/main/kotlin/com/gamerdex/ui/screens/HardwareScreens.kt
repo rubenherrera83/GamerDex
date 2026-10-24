@@ -66,7 +66,7 @@ fun HardwareKind.label() = when(this) { HardwareKind.CONSOLE -> "Consola"; Hardw
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable fun HardwareListScreen(hardware: List<Hardware>, menu: () -> Unit, add: () -> Unit, open: (Long) -> Unit,query:String,setQuery:(String)->Unit,embedded:Boolean=false) {
-    Scaffold(containerColor=Color.Transparent, topBar={ if(!embedded)TopAppBar(title={Text("Mis equipos")},navigationIcon={TextButton(onClick=menu){Text("☰")}}) },
+    Scaffold(containerColor=Color.Transparent, topBar={ if(!embedded)ScreenHeader("Mis equipos",menu=menu) },
         floatingActionButton={ExtendedFloatingActionButton(onClick=add){Text("+ AÑADIR EQUIPO")}}) { padding ->
         LazyColumn(Modifier.fillMaxSize().padding(padding).testTag("equipment-list"), contentPadding=PaddingValues(20.dp,12.dp,20.dp,100.dp), verticalArrangement=Arrangement.spacedBy(16.dp)) {
             item { Text("${hardware.size} equipos · ${hardware.sumOf { h -> h.controllers.sumOf { it.quantity } }} accesorios / componentes", style=MaterialTheme.typography.titleMedium) }
@@ -92,7 +92,7 @@ fun HardwareKind.label() = when(this) { HardwareKind.CONSOLE -> "Consola"; Hardw
     val anchors=remember(item.id){listOf("status","purchase","components","notes","photos","history").associateWith{DetailAnchor()}}
     val scroll=rememberScrollState()
     Scaffold(containerColor=Color.Transparent,topBar={Surface{Column{
-        TopAppBar(title={Text("Mi equipo")},navigationIcon={TextButton(back){Text("Volver")}},actions={TextButton(edit){Text("Editar")}})
+        ScreenHeader("Mi equipo",back=back,actions={TextButton(edit){Text("Editar")}})
         DetailJumpBar("hardware",listOf("status" to "Estado","purchase" to "Compra","components" to "Componentes","notes" to "Notas","photos" to "Fotos","history" to "Historia").map{(id,title)->DetailJump(id,title,anchors.getValue(id))},scroll)
     }}}){padding->
         Column(Modifier.fillMaxSize().padding(padding).consumeWindowInsets(padding).verticalScroll(scroll).testTag("hardware-detail"),horizontalAlignment=Alignment.CenterHorizontally){
@@ -189,7 +189,7 @@ fun HardwareKind.label() = when(this) { HardwareKind.CONSOLE -> "Consola"; Hardw
     val current=listOf(name,platform,kind,region,box,manual,cables,condition,working,serial,date,price,currency,notes,imageUrl,logoUrl,photos,controllerJson)
     fun submit(){if(valid && !saving)save(Hardware(original?.id ?: 0,name.trim(),platform.trim(),kind,region.trim(),box,manual,cables,condition,working,serial.trim(),date.ifBlank{null},parsePriceCents(price,currency),currency,controllers,photos,imageUrl.ifBlank{null},logoUrl.ifBlank{null},notes))}
     val requestBack=rememberFormExit(current!=initial,saving,valid,problem,::submit,back)
-    Scaffold(containerColor=Color.Transparent,topBar={TopAppBar(title={Text(if(original==null) "Nuevo equipo" else "Editar equipo")},navigationIcon={TextButton(onClick=requestBack,enabled=!saving){Text("Volver")}})},bottomBar={EditorSaveBar("GUARDAR SISTEMA",saving,valid,problem,::submit)}) { padding ->
+    Scaffold(containerColor=Color.Transparent,topBar={ScreenHeader(if(original==null) "Nuevo equipo" else "Editar equipo",back=requestBack,navigationEnabled=!saving)},bottomBar={EditorSaveBar("GUARDAR SISTEMA",saving,valid,problem,::submit)}) { padding ->
         Column(Modifier.fillMaxSize().padding(padding).consumeWindowInsets(padding).verticalScroll(rememberScrollState()).padding(20.dp),verticalArrangement=Arrangement.spacedBy(12.dp)) {
             OutlinedTextField(name,{name=it},label={Text("Modelo / nombre *")},modifier=Modifier.fillMaxWidth(),enabled=!saving)
             PlatformPicker(platform,logoUrl.ifBlank{null},!saving){platform=it}

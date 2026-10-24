@@ -1,12 +1,21 @@
 # Validación de GamerDex
 
-Versión validada: 0.15.0 · Room v6 · formato de copia portable v5 (lectura v1–v5).
+Versión validada: 0.16.0 · Room v6 · formato de copia portable v5 (lectura v1–v5).
 
 Fecha: 24 de octubre de 2026.
 
 Entorno: Windows, JDK Microsoft 21.0.8, Gradle 8.11.1, Android SDK 35 y emulador Medium Phone Android 15 (API 35, x86_64).
 
 ## Resultados
+
+- Validación 0.16.0: APK e instrumentación compilados; Lint con 0 errores y las mismas 82 advertencias previas, sin baseline ni supresiones. Salida `GamerDex-0.16.0-debug.apk`, versión 0.16.0/código 20. Actualización instalada y arranque en frío correctos en API 35. Se restauraron las preferencias previas antes del arranque y se verificó la migración a Sistemas conservando las demás preferencias. Room v6 y ZIP v5 no cambian.
+- Batería Android completa: 48 pruebas distintas correctas, incluidas dos nuevas de cabeceras/preferencias. Ocho recorridos dirigidos iniciales y repetición de los dos nuevos con el APK final, sin fallos. Continúan pasando los doce temas, edición/cámara, RAWG, ScanDex/UPCitemdb/Evercade, navegación, fichas, estadísticas/gasto, copias y gamertags.
+- Cabeceras: Sistemas, Juegos y Estadísticas comparten altura y alineación de título y logo; permanecen visibles al desplazar la colección. Gasto conserva Volver y los filtros. El selector sitúa Cuadrícula a la izquierda de Lista y Cover Flow sin cambiar la selección guardada.
+- Preferencias: accesos fijos a Apariencia, Copias e Identidad; crear/recuperar accesibles sin atravesar los temas. Cambiar tema, apodo y pantalla inicial se guarda inmediatamente y sobrevive a recrear Activity; elegir inicio no abandona Preferencias. Los casos anteriores de ZIP siguen verificando recuperación de fotos y rechazo de copias inválidas.
+- Inicio: prueba aislada de instalación nueva, preferencias antiguas, valor Juegos escrito automáticamente y base de datos existente. Todos adoptan Sistemas; una elección posterior de Juegos permanece al reconstruir preferencias. Se conserva la antigua preferencia Cover Flow y un valor de inicio desconocido vuelve a Sistemas.
+- Revisión visual de cuatro capturas sintéticas: Sistemas/Juegos/Estadísticas en Azul 16-bit y copias en Kawaii. Se corrigió el fondo de ventana para mantener el contraste de las barras del sistema al pasar a un tema claro y recrear Activity. [Alcance y uso](docs/ux-preferences-and-headers.md).
+
+Los resultados 0.15.0 siguientes se conservan como historial.
 
 - Validación 0.15.0: APK e instrumentación compilados; Lint con 0 errores y las mismas 82 advertencias anteriores, sin baseline ni supresiones. Salida `GamerDex-0.15.0-debug.apk`, versión 0.15.0/código 19. Instalación sobre 0.14.0 y arranque en frío correctos en API 35; preferencias del emulador restauradas al terminar. Room v6 y ZIP v5 no cambian.
 - Batería Android completa de 46 pruebas correctas, incluidas dos nuevas de estadísticas/gasto. Los casos anteriores de filtros y gasto por unidad se adaptan a pantalla completa y conservan la comprobación de importes. En la primera prueba dirigida se detectó que un desglose anual se cerraba al volver: se elevó su estado y se repitieron los dos recorridos nuevos y la batería completa sin fallos.

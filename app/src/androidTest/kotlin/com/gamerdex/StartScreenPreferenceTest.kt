@@ -11,7 +11,7 @@ import java.io.File
 import java.util.UUID
 
 class StartScreenPreferenceTest {
-    @Test fun freshInstallsUseSystemsWhileExistingPreferencesOrDatabaseKeepGames() {
+    @Test fun systemsDefaultMigratesLegacyValuesAndPreservesSubsequentChoices() {
         val base=InstrumentationRegistry.getInstrumentation().targetContext
         val stores=mutableListOf<android.content.SharedPreferences>();val files=mutableListOf<File>()
         fun isolated():Context {
@@ -28,9 +28,11 @@ class StartScreenPreferenceTest {
             fresh.getSharedPreferences("gamerdex_preferences",0).edit().putString("start_screen","FUTURE_VALUE").commit()
             assertEquals(StartScreen.SYSTEMS,AppPreferences(fresh).startScreen.value)
             val legacy=isolated();legacy.getSharedPreferences("gamerdex_preferences",0).edit().putBoolean("horizontal_collection",true).commit()
-            assertEquals(StartScreen.GAMES,AppPreferences(legacy).startScreen.value);assertEquals(CollectionView.COVER_FLOW,AppPreferences(legacy).collectionView.value)
+            assertEquals(StartScreen.SYSTEMS,AppPreferences(legacy).startScreen.value);assertEquals(CollectionView.COVER_FLOW,AppPreferences(legacy).collectionView.value)
+            val automaticGames=isolated();automaticGames.getSharedPreferences("gamerdex_preferences",0).edit().putString("start_screen","GAMES").commit()
+            assertEquals(StartScreen.SYSTEMS,AppPreferences(automaticGames).startScreen.value)
             val withDatabase=isolated();withDatabase.getDatabasePath("gamerdex.db").writeText("existing database marker")
-            assertEquals(StartScreen.GAMES,AppPreferences(withDatabase).startScreen.value)
+            assertEquals(StartScreen.SYSTEMS,AppPreferences(withDatabase).startScreen.value)
         }finally{stores.forEach{it.edit().clear().commit()};files.forEach{it.delete()}}
     }
 }

@@ -32,7 +32,7 @@ import com.gamerdex.ui.components.*
     val scroll=rememberScrollState()
     Scaffold(containerColor=androidx.compose.ui.graphics.Color.Transparent,topBar={
         Surface {Column {
-            TopAppBar(title={Text("Ficha del juego")},navigationIcon={TextButton(back){Text("Volver")}},actions={TextButton(edit){Text("Editar")}})
+            ScreenHeader("Ficha del juego",back=back,actions={TextButton(edit){Text("Editar")}})
             DetailJumpBar("game",listOf("progress" to "Partida","copy" to "Tu copia","purchase" to "Compra","notes" to "Notas","media" to "Fotos").map{(id,title)->DetailJump(id,title,anchors.getValue(id))},scroll)
         }}
     }){padding->

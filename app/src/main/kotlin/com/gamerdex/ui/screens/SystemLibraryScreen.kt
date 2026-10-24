@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.dp
 import com.gamerdex.core.domain.*
 import com.gamerdex.ui.CollectionState
 import com.gamerdex.ui.CollectionView
+import com.gamerdex.ui.components.ScreenHeader
 
 @Composable fun SystemLibraryScreen(state:CollectionState,hardware:List<Hardware>,family:String,title:String,initialEquipment:Boolean,
     mode:CollectionView,setMode:(CollectionView)->Unit,back:()->Unit,addGame:()->Unit,openGame:(Long)->Unit,
@@ -27,11 +28,8 @@ import com.gamerdex.ui.CollectionView
     fun leaveInput(action:()->Unit){focus.clearFocus();keyboard?.hide();action()}
     val games=remember(state.games,family){gamesForSystem(state.games,family)}
     val units=remember(hardware,family){hardware.filter{SystemKnowledge.family(it.platform)==family}}
-    Scaffold(containerColor=Color.Transparent,topBar={Surface(color=MaterialTheme.colorScheme.surface){Column(Modifier.statusBarsPadding()){
-        Row(Modifier.fillMaxWidth().padding(end=20.dp),verticalAlignment=androidx.compose.ui.Alignment.CenterVertically){
-            TextButton(onClick={leaveInput(back)}){Text("Volver")}
-            Text(title,style=MaterialTheme.typography.titleLarge,modifier=Modifier.weight(1f))
-        }
+    Scaffold(containerColor=Color.Transparent,topBar={Surface(color=MaterialTheme.colorScheme.surface){Column{
+        ScreenHeader(title,back={leaveInput(back)})
         Text("${games.size} ${if(games.size==1)"videojuego" else "videojuegos"} en este sistema",Modifier.padding(horizontal=20.dp).testTag("system-games-total"),style=MaterialTheme.typography.bodyMedium)
         Text("${units.size} ${if(units.size==1)"equipo registrado" else "equipos registrados"}",Modifier.padding(horizontal=20.dp,vertical=6.dp).testTag("system-equipment-total"),style=MaterialTheme.typography.bodyMedium)
         TabRow(selectedTabIndex=if(equipment)1 else 0){

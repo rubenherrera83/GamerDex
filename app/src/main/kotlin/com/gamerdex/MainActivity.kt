@@ -22,6 +22,9 @@ import com.gamerdex.ui.CollectionViewModel
 import com.gamerdex.ui.screens.*
 import com.gamerdex.ui.theme.GamerDexTheme
 import com.gamerdex.ui.theme.VisualTheme
+import com.gamerdex.ui.theme.palette
+import androidx.compose.ui.graphics.toArgb
+import androidx.core.graphics.drawable.toDrawable
 import com.gamerdex.ui.AppPreferences
 import dagger.hilt.android.AndroidEntryPoint
 import com.gamerdex.branding.GamerDexLogo
@@ -44,6 +47,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             val theme by preferences.theme.collectAsStateWithLifecycle()
             DisposableEffect(theme) {
+                window.setBackgroundDrawable(theme.palette().surface.toArgb().toDrawable())
                 val style = if (theme.dark) SystemBarStyle.dark(android.graphics.Color.TRANSPARENT) else SystemBarStyle.light(android.graphics.Color.TRANSPARENT, android.graphics.Color.BLACK)
                 enableEdgeToEdge(statusBarStyle = style, navigationBarStyle = style)
                 onDispose { }

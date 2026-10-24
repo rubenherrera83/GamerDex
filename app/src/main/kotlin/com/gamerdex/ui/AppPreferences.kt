@@ -11,12 +11,13 @@ import javax.inject.Singleton
 
 @Singleton class AppPreferences @Inject constructor(@ApplicationContext context: Context) {
     private val preferences = context.getSharedPreferences("gamerdex_preferences", Context.MODE_PRIVATE)
-    private val initialScreen=MutableStateFlow(runCatching{StartScreen.valueOf(preferences.getString("start_screen",null).orEmpty())}.getOrElse{
-        if(preferences.contains("start_screen"))StartScreen.SYSTEMS
-        else if(preferences.all.isNotEmpty() || context.getDatabasePath("gamerdex.db").exists())StartScreen.GAMES else StartScreen.SYSTEMS
-    })
+    // Earlier versions also wrote GAMES automatically, so legacy values do not identify an explicit choice.
+    // Adopt the requested Systems default once; choices made after this migration remain authoritative.
+    private val initialScreen=MutableStateFlow(if(preferences.getBoolean("systems_start_default_v2",false))
+        runCatching{StartScreen.valueOf(preferences.getString("start_screen",null).orEmpty())}.getOrDefault(StartScreen.SYSTEMS)
+        else StartScreen.SYSTEMS)
     val startScreen=initialScreen.asStateFlow()
-    init {if(!preferences.contains("start_screen"))preferences.edit{putString("start_screen",initialScreen.value.name)}}
+    init {preferences.edit{putString("start_screen",initialScreen.value.name);putBoolean("systems_start_default_v2",true)}}
     fun setStartScreen(value:StartScreen){preferences.edit{putString("start_screen",value.name)};initialScreen.value=value}
     private val selected = MutableStateFlow(runCatching { VisualTheme.valueOf(preferences.getString("theme", null).orEmpty()) }.getOrDefault(VisualTheme.CYBERPUNK))
     val theme = selected.asStateFlow()

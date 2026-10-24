@@ -15,7 +15,7 @@ import com.gamerdex.ui.CollectionState
 import com.gamerdex.ui.CollectionView
 import com.gamerdex.ui.components.*
 import com.gamerdex.ui.theme.*
-import com.gamerdex.branding.GamerDexLogo
+
 import com.gamerdex.core.domain.*
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -58,23 +58,13 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
     fun clear(){choosePlatform(null);chooseGenre(null);favorites=false;finished=false;specialsOnly=false;clearFilters()}
     if(filtersOpen) CollectionFilters(platforms,genres,chosenPlatform,chosenGenre,favorites,finished,specialsOnly,
         ::choosePlatform,::chooseGenre,{favorites=it},{finished=it},{specialsOnly=it},::clear,{filtersOpen=false})
-    Scaffold(containerColor = androidx.compose.ui.graphics.Color.Transparent, floatingActionButton = { if(allowAdd)ExtendedFloatingActionButton(onClick = add, containerColor = CyberCyan, contentColor = MaterialTheme.colorScheme.onPrimary, shape = MaterialTheme.shapes.medium) { Text("+ AÑADIR JUEGO") } }) { padding ->
+    Scaffold(containerColor = androidx.compose.ui.graphics.Color.Transparent,
+        topBar={if(showHeader)ScreenHeader(familyTitle ?: "Juegos",menu=menu,back=back)},
+        floatingActionButton = { if(allowAdd)ExtendedFloatingActionButton(onClick = add, containerColor = CyberCyan, contentColor = MaterialTheme.colorScheme.onPrimary, shape = MaterialTheme.shapes.medium) { Text("+ AÑADIR JUEGO") } }) { padding ->
         BoxWithConstraints(Modifier.fillMaxSize().padding(padding)) {
         val columns = when (mode) { CollectionView.GRID -> GridCells.Fixed(if (maxWidth >= 600.dp) 4 else 3); CollectionView.COVER_FLOW -> GridCells.Fixed(1); CollectionView.LIST -> GridCells.Adaptive(155.dp) }
         LazyVerticalGrid(columns = columns, state=gridState, modifier = Modifier.fillMaxSize().testTag("collection-grid"), contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 12.dp, bottom = 110.dp), verticalArrangement = Arrangement.spacedBy(10.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            if(showHeader)item(span = { GridItemSpan(maxLineSpan) }) {
-                Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
-                    if(back!=null)TextButton(onClick=back){Text("Volver")}
-                    else IconButton(onClick = menu, modifier = Modifier.then(Modifier.semantics { contentDescription = "Abrir menú" })) { Text("☰", color = CyberCyan, style = MaterialTheme.typography.headlineSmall) }
-                    Column(Modifier.weight(1f).padding(start = 8.dp)) {
-                        GamerDexLogo(Modifier.widthIn(max = 230.dp).fillMaxWidth())
-                        Text("TU COLECCIÓN / PLAYER HUB", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
-                    Text("◆", color = NeonPurple)
-                }
-            }
             if(showHeader && familyFilter!=null)item(span={GridItemSpan(maxLineSpan)}) { Column(verticalArrangement=Arrangement.spacedBy(6.dp)){
-                Text(familyTitle.orEmpty(),style=MaterialTheme.typography.headlineMedium)
                 Text("${familyGames.size} ${if(familyGames.size==1)"videojuego" else "videojuegos"} en este sistema",style=MaterialTheme.typography.titleMedium,modifier=Modifier.testTag("system-games-total"))
             } }
             if(showHeader && familyFilter==null)item(span = { GridItemSpan(maxLineSpan) }) {
@@ -112,7 +102,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
             }
             item(span = { GridItemSpan(maxLineSpan) }) {
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    CollectionView.entries.forEach { candidate -> FilterChip(mode == candidate, { setMode(candidate) }, label = { Text(candidate.label) }) }
+                    CollectionView.entries.forEach { candidate -> FilterChip(mode == candidate, { setMode(candidate) }, label = { Text(candidate.label) },modifier=Modifier.testTag("collection-view-${candidate.name}")) }
                 }
             }
             if (state.loading) item(span = { GridItemSpan(maxLineSpan) }) { Shimmer(Modifier.fillMaxWidth().height(200.dp)) }

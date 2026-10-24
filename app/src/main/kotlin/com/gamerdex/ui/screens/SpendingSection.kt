@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.gamerdex.core.domain.*
+import com.gamerdex.ui.components.ScreenHeader
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable fun SpendingScreen(games:List<Game>,hardware:List<Hardware>,entries:List<Purchase>,removeArchived:(String)->Unit,back:()->Unit){
@@ -37,7 +38,7 @@ import com.gamerdex.core.domain.*
     val savedModes=rememberSaveableStateHolder()
     BackHandler(onBack=back)
     Scaffold(containerColor=androidx.compose.ui.graphics.Color.Transparent,topBar={Surface{Column{
-        TopAppBar(title={Text("Gasto histórico")},navigationIcon={TextButton(back){Text("Volver")}})
+        ScreenHeader("Gasto histórico",back=back)
         Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min).padding(horizontal=16.dp),horizontalArrangement=Arrangement.spacedBy(8.dp)){
             SpendingFilter("Año",year,"Todos los años",years,Modifier.weight(1f).fillMaxHeight()){year=it}
             SpendingFilter("Plataforma",platform,"Todas las plataformas",platforms,Modifier.weight(1f).fillMaxHeight()){platform=it}

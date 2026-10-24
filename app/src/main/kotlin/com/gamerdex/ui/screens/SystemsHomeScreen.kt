@@ -12,7 +12,7 @@ import androidx.compose.ui.semantics.*
 import androidx.compose.ui.unit.dp
 import com.gamerdex.core.domain.*
 import com.gamerdex.ui.CollectionState
-import com.gamerdex.branding.GamerDexLogo
+
 import com.gamerdex.ui.components.*
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -23,14 +23,9 @@ import com.gamerdex.ui.components.*
         val matchingUnits=hardware.filter{(it.name+" "+it.platform+" "+it.serialNumber).contains(query,true)}.map{SystemKnowledge.family(it.platform)}.toSet()
         systems.filter{it.title.contains(query,true) || it.platform.contains(query,true) || it.key.contains(SystemKnowledge.family(query),true) || it.key in matchingUnits}
     }
-    Scaffold(containerColor=androidx.compose.ui.graphics.Color.Transparent,floatingActionButton={ExtendedFloatingActionButton(onClick=addGame){Text("+ AÑADIR JUEGO")}}){padding->
+    Scaffold(containerColor=androidx.compose.ui.graphics.Color.Transparent,topBar={ScreenHeader("Sistemas",menu=menu)},floatingActionButton={ExtendedFloatingActionButton(onClick=addGame){Text("+ AÑADIR JUEGO")}}){padding->
         LazyVerticalGrid(GridCells.Adaptive(300.dp),Modifier.fillMaxSize().padding(padding).testTag("systems-home"),contentPadding=PaddingValues(16.dp,8.dp,16.dp,100.dp),verticalArrangement=Arrangement.spacedBy(10.dp),horizontalArrangement=Arrangement.spacedBy(12.dp)) {
-            item(span={GridItemSpan(maxLineSpan)}){Row(verticalAlignment=Alignment.CenterVertically){
-                IconButton(onClick=menu,modifier=Modifier.semantics{contentDescription="Abrir menú"}){Text("☰",style=MaterialTheme.typography.headlineSmall)}
-                GamerDexLogo(Modifier.width(190.dp))
-            }}
             item(span={GridItemSpan(maxLineSpan)}){Column(verticalArrangement=Arrangement.spacedBy(8.dp)){
-                Text("Sistemas",style=MaterialTheme.typography.headlineSmall)
                 Text("${systems.size} plataformas · ${state.games.size} videojuegos · ${hardware.size} equipos",style=MaterialTheme.typography.bodyMedium)
                 FlowRow(horizontalArrangement=Arrangement.spacedBy(8.dp)){OutlinedButton(onClick=allGames){Text("Todos los juegos")};OutlinedButton(onClick=addEquipment){Text("+ AÑADIR EQUIPO")}}
                 OutlinedTextField(query,{query=it},label={Text("Buscar sistema o plataforma")},supportingText={Text("También puedes buscar un equipo por nombre o serie.")},singleLine=true,modifier=Modifier.fillMaxWidth())

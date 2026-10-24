@@ -28,6 +28,8 @@ Volver recupera el listado de sistemas y su búsqueda. **Juegos** en el menú an
 
 ## Pantalla inicial
 
-En Preferencias → Pantalla inicial se elige Sistemas o Todos los juegos. Una instalación nueva empieza en Sistemas. Si ya existían preferencias o la base de datos, se mantiene Juegos para conservar el comportamiento anterior, además de la elección Lista / Cuadrícula / Cover Flow.
+En Preferencias → Pantalla inicial se elige Sistemas o Todos los juegos. Desde 0.16.0, instalaciones nuevas y anteriores adoptan Sistemas como inicio mediante una migración local de una sola vez. Antes se guardaba Juegos automáticamente sin distinguir una elección explícita. Tras la migración se conserva cualquier elección posterior, también Todos los juegos. La vista elegida se mantiene; el selector muestra Cuadrícula / Lista / Cover Flow.
 
 La preferencia se utiliza en sesiones nuevas. Cambiarla no abandona la pantalla actual; una recreación de Activity o la recuperación de una sesión conserva el destino abierto. Las preferencias locales no forman parte del ZIP de la colección. Room v6 y el formato portable v5 permanecen iguales.
+
+Todas las pantallas comparten una cabecera compacta y fija, con logotipo del tema, título y navegación coherentes. [Cabeceras y preferencias](ux-preferences-and-headers.md).

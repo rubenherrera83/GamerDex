@@ -59,7 +59,7 @@ import androidx.compose.ui.semantics.contentDescription
     val canExport=state.bitmap!=null && state.renderedInput==input && (target=="Colección" || (target=="Juego" && selected!=null) || (target=="Plataforma" && subset.isNotEmpty()) || (target=="Sistema / PC" && selectedSystem!=null))
     LaunchedEffect(input) { viewModel.generate(input) }
     val export = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("image/png")) { it?.let(viewModel::export) }
-    Scaffold(containerColor = androidx.compose.ui.graphics.Color.Transparent, topBar = { TopAppBar(title = { Text("Gamertags") }, navigationIcon = { TextButton(onClick = menu) { Text("☰") } }) }) { padding ->
+    Scaffold(containerColor = androidx.compose.ui.graphics.Color.Transparent, topBar = { ScreenHeader("Gamertags",menu=menu) }) { padding ->
         LazyColumn(Modifier.fillMaxSize().padding(padding).testTag("gamertag-editor"), contentPadding = PaddingValues(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
             item { SectionLabel("CREATOR", "Tu identidad. Tu colección.") }
             item { Text("Llévate tu estilo.", style = MaterialTheme.typography.headlineLarge) }

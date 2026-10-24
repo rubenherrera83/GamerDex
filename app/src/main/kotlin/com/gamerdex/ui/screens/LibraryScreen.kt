@@ -7,12 +7,13 @@ import androidx.compose.ui.Modifier
 import com.gamerdex.core.domain.*
 import com.gamerdex.ui.CollectionState
 import com.gamerdex.ui.CollectionView
+import com.gamerdex.ui.components.ScreenHeader
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable fun LibraryScreen(games: List<Game>, filter: CollectionFilter, menu: () -> Unit, open: (Long) -> Unit,
     favorite: (Game) -> Unit, mode: CollectionView = CollectionView.GRID, setMode: (CollectionView) -> Unit = {}) {
     Scaffold(containerColor = androidx.compose.ui.graphics.Color.Transparent,
-        topBar = { TopAppBar(title = { Text(filter.title) }, navigationIcon = { TextButton(onClick = menu) { Text("☰") } }) }) { padding ->
+        topBar = { ScreenHeader(filter.title,menu=menu) }) { padding ->
         Box(Modifier.fillMaxSize().padding(padding).consumeWindowInsets(padding)) {
             VaultScreen(CollectionState(games.filter(filter::accepts),loading=false), {},open,menu,null,null,{}, {},
                 mode,setMode,toggleFavorite=favorite,showHeader=false,allowAdd=false,

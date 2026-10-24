@@ -1,5 +1,7 @@
 package com.gamerdex.ui.screens
 
+import com.gamerdex.ui.components.ScreenHeader
+
 import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.BackHandler
@@ -126,7 +128,7 @@ fun GameCondition.label() = when (this) {
         pricePaidCents = parsePriceCents(copy.price,copy.currency), priceCurrency = copy.currency, genres = copy.genres.split(',').map(String::trim).filter(String::isNotBlank).distinct(),
         isFinished = finished, completionPercent = completion.toInt(), hasPlatinum = platinum && supportsPlatinum(platform), isFavorite = favorite, rawgId = rawgId,purchasedOn=purchasedOn.ifBlank{null},ownedSystemId=ownedSystemId,catalogUrl=catalogUrl)){committed=true}}
     val requestBack=rememberFormExit(current!=initial || ratingInput!=formatPersonalRating(original?.rating ?: 0f),!editable,valid,problem,::submit,back)
-    Scaffold(containerColor = androidx.compose.ui.graphics.Color.Transparent, topBar = { TopAppBar(title = { Text(if (original == null) "Añadir juego" else "Editar juego") }, navigationIcon = { TextButton(onClick = requestBack, enabled = editable) { Text("Volver") } }) },
+    Scaffold(containerColor = androidx.compose.ui.graphics.Color.Transparent, topBar = { ScreenHeader(if (original == null) "Añadir juego" else "Editar juego",back=requestBack,navigationEnabled=editable) },
         bottomBar={EditorSaveBar("GUARDAR EN LA BÓVEDA",!editable,valid,problem,::submit)}) { padding ->
         Column(Modifier.fillMaxSize().padding(padding).consumeWindowInsets(padding).verticalScroll(rememberScrollState()).padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Text("Identifica el juego",style=MaterialTheme.typography.titleMedium)

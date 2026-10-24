@@ -17,7 +17,7 @@ import com.gamerdex.ui.components.*
         if (platforms) games.groupBy { it.platform }
         else games.flatMap { game -> game.genres.map { it to game } }.groupBy({ it.first }, { it.second })
     }
-    Scaffold(containerColor = androidx.compose.ui.graphics.Color.Transparent, topBar = { TopAppBar(title = { Text(if (platforms) "Plataformas" else "Géneros") }, navigationIcon = { TextButton(onClick = menu) { Text("☰") } }) }) { padding ->
+    Scaffold(containerColor = androidx.compose.ui.graphics.Color.Transparent, topBar = { ScreenHeader(if (platforms) "Plataformas" else "Géneros",menu=menu) }) { padding ->
         LazyColumn(Modifier.fillMaxSize().padding(padding), contentPadding = PaddingValues(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             item { SectionLabel("EXPLORAR", "${groups.size} ${if (platforms) "sistemas" else "géneros"}") }
             if (groups.isEmpty()) item { Text(if (platforms) "Añade juegos para ver tus plataformas." else "Indica los géneros al añadir juegos o impórtalos desde RAWG.", Modifier.padding(vertical = 24.dp)) }

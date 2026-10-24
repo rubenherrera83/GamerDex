@@ -32,7 +32,7 @@ import kotlin.math.roundToInt
     menu:()->Unit,open:(CollectionFilter)->Unit,platform:(String)->Unit,genre:(String)->Unit,spending:()->Unit){
     val stats=remember(games){collectionStats(games)}
     Scaffold(containerColor=androidx.compose.ui.graphics.Color.Transparent,
-        topBar={TopAppBar(title={Text("Estadísticas")},navigationIcon={TextButton(menu){Text("☰")}},
+        topBar={ScreenHeader("Estadísticas",menu=menu,
             actions={TextButton(spending,modifier=Modifier.testTag("statistics-open-spending")){Text("Gasto")}})}){padding->
         LazyColumn(state=rememberLazyListState(),modifier=Modifier.fillMaxSize().padding(padding).consumeWindowInsets(padding).testTag("statistics-list"),
             contentPadding=PaddingValues(16.dp),verticalArrangement=Arrangement.spacedBy(12.dp)){

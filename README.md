@@ -1,6 +1,14 @@
 # GamerDex
 
-Versión 0.15.0: estadísticas reorganizadas y gasto en pantalla completa, con gráficos por moneda y filtros visibles.
+Versión 0.16.0: cabeceras coherentes, preferencias reorganizadas e inicio en Sistemas.
+
+## Novedades 0.16.0
+
+- Cabecera compacta y fija compartida por todas las pantallas: mismo tamaño de logo, título y navegación. Conserva el estilo del logotipo de cada tema.
+- Preferencias con identidad, pantalla inicial y copias agrupadas. Accesos directos a Identidad, Apariencia y Copias; doce temas con selección visible y guardado inmediato.
+- Inicio en Sistemas mediante una migración única para instalaciones anteriores. Después se respeta la elección que hagas en Preferencias. No se interrumpe una sesión restaurada.
+- Selector Cuadrícula · Lista · Cover Flow. Se conserva la vista elegida; Cuadrícula sigue siendo la predeterminada.
+- APK `GamerDex-0.16.0-debug.apk`, versión 0.16.0/código 20. Room v6 y ZIP v5 no cambian. [Alcance y comportamiento](docs/ux-preferences-and-headers.md).
 
 ## Novedades 0.15.0
 

@@ -2,6 +2,10 @@
 
 Capturas reales del emulador Android 15:
 
+- [Cabecera de Sistemas · Azul 16-bit, 0.16.0](render-tests/header-systems-v16.png)
+- [Cabecera de Juegos y selector de vistas, 0.16.0](render-tests/header-games-v16.png)
+- [Cabecera de Estadísticas, 0.16.0](render-tests/header-statistics-v16.png)
+- [Acceso directo a copias · Kawaii, 0.16.0](render-tests/preferences-backup-v16.png)
 - [Portada de estadísticas, 0.15.0](render-tests/statistics-overview-v15.png)
 - [Gasto en pantalla completa y gráfico, 0.15.0](render-tests/spending-chart-v15.png)
 - [Confirmación de compra archivada · Kawaii, 0.15.0](render-tests/spending-archive-confirmation-v15.png)
