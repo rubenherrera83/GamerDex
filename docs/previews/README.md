@@ -2,6 +2,9 @@
 
 Capturas reales del emulador Android 15:
 
+- [Sistemas compacto, 0.12.0](render-tests/systems-compact.png)
+- [Alta rápida por secciones, 0.12.0](render-tests/editor-quick.png)
+- [Protección de cambios pendientes, 0.12.0](render-tests/editor-unsaved.png)
 - [Portada unificada por sistemas, 0.11.0](render-tests/systems-home.png)
 - [Pestaña Juegos de una plataforma, 0.11.0](render-tests/system-games.png)
 - [Pestaña Mis equipos de una plataforma, 0.11.0](render-tests/system-equipment.png)

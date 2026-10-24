@@ -134,9 +134,13 @@ fun HardwareKind.label() = when(this) { HardwareKind.CONSOLE -> "Consola"; Hardw
     val dateValid=date.isBlank() || validPurchaseDate(date)
     val priceValid=runCatching { parsePriceCents(price,currency) }.isSuccess
     val valid=name.isNotBlank() && platform.isNotBlank() && dateValid && priceValid && isValidLogoUrl(imageUrl.ifBlank{null}) && isValidLogoUrl(logoUrl.ifBlank{null})
-    BackHandler(saving) { }
-    Scaffold(containerColor=Color.Transparent,topBar={TopAppBar(title={Text(if(original==null) "Nuevo sistema" else "Editar sistema")},navigationIcon={TextButton(onClick=back,enabled=!saving){Text("Volver")}})}) { padding ->
-        Column(Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState()).imePadding().padding(20.dp),verticalArrangement=Arrangement.spacedBy(12.dp)) {
+    val problem=when{ name.isBlank() || platform.isBlank()->"Completa el nombre y la plataforma para guardar.";!dateValid->"Revisa la fecha de compra: usa AAAA-MM-DD.";!priceValid->"Revisa el precio y la moneda.";!isValidLogoUrl(imageUrl.ifBlank{null}) || !isValidLogoUrl(logoUrl.ifBlank{null})->"Las URLs de imagen y logotipo deben usar HTTPS.";else->null }
+    val initial=listOf(original?.name.orEmpty(),original?.platform ?: initialPlatform,original?.kind ?: if(SystemKnowledge.family(initialPlatform) in setOf("pc","linux","macos"))HardwareKind.COMPUTER else HardwareKind.CONSOLE,original?.region.orEmpty(),original?.hasBox ?: false,original?.hasManual ?: false,original?.hasCables ?: false,original?.condition ?: PhysicalCondition.UNSPECIFIED,original?.working,original?.serialNumber.orEmpty(),original?.purchasedOn.orEmpty(),original?.pricePaidCents?.let{BigDecimal.valueOf(it,2).stripTrailingZeros().toPlainString()}.orEmpty(),original?.currency ?: "EUR",original?.notes.orEmpty(),original?.imageUrl.orEmpty(),original?.logoUrl.orEmpty(),original?.localPhotos ?: emptyList<String>(),Json.encodeToString(original?.controllers ?: emptyList<Controller>()))
+    val current=listOf(name,platform,kind,region,box,manual,cables,condition,working,serial,date,price,currency,notes,imageUrl,logoUrl,photos,controllerJson)
+    fun submit(){if(valid && !saving)save(Hardware(original?.id ?: 0,name.trim(),platform.trim(),kind,region.trim(),box,manual,cables,condition,working,serial.trim(),date.ifBlank{null},parsePriceCents(price,currency),currency,controllers,photos,imageUrl.ifBlank{null},logoUrl.ifBlank{null},notes))}
+    val requestBack=rememberFormExit(current!=initial,saving,valid,problem,::submit,back)
+    Scaffold(containerColor=Color.Transparent,topBar={TopAppBar(title={Text(if(original==null) "Nuevo equipo" else "Editar equipo")},navigationIcon={TextButton(onClick=requestBack,enabled=!saving){Text("Volver")}})},bottomBar={EditorSaveBar("GUARDAR SISTEMA",saving,valid,problem,::submit)}) { padding ->
+        Column(Modifier.fillMaxSize().padding(padding).consumeWindowInsets(padding).verticalScroll(rememberScrollState()).padding(20.dp),verticalArrangement=Arrangement.spacedBy(12.dp)) {
             OutlinedTextField(name,{name=it},label={Text("Modelo / nombre *")},modifier=Modifier.fillMaxWidth(),enabled=!saving)
             PlatformPicker(platform,logoUrl.ifBlank{null},!saving){platform=it}
             FlowRow(horizontalArrangement=Arrangement.spacedBy(8.dp)) { HardwareKind.entries.forEach { FilterChip(kind==it,{kind=it},label={Text(it.label())},enabled=!saving) } }
@@ -146,7 +150,7 @@ fun HardwareKind.label() = when(this) { HardwareKind.CONSOLE -> "Consola"; Hardw
             FlowRow(horizontalArrangement=Arrangement.spacedBy(8.dp)) { PhysicalCondition.entries.forEach { FilterChip(condition==it,{condition=it},label={Text(it.label())},enabled=!saving) } }
             FlowRow(horizontalArrangement=Arrangement.spacedBy(8.dp)) { listOf(null to "Sin comprobar",true to "Funciona",false to "No funciona").forEach{(v,t)->FilterChip(working==v,{working=v},label={Text(t)},enabled=!saving)} }
             OutlinedTextField(serial,{serial=it},label={Text("Número de serie")},modifier=Modifier.fillMaxWidth(),enabled=!saving)
-            OutlinedTextField(date,{date=it},label={Text("Fecha de compra (AAAA-MM-DD)")},supportingText={Text("Opcional; deja en blanco si no la sabes")},isError=!dateValid,modifier=Modifier.fillMaxWidth(),enabled=!saving)
+            PurchaseDateField(date,{date=it},!saving)
             OutlinedTextField(price,{price=it},label={Text("Precio pagado")},keyboardOptions=KeyboardOptions(keyboardType=KeyboardType.Decimal),isError=!priceValid,modifier=Modifier.fillMaxWidth(),enabled=!saving)
             FlowRow(horizontalArrangement=Arrangement.spacedBy(8.dp)) { supportedCurrencies.forEach{FilterChip(currency==it,{currency=it},label={Text(it)},enabled=!saving)} }
             SectionLabel("02","Componentes y accesorios")
@@ -168,7 +172,6 @@ fun HardwareKind.label() = when(this) { HardwareKind.CONSOLE -> "Consola"; Hardw
             OutlinedTextField(logoUrl,{logoUrl=it},label={Text("URL HTTPS del logotipo (opcional)")},modifier=Modifier.fillMaxWidth(),enabled=!saving,isError=!isValidLogoUrl(logoUrl.ifBlank{null}))
             Text("La primera foto será la imagen principal. Sin foto se muestra una ilustración genérica y el logotipo del catálogo.",style=MaterialTheme.typography.bodySmall)
             OutlinedTextField(notes,{notes=it},label={Text("Notas y otros accesorios")},modifier=Modifier.fillMaxWidth(),enabled=!saving)
-            Button(onClick={save(Hardware(original?.id ?: 0,name.trim(),platform.trim(),kind,region.trim(),box,manual,cables,condition,working,serial.trim(),date.ifBlank{null},parsePriceCents(price,currency),currency,controllers,photos,imageUrl.ifBlank{null},logoUrl.ifBlank{null},notes))},enabled=valid && !saving,modifier=Modifier.fillMaxWidth()){Text(if(saving) "Guardando…" else "GUARDAR SISTEMA")}
         }
     }
 }

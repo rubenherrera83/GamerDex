@@ -82,7 +82,7 @@ class CollectionV3FlowTest {
     }
 
     @Test fun platformPickerShowsOfflineLogosAndAllowsSelection() {
-        compose.onNodeWithText("+ AÑADIR JUEGO").performClick()
+        compose.onNodeWithText("+ AÑADIR JUEGO").performClick(); expandGameSections(compose)
         compose.onNodeWithText("Elegir").performClick()
         compose.onNodeWithText("Buscar consola o sistema").performTextInput("Switch")
         compose.onNodeWithContentDescription("Logotipo de Nintendo Switch").assertExists()

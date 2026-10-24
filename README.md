@@ -1,6 +1,15 @@
 # GamerDex
 
-Versión 0.11.0: Sistemas unifica los videojuegos y el inventario de equipos por plataforma.
+Versión 0.12.0: primera mejora UX, con Sistemas compacto, alta rápida y formularios protegidos.
+
+## Novedades 0.12.0
+
+- Portada de Sistemas más compacta: logo reducido, tarjetas con logotipo/miniatura y contadores, sin ilustraciones genéricas grandes. Se conservan fotos propias, búsqueda por equipo/serie y familias de plataformas.
+- Alta de juegos con solo título y plataforma obligatorios. Compañía opcional; si no se indica se guarda «Sin especificar», compatible con los registros y copias actuales. Al editar vuelve a mostrarse como campo vacío.
+- Secciones desplegables para identificación alternativa, edición/estado, compra, más datos, partida/valoración y fotos/notas. Las fichas existentes se abren con sus detalles desplegados. Los valores se conservan al cerrar secciones o recrear Activity.
+- Guardar fijo en juegos y equipos, con explicación del primer dato inválido aunque esté en una sección cerrada. Calendario opcional con entrada manual de fecha y nota numérica 0–100 además del deslizador.
+- Salir con cambios ofrece Guardar, Seguir editando y Descartar. Se comprueban también accesorios, fotos y datos opcionales; salir de una ficha sin cambios no pregunta. Se evita abandonar formularios mediante el cajón lateral.
+- APK `GamerDex-0.12.0-debug.apk`, versión 0.12.0/código 16. Room v6 y ZIP v5 permanecen iguales. [Alcance y uso](docs/ux-first-block.md).
 
 ## Novedades 0.11.0
 
@@ -143,7 +152,7 @@ Room es la fuente de verdad y las operaciones de colección funcionan sin red. R
 3. Para buscar metadatos, añade tu `RAWG_API_KEY` de https://rawg.io/apidocs. Sin clave funciona el formulario manual.
 4. Ejecuta `./gradlew.bat :app:assembleDebug` o abre el proyecto en Android Studio.
 
-Los APK llevan nombre y versión de la app: `GamerDex-0.11.0-debug.apk` para esta versión. El nombre se toma automáticamente de `versionName`; se conserva el sufijo de variante para distinguir compilaciones debug y release.
+Los APK llevan nombre y versión de la app: `GamerDex-0.12.0-debug.apk` para esta versión. El nombre se toma automáticamente de `versionName`; se conserva el sufijo de variante para distinguir compilaciones debug y release.
 
 La API key de RAWG se inyecta en BuildConfig y puede extraerse del APK. Para distribución pública, sustituir el acceso directo por un backend con credenciales y cuotas propias. No se usan secretos Twitch. El formulario y buscador atribuyen metadatos a RAWG; comprobar sus condiciones de uso para la distribución prevista.
 

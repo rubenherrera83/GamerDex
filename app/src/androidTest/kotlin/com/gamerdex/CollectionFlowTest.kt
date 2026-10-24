@@ -18,15 +18,15 @@ class CollectionFlowTest {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         instrumentation.uiAutomation.grantRuntimePermission(instrumentation.targetContext.packageName, android.Manifest.permission.CAMERA)
         val title = "Camera ${System.currentTimeMillis()}"
-        compose.onNodeWithText("+ AÑADIR JUEGO").performClick()
+        compose.onNodeWithText("+ AÑADIR JUEGO").performClick(); expandGameSections(compose)
         compose.onNodeWithText("Título *").performTextInput(title)
         compose.onNodeWithText("Plataforma *").performTextInput("PC")
-        compose.onNodeWithText("Compañía *").performTextInput("Valve")
+        compose.onNodeWithText("Compañía (opcional)").performTextInput("Valve")
         compose.onNodeWithText("Tomar foto").performScrollTo().performClick()
         compose.waitUntil(30_000) { runCatching { compose.onNodeWithText("Capturar foto").assertIsEnabled() }.isSuccess }
         compose.onNodeWithText("Capturar foto").performClick()
         compose.waitUntil(30_000) { compose.onAllNodesWithContentDescription("Foto de tu copia").fetchSemanticsNodes().isNotEmpty() }
-        compose.onNodeWithText("GUARDAR EN LA BÓVEDA").performScrollTo().performClick()
+        compose.onNodeWithText("GUARDAR EN LA BÓVEDA").performClick()
         compose.waitUntil(10_000) { compose.onAllNodesWithText(title).fetchSemanticsNodes().isNotEmpty() }
         compose.onNodeWithText(title).performScrollTo().performClick()
         compose.activityRule.scenario.recreate()
@@ -43,16 +43,16 @@ class CollectionFlowTest {
 
     @Test fun createInspectEditAndDeleteManualGame() {
         val title = "Prueba ${System.currentTimeMillis()}"
-        compose.onNodeWithText("+ AÑADIR JUEGO").performClick()
+        compose.onNodeWithText("+ AÑADIR JUEGO").performClick(); expandGameSections(compose)
         compose.onNodeWithText("Título *").performTextInput(title)
         compose.onNodeWithText("Plataforma *").performTextInput("PC")
-        compose.onNodeWithText("Compañía *").performTextInput("Valve")
-        compose.onNodeWithText("GUARDAR EN LA BÓVEDA").performScrollTo().performClick()
+        compose.onNodeWithText("Compañía (opcional)").performTextInput("Valve")
+        compose.onNodeWithText("GUARDAR EN LA BÓVEDA").performClick()
         compose.waitUntil(10_000) { compose.onAllNodesWithText(title).fetchSemanticsNodes().isNotEmpty() }
         compose.onNodeWithText(title).performScrollTo().performClick()
         compose.onNodeWithText("Editar").performClick()
         compose.onNodeWithText(title).performTextReplacement("$title editado")
-        compose.onNodeWithText("GUARDAR EN LA BÓVEDA").performScrollTo().performClick()
+        compose.onNodeWithText("GUARDAR EN LA BÓVEDA").performClick()
         compose.waitUntil(10_000) { compose.onAllNodesWithText("$title editado").fetchSemanticsNodes().isNotEmpty() }
         compose.onNodeWithText("Eliminar de la colección").performScrollTo().performClick()
         compose.onNodeWithText("Eliminar", useUnmergedTree = true).performClick()

@@ -35,7 +35,7 @@ class PcGamertagFlowTest {
             compose.onNodeWithText("Buscar en mis equipos").performTextInput(name)
             compose.onNode(hasText(name) and hasClickAction() and !hasSetTextAction()).performScrollTo().performClick();compose.onNodeWithText("Editar").performClick()
             compose.onNodeWithText("Componente 1: nombre / modelo").performScrollTo().performTextReplacement("CPU Ryzen 7")
-            compose.onNodeWithText("GUARDAR SISTEMA").performScrollTo().performClick()
+            compose.onNodeWithText("GUARDAR SISTEMA").performClick()
             compose.onNodeWithText("Crear gamertag de este sistema").performScrollTo().performClick()
             compose.onNodeWithTag("gamertag-editor").performScrollToNode(hasText("1 × Component 10"))
             compose.onNode(hasText("1 × Component 10") and isToggleable()).assertIsNotEnabled()

@@ -13,16 +13,16 @@ class CollectionV2FlowTest {
     @get:Rule val compose = createAndroidComposeRule<MainActivity>()
     @Test fun collectorContentsPriceGenresAndMenuPersist() {
         val title = "Collector ${System.currentTimeMillis()}"
-        compose.onNodeWithText("+ AÑADIR JUEGO").performClick()
+        compose.onNodeWithText("+ AÑADIR JUEGO").performClick(); expandGameSections(compose)
         compose.onNodeWithText("Título *").performTextInput(title)
         compose.onNodeWithText("Plataforma *").performTextInput("PC")
-        compose.onNodeWithText("Compañía *").performTextInput("Studio")
+        compose.onNodeWithText("Compañía (opcional)").performTextInput("Studio")
         compose.onNodeWithText("Coleccionista").performScrollTo().performClick()
         compose.onNodeWithText("Instrucciones").performScrollTo().performClick()
         compose.onNodeWithText("Bueno").performScrollTo().performClick()
         compose.onNodeWithText("Precio pagado (opcional)").performScrollTo().performTextInput("39,95")
         compose.onNodeWithText("Géneros (separados por comas)").performScrollTo().performTextInput("RPG, Acción")
-        compose.onNodeWithText("GUARDAR EN LA BÓVEDA").performScrollTo().performClick()
+        compose.onNodeWithText("GUARDAR EN LA BÓVEDA").performClick()
         compose.waitUntil(10_000) { compose.onAllNodesWithText(title).fetchSemanticsNodes().isNotEmpty() }
         compose.onNodeWithText(title).performScrollTo().performClick()
         compose.onNodeWithText("Falta: instrucciones").performScrollTo().assertExists()

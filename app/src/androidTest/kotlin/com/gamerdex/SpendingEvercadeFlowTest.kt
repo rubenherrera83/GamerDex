@@ -15,7 +15,7 @@ import java.io.File
 class SpendingEvercadeFlowTest {
     @get:Rule val compose=createAndroidComposeRule<MainActivity>()
     @Test fun directBarcodeEntryRejectsIncompleteCodeWithoutNetworkCall() {
-        compose.onNodeWithText("+ AÑADIR JUEGO").performClick()
+        compose.onNodeWithText("+ AÑADIR JUEGO").performClick(); expandGameSections(compose)
         compose.onNodeWithText("Introducir EAN / UPC").performScrollTo().performClick()
         compose.onNodeWithText("Código EAN / UPC").performTextInput("502655067591")
         compose.onNodeWithText("Buscar código").assertIsNotEnabled()
@@ -30,7 +30,7 @@ class SpendingEvercadeFlowTest {
         val id=System.currentTimeMillis();val title="Atari Collection 1 [v7 test]";val systemName="Evercade EXP [v7 test]"
         try {
             repository.saveHardware(Hardware(id,systemName,"Evercade",purchasedOn="2022-01-02",pricePaidCents=1200000,currency="JPY"))
-            compose.onNodeWithText("+ AÑADIR JUEGO").performClick()
+            compose.onNodeWithText("+ AÑADIR JUEGO").performClick(); expandGameSections(compose)
             compose.onNodeWithText("Buscar cartucho Evercade").performScrollTo().performClick()
             compose.onNodeWithText("Buscar cartucho o colección Evercade").performTextInput("Atari Collection 1")
             val cartridge=hasText("Atari Collection 1") and hasClickAction() and !hasSetTextAction()
@@ -44,7 +44,7 @@ class SpendingEvercadeFlowTest {
             compose.onNodeWithText("$systemName · Evercade").performScrollTo().performClick()
             compose.onNodeWithText("JPY").performScrollTo().performClick()
             compose.onNodeWithText("Precio pagado (opcional)").performScrollTo().performTextInput("1500")
-            compose.onNodeWithText("GUARDAR EN LA BÓVEDA").performScrollTo().performClick()
+            compose.onNodeWithText("GUARDAR EN LA BÓVEDA").performClick()
             compose.waitUntil(10_000){compose.onAllNodesWithText(title).fetchSemanticsNodes().isNotEmpty()}
             val game=repository.snapshot().games.single{it.title==title}
             assertNull(game.rawgId);assertTrue(game.catalogUrl!!.contains("atari-collection-1"));assertTrue(game.notes!!.contains("Adventure"))

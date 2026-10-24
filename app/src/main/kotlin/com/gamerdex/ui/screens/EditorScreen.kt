@@ -45,7 +45,7 @@ fun GameCondition.label() = when (this) {
     choose: (Metadata, (Metadata) -> Unit) -> Unit, save: (Game, () -> Unit) -> Unit, back: () -> Unit, lookupBarcode: (String) -> Unit = {}, ownedHardware:List<Hardware> = emptyList(),initialPlatform:String="") {
     var title by rememberSaveable { mutableStateOf(original?.title.orEmpty()) }
     var platform by rememberSaveable { mutableStateOf(original?.platform ?: initialPlatform) }
-    var company by rememberSaveable { mutableStateOf(original?.company.orEmpty()) }
+    var company by rememberSaveable { mutableStateOf(original?.company?.takeUnless{it==UNSPECIFIED_COMPANY}.orEmpty()) }
     var year by rememberSaveable { mutableStateOf(original?.releaseYear?.toString().orEmpty()) }
     var cover by rememberSaveable { mutableStateOf(original?.coverUrl.orEmpty()) }
     var platformLogo by rememberSaveable { mutableStateOf(original?.platformLogoUrl.orEmpty()) }
@@ -65,6 +65,7 @@ fun GameCondition.label() = when (this) {
     var customizeLogos by rememberSaveable { mutableStateOf(false) }
     var copy by rememberSaveable { mutableStateOf(CopyDetailsState.from(original)) }
     var rating by rememberSaveable { mutableFloatStateOf(original?.rating ?: 0f) }
+    var ratingInput by rememberSaveable{mutableStateOf(formatPersonalRating(original?.rating ?: 0f))}
     var rated by rememberSaveable { mutableStateOf(original?.rating != null) }
     var notes by rememberSaveable { mutableStateOf(original?.notes.orEmpty()) }
     var photos by rememberSaveable { mutableStateOf(original?.localCustomPhotos ?: emptyList()) }
@@ -80,7 +81,6 @@ fun GameCondition.label() = when (this) {
             if (!committed && context.activity()?.isChangingConfigurations != true) DraftPhotos.discard(context.applicationContext, latestDrafts)
         }
     }
-    BackHandler(enabled = saving) { /* Keep navigation stable until the transaction completes. */ }
     val scope = rememberCoroutineScope()
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.PickMultipleVisualMedia(12)) { uris ->
         scope.launch {
@@ -101,38 +101,76 @@ fun GameCondition.label() = when (this) {
     val validCompanyLogo = isValidLogoUrl(companyLogo.trim().ifBlank { null })
     val validCompletion = completion.toIntOrNull()?.let { it in 0..100 } == true
     val validDate=purchasedOn.isBlank() || validPurchaseDate(purchasedOn)
-    val valid = title.isNotBlank() && platform.isNotBlank() && company.isNotBlank() && validYear && validPlatformLogo && validCompanyLogo && copy.valid && validCompletion && validDate
-    Scaffold(containerColor = androidx.compose.ui.graphics.Color.Transparent, topBar = { TopAppBar(title = { Text(if (original == null) "Nueva adquisición" else "Editar juego") }, navigationIcon = { TextButton(onClick = back, enabled = !saving) { Text("Volver") } }) }) { padding ->
-        Column(Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState()).imePadding().padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            OutlinedButton(onClick = { showSearch = true }, modifier = Modifier.fillMaxWidth(), enabled = !saving) { Text("⌕ Autocompletar con RAWG") }
+    val validRating=!rated || ratingInput.replace(',','.').toFloatOrNull()?.let{it.isFinite() && it in 0f..100f}==true
+    val problem=when {
+        title.isBlank() || platform.isBlank()->"Completa el título y la plataforma para guardar."
+        !validYear->"Revisa el año en Más datos: debe estar entre 1950 y 2100."
+        !validPlatformLogo || !validCompanyLogo->"Revisa las URLs de logotipos en Más datos: deben usar HTTPS."
+        !copy.valid->"Revisa el importe y la moneda en Compra."
+        !validCompletion->"Revisa el porcentaje en Partida y valoración: debe estar entre 0 y 100."
+        !validRating->"Revisa tu nota en Partida y valoración: debe estar entre 0 y 100."
+        !validDate->"Revisa la fecha de compra: usa AAAA-MM-DD."
+        else->null
+    }
+    val valid=problem==null
+    val editable=!saving && !importing
+    val initial=listOf(original?.title.orEmpty(),original?.platform ?: initialPlatform,original?.company?.takeUnless{it==UNSPECIFIED_COMPANY}.orEmpty(),original?.releaseYear?.toString().orEmpty(),original?.coverUrl.orEmpty(),original?.platformLogoUrl.orEmpty(),original?.companyLogoUrl.orEmpty(),original?.isFinished ?: false,(original?.completionPercent ?: 0).toString(),original?.hasPlatinum ?: false,original?.isFavorite ?: false,original?.rawgId,original?.purchasedOn.orEmpty(),original?.ownedSystemId,original?.catalogUrl,CopyDetailsState.from(original),original?.rating ?: 0f,original?.rating!=null,original?.notes.orEmpty(),original?.localCustomPhotos ?: emptyList<String>())
+    val current=listOf(title,platform,company,year,cover,platformLogo,companyLogo,finished,completion,platinum,favorite,rawgId,purchasedOn,ownedSystemId,catalogUrl,copy,rating,rated,notes,photos)
+    fun submit(){if(valid && editable)save(Game(id = original?.id ?: 0, title = title.trim(), platform = platform.trim(), company = company.trim().ifBlank{UNSPECIFIED_COMPANY},
+        releaseYear = year.toIntOrNull(), coverUrl = cover.trim().ifBlank { null }, localCustomPhotos = photos,
+        isSpecialEdition = copy.edition != EditionType.STANDARD, specialEditionDetails = copy.details.trim().ifBlank { null }.takeIf { copy.edition != EditionType.STANDARD },
+        condition = when { copy.digital -> GameCondition.DIGITAL; copy.sealed -> GameCondition.SEALED; copy.physical == PhysicalCondition.MINT -> GameCondition.MINT; else -> GameCondition.VERY_GOOD },
+        rating = rating.takeIf { rated }, notes = notes.trim().ifBlank { null }, createdAt = original?.createdAt ?: System.currentTimeMillis(),
+        platformLogoUrl = platformLogo.trim().ifBlank { null }, companyLogoUrl = companyLogo.trim().ifBlank { null }, editionType = copy.edition,
+        hasBox = copy.box && !copy.digital, hasManual = copy.manual && !copy.digital, hasMedia = copy.media && !copy.digital, physicalCondition = copy.physical,
+        pricePaidCents = parsePriceCents(copy.price,copy.currency), priceCurrency = copy.currency, genres = copy.genres.split(',').map(String::trim).filter(String::isNotBlank).distinct(),
+        isFinished = finished, completionPercent = completion.toInt(), hasPlatinum = platinum && supportsPlatinum(platform), isFavorite = favorite, rawgId = rawgId,purchasedOn=purchasedOn.ifBlank{null},ownedSystemId=ownedSystemId,catalogUrl=catalogUrl)){committed=true}}
+    val requestBack=rememberFormExit(current!=initial || ratingInput!=formatPersonalRating(original?.rating ?: 0f),!editable,valid,problem,::submit,back)
+    Scaffold(containerColor = androidx.compose.ui.graphics.Color.Transparent, topBar = { TopAppBar(title = { Text(if (original == null) "Añadir juego" else "Editar juego") }, navigationIcon = { TextButton(onClick = requestBack, enabled = editable) { Text("Volver") } }) },
+        bottomBar={EditorSaveBar("GUARDAR EN LA BÓVEDA",!editable,valid,problem,::submit)}) { padding ->
+        Column(Modifier.fillMaxSize().padding(padding).consumeWindowInsets(padding).verticalScroll(rememberScrollState()).padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Text("Identifica el juego",style=MaterialTheme.typography.titleMedium)
+            OutlinedButton(onClick = { showSearch = true }, modifier = Modifier.fillMaxWidth(), enabled = editable) { Text("Buscar por nombre") }
             FlowRow(horizontalArrangement=Arrangement.spacedBy(8.dp)) {
                 OutlinedButton(onClick={scanImmediately=true;showBarcode=true},enabled=!saving){Text("Escanear código de barras")}
-                OutlinedButton(onClick={scanImmediately=false;showBarcode=true},enabled=!saving){Text("Introducir EAN / UPC")}
             }
-            OutlinedButton(onClick={showEvercade=true},modifier=Modifier.fillMaxWidth(),enabled=!saving){Text("Buscar cartucho Evercade")}
-            OutlinedTextField(title, { title = it }, label = { Text("Título *") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
+            OutlinedTextField(title, { title = it }, label = { Text("Título *") }, modifier = Modifier.fillMaxWidth(), singleLine = true,enabled=editable)
             PlatformPicker(platform, platformLogo.ifBlank { null }, !saving) { if (it != platform) platformLogo = ""; platform = it }
-            OutlinedTextField(company, { if (it != company) companyLogo = ""; company = it }, label = { Text("Compañía *") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
-            OutlinedTextField(purchasedOn,{purchasedOn=it},label={Text("Fecha de compra (AAAA-MM-DD)")},supportingText={Text("Opcional. No es la fecha de lanzamiento.")},isError=!validDate,modifier=Modifier.fillMaxWidth())
+            OutlinedTextField(company, { if (it != company) companyLogo = ""; company = it }, label = { Text("Compañía (opcional)") }, modifier = Modifier.fillMaxWidth(), singleLine = true,enabled=editable)
+            Text("Solo título y plataforma son obligatorios. Completa tu copia ahora o más adelante.",style=MaterialTheme.typography.bodySmall)
+            EditorSection("identify","Más formas de identificar","Código manual y cartuchos Evercade"){
+                OutlinedButton(onClick={scanImmediately=false;showBarcode=true},enabled=editable){Text("Introducir EAN / UPC")}
+                OutlinedButton(onClick={showEvercade=true},enabled=editable){Text("Buscar cartucho Evercade")}
+            }
+            EditorSection("copy","Edición y estado","${copy.edition.label()} · ${if(copy.digital)"Digital" else if(copy.box && copy.manual && copy.media)"Caja, instrucciones y juego" else "Contenido incompleto"} · ${copy.physical.label()}",original!=null){CopyDetailsFields(copy,{copy=it},editable)}
+            EditorSection("purchase","Compra","${if(copy.price.isBlank())"Sin precio" else "${copy.price} ${copy.currency}"} · ${purchasedOn.ifBlank{"Fecha desconocida"}}",original!=null){
+            CopyPurchaseFields(copy,{copy=it},editable)
+            PurchaseDateField(purchasedOn,{purchasedOn=it},editable)
             OutlinedButton(onClick={chooseSystem=true},modifier=Modifier.fillMaxWidth()) { Text("Sistema de mi inventario: ${ownedHardware.find{it.id==ownedSystemId}?.name ?: ownedSystemId?.let{"Unidad archivada #$it"} ?: "Sin vincular"}") }
-            TextButton(onClick = { customizeLogos = !customizeLogos }) { Text(if (customizeLogos) "Ocultar logotipos" else "Personalizar logotipos") }
+            }
+            EditorSection("metadata","Más datos","Año, géneros, portada y logotipos",original!=null){
+            TextButton(onClick = { customizeLogos = !customizeLogos },enabled=editable) { Text(if (customizeLogos) "Ocultar logotipos" else "Personalizar logotipos") }
             if (customizeLogos) {
-                OutlinedTextField(platformLogo, { platformLogo = it }, label = { Text("URL del logotipo de plataforma") }, isError = !validPlatformLogo, modifier = Modifier.fillMaxWidth(), singleLine = true)
-                OutlinedTextField(companyLogo, { companyLogo = it }, label = { Text("URL del logotipo de compañía") }, isError = !validCompanyLogo, modifier = Modifier.fillMaxWidth(), singleLine = true)
+                OutlinedTextField(platformLogo, { platformLogo = it }, label = { Text("URL del logotipo de plataforma") }, isError = !validPlatformLogo, modifier = Modifier.fillMaxWidth(), singleLine = true,enabled=editable)
+                OutlinedTextField(companyLogo, { companyLogo = it }, label = { Text("URL del logotipo de compañía") }, isError = !validCompanyLogo, modifier = Modifier.fillMaxWidth(), singleLine = true,enabled=editable)
                 Text("Usa URLs HTTPS. Los logotipos se comparten con los juegos de la misma plataforma o compañía. Sin URL se mantienen las insignias o el logotipo existente.", style = MaterialTheme.typography.bodySmall)
             }
-            OutlinedTextField(year, { year = it }, label = { Text("Año de lanzamiento") }, isError = !validYear, supportingText = { if (!validYear) Text("Introduce un año entre 1950 y 2100") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), singleLine = true)
-            OutlinedTextField(cover, { cover = it }, label = { Text("URL de portada (opcional)") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
-            CopyDetailsFields(copy, { copy = it }, enabled = !saving)
-            Text("Tu partida", style = MaterialTheme.typography.titleLarge)
+            OutlinedTextField(year, { year = it }, label = { Text("Año de lanzamiento") }, isError = !validYear, supportingText = { if (!validYear) Text("Introduce un año entre 1950 y 2100") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), singleLine = true,enabled=editable)
+            OutlinedTextField(cover, { cover = it }, label = { Text("URL de portada (opcional)") }, modifier = Modifier.fillMaxWidth(), singleLine = true,enabled=editable)
+            OutlinedTextField(copy.genres,{copy=copy.copy(genres=it)},label={Text("Géneros (separados por comas)")},modifier=Modifier.fillMaxWidth(),enabled=editable)
+            }
+            EditorSection("progress","Partida y valoración","Favorito, finalizado, porcentaje, nota y platino",original!=null){
             ProgressToggle("★ Favorito", favorite, !saving) { favorite = it }
             ProgressToggle("Juego finalizado", finished, !saving) { finished = it }
             OutlinedTextField(completion, { completion = it.take(3) }, label = { Text("Porcentaje completado (0–100)") }, isError = !validCompletion,
                 supportingText = { Text("Finalizar la historia y completar el 100 % se registran por separado.") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), singleLine = true, enabled = !saving, modifier = Modifier.fillMaxWidth())
             if (supportsPlatinum(platform)) ProgressToggle("Trofeo platino conseguido", platinum, !saving) { platinum = it }
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { Text(if (rated) "Valoración: ${formatPersonalRating(rating)} / 100" else "Sin valoración"); Switch(rated, { rated = it }, modifier = Modifier.semantics { contentDescription = "Activar valoración personal" }) }
-            if (rated) Slider(rating, { rating = it }, valueRange = 0f..100f, steps = 99)
-            OutlinedTextField(notes, { notes = it }, label = { Text("Notas y recuerdos") }, modifier = Modifier.fillMaxWidth(), minLines = 3)
+            if (rated) Slider(rating, { rating = it;ratingInput=formatPersonalRating(it) }, valueRange = 0f..100f, steps = 99,enabled=editable)
+            if(rated)OutlinedTextField(ratingInput,{value->ratingInput=value;value.replace(',','.').toFloatOrNull()?.takeIf{it.isFinite() && it in 0f..100f}?.let{rating=it}},label={Text("Tu nota (0–100)")},isError=!validRating,keyboardOptions=KeyboardOptions(keyboardType=KeyboardType.Decimal),singleLine=true,enabled=editable,modifier=Modifier.fillMaxWidth())
+            }
+            EditorSection("photos","Fotos y notas","Fotografías propias y recuerdos · ${photos.size} fotos",original!=null){
+            OutlinedTextField(notes, { notes = it }, label = { Text("Notas y recuerdos") }, modifier = Modifier.fillMaxWidth(), minLines = 3,enabled=editable)
             Text("Tu copia física", style = MaterialTheme.typography.titleMedium)
             LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) { items(photos, key = { it }) { uri ->
                 Column { Cover(uri, "Foto de tu copia", Modifier.size(100.dp)); TextButton(onClick = {
@@ -143,16 +181,7 @@ fun GameCondition.label() = when (this) {
             OutlinedButton(onClick = { picker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }, enabled = !importing && !saving) { Text(if (importing) "Conservando fotos…" else "+ Elegir fotos") }
             CameraCaptureButton(enabled = !importing && !saving, onCaptured = { photos = photos + it; cameraDrafts = cameraDrafts + it })
             photoError?.let { Text(it, color = MaterialTheme.colorScheme.error) }
-            Button(onClick = { save(Game(id = original?.id ?: 0, title = title.trim(), platform = platform.trim(), company = company.trim(),
-                releaseYear = year.toIntOrNull(), coverUrl = cover.trim().ifBlank { null }, localCustomPhotos = photos,
-                isSpecialEdition = copy.edition != EditionType.STANDARD, specialEditionDetails = copy.details.trim().ifBlank { null }.takeIf { copy.edition != EditionType.STANDARD },
-                condition = when { copy.digital -> GameCondition.DIGITAL; copy.sealed -> GameCondition.SEALED; copy.physical == PhysicalCondition.MINT -> GameCondition.MINT; else -> GameCondition.VERY_GOOD },
-                rating = rating.takeIf { rated }, notes = notes.trim().ifBlank { null }, createdAt = original?.createdAt ?: System.currentTimeMillis(),
-                platformLogoUrl = platformLogo.trim().ifBlank { null }, companyLogoUrl = companyLogo.trim().ifBlank { null }, editionType = copy.edition,
-                hasBox = copy.box && !copy.digital, hasManual = copy.manual && !copy.digital, hasMedia = copy.media && !copy.digital, physicalCondition = copy.physical,
-                pricePaidCents = parsePriceCents(copy.price,copy.currency), priceCurrency = copy.currency, genres = copy.genres.split(',').map(String::trim).filter(String::isNotBlank).distinct(),
-                isFinished = finished, completionPercent = completion.toInt(), hasPlatinum = platinum && supportsPlatinum(platform), isFavorite = favorite, rawgId = rawgId,purchasedOn=purchasedOn.ifBlank{null},ownedSystemId=ownedSystemId,catalogUrl=catalogUrl)) { committed = true } },
-                enabled = valid && !saving && !importing, modifier = Modifier.fillMaxWidth().height(54.dp)) { Text(if (saving) "Guardando…" else "GUARDAR EN LA BÓVEDA") }
+            }
             Text("* Campos obligatorios · Tu colección se guarda en este dispositivo.", style = MaterialTheme.typography.bodySmall)
         }
     }

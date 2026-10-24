@@ -1,12 +1,23 @@
 # Validación de GamerDex
 
-Versión validada: 0.11.0 · Room v6 · formato de copia portable v5 (lectura v1–v5).
+Versión validada: 0.12.0 · Room v6 · formato de copia portable v5 (lectura v1–v5).
 
-Fecha: 21 de octubre de 2026.
+Fecha: 24 de octubre de 2026.
 
 Entorno: Windows, JDK Microsoft 21.0.8, Gradle 8.11.1, Android SDK 35 y emulador Medium Phone Android 15 (API 35, x86_64).
 
 ## Resultados
+
+- Validación 0.12.0: APK e instrumentación compilados; Lint con 0 errores y las mismas 82 advertencias anteriores, sin baseline ni supresiones. Salida `GamerDex-0.12.0-debug.apk`, versión 0.12.0/código 16. No cambian Room v6 ni ZIP v5.
+- 40 pruebas Android distintas correctas, incluidas cuatro nuevas de UX. La batería completa tuvo dos fallos de selector: al abrir todas las secciones para los recorridos antiguos, el botón Buscar por nombre quedaba fuera de la zona visible. Se añadió desplazamiento explícito y se repitieron correctamente las tres pruebas RAWG y las dos de edición/cámara. No quedan fallos pendientes.
+- Alta rápida: se guarda un juego con título y plataforma, compañía «Sin especificar» e importe desconocido. Al editar la compañía se presenta vacía y volver sin cambios no pregunta. La pantalla inicial mantiene los detalles opcionales cerrados y Guardar fijo; las pruebas detalladas abren explícitamente las secciones necesarias.
+- Protección: Volver por toolbar o dispatcher de sistema, incluso tras recrear Activity, detecta cambios. Seguir editando conserva valores; Guardar valida y persiste; Descartar no modifica el registro previo. Un año inválido en una sección cerrada explica dónde corregirlo y bloquea tanto el botón fijo como Guardar cambios del diálogo.
+- Equipos: componentes conservados tras recrear el formulario y guardado desde la confirmación. Un precio inválido no se guarda; descartarlo deja el importe previo intacto. El recorrido anterior de caja, serie, fecha, precio y mando con cantidad dos sigue pasando, así como la edición de componentes y el acceso al gamertag de PC.
+- Fecha y nota: calendario inicializado con 2024-02-29 confirma la misma fecha sin desplazamiento de día; 2023-02-29 se rechaza y dejar fecha vacía permite guardar. Nota numérica 107 bloquea guardado; 87,5 se conserva como 87.5/100. El deslizador anterior y el resto del progreso siguen pasando.
+- Portada: una colección de prueba con varias plataformas muestra al menos tres tarjetas completas simultáneamente. Las familias, contadores y búsquedas por nombre/serie mantienen sus recorridos anteriores. Se conservan los doce temas, favoritos, estadísticas/gasto, Evercade, respaldo UPCitemdb/ScanDex, RAWG, copias y compartición.
+- Revisión visual de capturas reales con datos sintéticos: `systems-compact.png`, `editor-quick.png` y `editor-unsaved.png` en `docs/previews/render-tests/`. El diálogo se ajustó para que sus tres acciones sean visibles en una columna. El estado de pantalla existente se conserva, sin introducir autoguardado permanente de borradores.
+
+Los resultados 0.11.0 del 21 de octubre que siguen se conservan como historial.
 
 - Validación 0.11.0: APK e instrumentación compilados; Lint con 0 errores y las mismas 82 advertencias anteriores, sin baseline ni supresiones. Metadatos de salida: `GamerDex-0.11.0-debug.apk`, versión 0.11.0/código 15. Instalación sobre 0.10.0 y arranque en frío correctos en API 35.
 - 52 pruebas distintas correctas: dominio (16) y batería Android completa (36). Los recorridos antiguos se ejecutan con inicio en Juegos; los casos de navegación configuran y restauran Sistemas por separado. Se reinició la batería tras detectar que el emulador conservaba el inicio en Sistemas y dos pruebas antiguas esperaban tarjetas de juegos al guardar desde portada. La ejecución completa con esa precondición explícita terminó sin fallos.

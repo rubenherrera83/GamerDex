@@ -30,10 +30,10 @@ class CollectionV4FlowTest {
         val title = "Journey V4 ${System.currentTimeMillis()}"
         val repository = dependencies.collection()
         try {
-            compose.onNodeWithText("+ AÑADIR JUEGO").performClick()
+            compose.onNodeWithText("+ AÑADIR JUEGO").performClick(); expandGameSections(compose)
             compose.onNodeWithText("Título *").performTextInput(title)
             compose.onNodeWithText("Plataforma *").performTextInput("PlayStation 5")
-            compose.onNodeWithText("Compañía *").performTextInput("Studio")
+            compose.onNodeWithText("Compañía (opcional)").performTextInput("Studio")
             compose.onNodeWithText("Géneros (separados por comas)").performScrollTo().performTextInput("RPG, Aventura")
             compose.onNodeWithText("★ Favorito").performScrollTo().performClick()
             compose.onNodeWithText("Juego finalizado").performScrollTo().performClick()
@@ -41,7 +41,7 @@ class CollectionV4FlowTest {
             compose.onNodeWithText("Trofeo platino conseguido").performScrollTo().performClick()
             compose.onNodeWithContentDescription("Activar valoración personal").performScrollTo().performClick()
             compose.onNode(SemanticsMatcher.keyIsDefined(SemanticsActions.SetProgress)).performSemanticsAction(SemanticsActions.SetProgress) { it(90f) }
-            compose.onNodeWithText("GUARDAR EN LA BÓVEDA").performScrollTo().performClick()
+            compose.onNodeWithText("GUARDAR EN LA BÓVEDA").performClick()
             compose.waitUntil(10_000) { compose.onAllNodesWithText(title).fetchSemanticsNodes().isNotEmpty() }
             val saved = runBlocking { repository.snapshot().games.single { it.title == title } }
             assertTrue(saved.isFinished); assertTrue(saved.hasPlatinum); assertTrue(saved.isFavorite)

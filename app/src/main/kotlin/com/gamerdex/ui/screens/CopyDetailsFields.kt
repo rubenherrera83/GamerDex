@@ -49,11 +49,12 @@ data class CopyDetailsState(
             PhysicalCondition.entries.forEach { condition -> FilterChip(value.physical == condition, { change(value.copy(physical = condition)) }, enabled = enabled, label = { Text(condition.label()) }) }
         }
     }
-    Text("03 / ADQUISICIÓN", color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelLarge)
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable fun CopyPurchaseFields(value:CopyDetailsState,change:(CopyDetailsState)->Unit,enabled:Boolean) {
     OutlinedTextField(value.price, { change(value.copy(price = it)) }, enabled = enabled, label = { Text("Precio pagado (opcional)") },
         supportingText = { Text(if(value.currency=="JPY") "Yenes enteros, sin fracciones (ej.: 1500)." else if (value.valid) "Importe exacto, hasta dos decimales." else "Introduce un importe válido: por ejemplo 49,95.") },
         isError = !value.valid, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal), singleLine = true, modifier = Modifier.fillMaxWidth())
     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) { supportedCurrencies.forEach { currency -> FilterChip(value.currency == currency, { change(value.copy(currency = currency)) }, enabled = enabled, label = { Text(currency) }) } }
-    OutlinedTextField(value.genres, { change(value.copy(genres = it)) }, label = { Text("Géneros (separados por comas)") }, enabled = enabled,
-        supportingText = { Text("Ej.: RPG, Acción, Racing. RAWG los completa cuando están disponibles.") }, modifier = Modifier.fillMaxWidth())
 }

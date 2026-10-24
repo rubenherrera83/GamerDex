@@ -30,7 +30,7 @@ class RawgLiveFlowTest {
     @get:Rule val compose = createAndroidComposeRule<MainActivity>()
     @Test fun civilizationUsesUpcFallbackThenRequiresRawgAndPlatformConfirmation() {
         assumeTrue("RAWG key is required",BuildConfig.RAWG_API_KEY.isNotBlank())
-        compose.onNodeWithText("+ AÑADIR JUEGO").performClick()
+        compose.onNodeWithText("+ AÑADIR JUEGO").performClick(); expandGameSections(compose)
         compose.onNodeWithText("Introducir EAN / UPC").performScrollTo().performClick()
         compose.onNodeWithText("Código EAN / UPC").performTextInput("5026555067591")
         compose.onNodeWithText("Buscar código").performClick()
@@ -49,8 +49,8 @@ class RawgLiveFlowTest {
     }
     @Test fun barcodeLookupFindsRawgCandidatesWithoutAutomaticallyAddingAGame() {
         assumeTrue("RAWG and ScanDex tokens are required",BuildConfig.RAWG_API_KEY.isNotBlank() && BuildConfig.SCANDEX_API_TOKEN.isNotBlank())
-        compose.onNodeWithText("+ AÑADIR JUEGO").performClick()
-        compose.onNodeWithText("⌕ Autocompletar con RAWG").performClick()
+        compose.onNodeWithText("+ AÑADIR JUEGO").performClick(); expandGameSections(compose)
+        compose.onNodeWithText("Buscar por nombre").performScrollTo().performClick()
         compose.onNodeWithText("Buscar por código de barras").performClick()
         compose.onNodeWithText("Código EAN / UPC").performTextInput("0711719577966")
         compose.onNodeWithText("Buscar código").performClick()
@@ -63,8 +63,8 @@ class RawgLiveFlowTest {
     }
     @Test fun importsMetadataFromRawgAndSavesLocally() {
         assumeTrue("RAWG key is required for the live test", BuildConfig.RAWG_API_KEY.isNotBlank())
-        compose.onNodeWithText("+ AÑADIR JUEGO").performClick()
-        compose.onNodeWithText("⌕ Autocompletar con RAWG").performClick()
+        compose.onNodeWithText("+ AÑADIR JUEGO").performClick(); expandGameSections(compose)
+        compose.onNodeWithText("Buscar por nombre").performScrollTo().performClick()
         compose.onNodeWithText("Buscar título en RAWG").performTextInput("Portal")
         val result = hasText("Portal") and hasClickAction() and !hasSetTextAction()
         compose.waitUntil(30_000) { compose.onAllNodes(result).fetchSemanticsNodes().isNotEmpty() }
@@ -72,7 +72,7 @@ class RawgLiveFlowTest {
         compose.onNodeWithText("Elige tu versión").assertExists()
         compose.onNodeWithText("PC", useUnmergedTree = true).performClick()
         compose.waitUntil(30_000) { compose.onAllNodesWithText("Buscar título en RAWG").fetchSemanticsNodes().isEmpty() }
-        compose.onNodeWithText("Compañía *").assert(hasText("Valve", substring = true))
+        compose.onNodeWithText("Compañía (opcional)").assert(hasText("Valve", substring = true))
         compose.onNodeWithText("Año de lanzamiento").assert(hasText("2007", substring = true))
         val coverUrl = compose.onNodeWithText("URL de portada (opcional)").fetchSemanticsNode().config[SemanticsProperties.EditableText].text
         val context = InstrumentationRegistry.getInstrumentation().targetContext
@@ -93,7 +93,7 @@ class RawgLiveFlowTest {
         } }
         val title = "Portal RAWG ${System.currentTimeMillis()}"
         compose.onNodeWithText("Título *").performTextReplacement(title)
-        compose.onNodeWithText("GUARDAR EN LA BÓVEDA").performScrollTo().performClick()
+        compose.onNodeWithText("GUARDAR EN LA BÓVEDA").performClick()
         compose.waitUntil(10_000) { compose.onAllNodesWithText(title).fetchSemanticsNodes().isNotEmpty() }
         compose.onNodeWithText(title).performScrollTo().performClick()
         compose.onNodeWithText("Imágenes y metadatos: RAWG ↗").performScrollTo().assertExists()

@@ -73,7 +73,7 @@ class MainActivity : ComponentActivity() {
     fun openSystem(family:String,equipment:Boolean=false){nav.navigate("system-games/${Uri.encode(family)}?tab=${if(equipment)"equipment" else "games"}")}
     val destinations = listOf("systems" to "Sistemas","vault" to "Juegos", "library/FAVORITES" to "Favoritos", "browse/genres" to "Géneros", "statistics" to "Estadísticas", "gamertag/0" to "Gamertags", "preferences" to "Preferencias")
     LaunchedEffect(state.error) { state.error?.let { snack.showSnackbar(it); viewModel.clearError() } }
-    ModalNavigationDrawer(drawerState = drawer, gesturesEnabled = !saving, drawerContent = {
+    ModalNavigationDrawer(drawerState = drawer, gesturesEnabled = !saving && entry?.destination?.route?.startsWith("edit/")!=true && entry?.destination?.route?.startsWith("hardware/edit/")!=true, drawerContent = {
         ModalDrawerSheet(modifier = Modifier.width(300.dp)) {
             Column(Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) { GamerDexLogo(Modifier.fillMaxWidth()); Text("PLAYER HUB / 02", style = MaterialTheme.typography.labelSmall) }
             destinations.forEachIndexed { index, (route, title) -> NavigationDrawerItem(label = { Text(title) }, icon = { Text("0${index + 1}", color = MaterialTheme.colorScheme.primary) },

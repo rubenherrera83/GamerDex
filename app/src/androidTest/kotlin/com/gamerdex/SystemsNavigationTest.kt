@@ -56,10 +56,10 @@ class SystemsNavigationTest {
             compose.onNodeWithText("Buscar sistema o plataforma").performTextReplacement(custom)
             compose.onNodeWithTag("system-card-${SystemKnowledge.family(custom)}").performScrollTo().performClick()
             compose.onNodeWithTag("system-games-total").assertTextEquals("0 videojuegos en este sistema")
-            compose.onNodeWithText("+ AÑADIR JUEGO").performClick()
+            compose.onNodeWithText("+ AÑADIR JUEGO").performClick(); expandGameSections(compose)
             compose.onNodeWithText("Plataforma *").assert(hasText(custom))
-            compose.onNodeWithText("Título *").performTextInput(added);compose.onNodeWithText("Compañía *").performTextInput("Indie")
-            compose.onNodeWithText("GUARDAR EN LA BÓVEDA").performScrollTo().performClick()
+            compose.onNodeWithText("Título *").performTextInput(added);compose.onNodeWithText("Compañía (opcional)").performTextInput("Indie")
+            compose.onNodeWithText("GUARDAR EN LA BÓVEDA").performClick()
             compose.waitUntil(10_000){compose.onAllNodesWithTag("system-games-total").fetchSemanticsNodes().isNotEmpty()}
             compose.onNodeWithTag("system-games-total").assertTextEquals("1 videojuego en este sistema")
             compose.onNodeWithTag("collection-grid").performScrollToIndex(0);compose.onNodeWithText("Volver").performClick()
@@ -107,7 +107,7 @@ class SystemsNavigationTest {
             compose.onNodeWithText("+ AÑADIR EQUIPO").performClick()
             compose.onNodeWithText("Plataforma *").assert(hasText(platform))
             compose.onNodeWithText("Modelo / nombre *").performTextInput(added)
-            compose.onNodeWithText("GUARDAR SISTEMA").performScrollTo().performClick()
+            compose.onNodeWithText("GUARDAR SISTEMA").performClick()
             compose.waitUntil(10_000){compose.onAllNodesWithText("3 equipos registrados").fetchSemanticsNodes().isNotEmpty()}
             compose.onNodeWithTag("system-tab-equipment").assertIsSelected()
             compose.onNodeWithText("Buscar en mis equipos").assert(hasText("",substring=false))

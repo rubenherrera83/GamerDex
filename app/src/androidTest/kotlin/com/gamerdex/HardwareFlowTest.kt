@@ -32,7 +32,7 @@ class HardwareFlowTest {
             compose.onNodeWithText("Mando 1: modelo / edición").performScrollTo().performTextReplacement("Arcade stick especial")
             compose.onNodeWithText("+").performScrollTo().performClick()
             compose.activityRule.scenario.recreate()
-            compose.onNodeWithText("GUARDAR SISTEMA").performScrollTo().performClick()
+            compose.onNodeWithText("GUARDAR SISTEMA").performClick()
             compose.waitUntil(10_000){compose.onAllNodesWithText(name).fetchSemanticsNodes().isNotEmpty()}
             val saved=repository.snapshot().hardware.single{it.name==name}
             assertEquals(4995L,saved.pricePaidCents); assertEquals("1995-06-20",saved.purchasedOn);assertTrue(saved.hasBox)
@@ -44,7 +44,7 @@ class HardwareFlowTest {
             InstrumentationRegistry.getInstrumentation().uiAutomation.takeScreenshot().let{bmp->File(directory,"hardware-detail.png").outputStream().use{bmp.compress(Bitmap.CompressFormat.PNG,100,it)}}
             compose.onNodeWithText("Editar").performClick()
             compose.onNodeWithText("Modelo / nombre *").performTextReplacement("$name PAL")
-            compose.onNodeWithText("GUARDAR SISTEMA").performScrollTo().performClick()
+            compose.onNodeWithText("GUARDAR SISTEMA").performClick()
             compose.onNodeWithText("$name PAL").assertExists()
             compose.onNodeWithText("Eliminar sistema").performScrollTo().performClick()
             compose.onNodeWithText("Eliminar",useUnmergedTree=true).performClick()

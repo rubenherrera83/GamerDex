@@ -24,17 +24,16 @@ import com.gamerdex.ui.components.*
         systems.filter{it.title.contains(query,true) || it.platform.contains(query,true) || it.key.contains(SystemKnowledge.family(query),true) || it.key in matchingUnits}
     }
     Scaffold(containerColor=androidx.compose.ui.graphics.Color.Transparent,floatingActionButton={ExtendedFloatingActionButton(onClick=addGame){Text("+ AÑADIR JUEGO")}}){padding->
-        LazyVerticalGrid(GridCells.Adaptive(260.dp),Modifier.fillMaxSize().padding(padding).testTag("systems-home"),contentPadding=PaddingValues(20.dp,12.dp,20.dp,110.dp),verticalArrangement=Arrangement.spacedBy(16.dp),horizontalArrangement=Arrangement.spacedBy(16.dp)) {
+        LazyVerticalGrid(GridCells.Adaptive(300.dp),Modifier.fillMaxSize().padding(padding).testTag("systems-home"),contentPadding=PaddingValues(16.dp,8.dp,16.dp,100.dp),verticalArrangement=Arrangement.spacedBy(10.dp),horizontalArrangement=Arrangement.spacedBy(12.dp)) {
             item(span={GridItemSpan(maxLineSpan)}){Row(verticalAlignment=Alignment.CenterVertically){
                 IconButton(onClick=menu,modifier=Modifier.semantics{contentDescription="Abrir menú"}){Text("☰",style=MaterialTheme.typography.headlineSmall)}
-                GamerDexLogo(Modifier.weight(1f,fill=false).widthIn(max=300.dp))
+                GamerDexLogo(Modifier.width(190.dp))
             }}
             item(span={GridItemSpan(maxLineSpan)}){Column(verticalArrangement=Arrangement.spacedBy(8.dp)){
-                Text("Sistemas",style=MaterialTheme.typography.headlineLarge)
-                Text("${systems.size} plataformas · ${state.games.size} videojuegos · ${hardware.size} unidades en tu inventario",style=MaterialTheme.typography.bodyMedium)
-                Text("Elige una plataforma para ver sus juegos y gestionar tus equipos, accesorios y componentes.",style=MaterialTheme.typography.bodySmall)
+                Text("Sistemas",style=MaterialTheme.typography.headlineSmall)
+                Text("${systems.size} plataformas · ${state.games.size} videojuegos · ${hardware.size} equipos",style=MaterialTheme.typography.bodyMedium)
                 FlowRow(horizontalArrangement=Arrangement.spacedBy(8.dp)){OutlinedButton(onClick=allGames){Text("Todos los juegos")};OutlinedButton(onClick=addEquipment){Text("+ AÑADIR EQUIPO")}}
-                OutlinedTextField(query,{query=it},label={Text("Buscar sistema o plataforma")},singleLine=true,modifier=Modifier.fillMaxWidth())
+                OutlinedTextField(query,{query=it},label={Text("Buscar sistema o plataforma")},supportingText={Text("También puedes buscar un equipo por nombre o serie.")},singleLine=true,modifier=Modifier.fillMaxWidth())
             }}
             if(state.loading)item(span={GridItemSpan(maxLineSpan)}){Shimmer(Modifier.fillMaxWidth().height(180.dp))}
             else if(visible.isEmpty())item(span={GridItemSpan(maxLineSpan)}){
@@ -42,11 +41,12 @@ import com.gamerdex.ui.components.*
             }
             items(visible,key={it.key}){system->
                 OutlinedCard(onClick={open(system)},modifier=Modifier.fillMaxWidth().testTag("system-card-${system.key}")){
-                    HardwareImage(system.representative ?: Hardware(name=system.title,platform=system.platform,kind=if(system.key in setOf("pc","linux","macos"))HardwareKind.COMPUTER else HardwareKind.CONSOLE),Modifier.fillMaxWidth().height(155.dp))
-                    Row(Modifier.padding(16.dp),verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(14.dp)){
-                        BrandLogo(system.platform,system.logoUrl,Modifier.size(48.dp),platform=true)
+                    Row(Modifier.padding(14.dp),verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(12.dp)){
+                        val unit=system.representative
+                        if(unit!=null && (unit.localPhotos.isNotEmpty() || unit.imageUrl!=null))HardwareImage(unit,Modifier.size(64.dp))
+                        else BrandLogo(system.platform,system.logoUrl,Modifier.size(52.dp),platform=true)
                         Column(Modifier.weight(1f),verticalArrangement=Arrangement.spacedBy(5.dp)){
-                            Text(system.title,style=MaterialTheme.typography.titleLarge)
+                            Row(horizontalArrangement=Arrangement.spacedBy(6.dp),verticalAlignment=Alignment.CenterVertically){Text(system.title,Modifier.weight(1f),style=MaterialTheme.typography.titleMedium,maxLines=2,overflow=androidx.compose.ui.text.style.TextOverflow.Ellipsis);if(unit!=null && (unit.localPhotos.isNotEmpty() || unit.imageUrl!=null))BrandLogo(system.platform,system.logoUrl,Modifier.size(24.dp),platform=true)}
                             Text("${system.gameCount} ${if(system.gameCount==1)"videojuego" else "videojuegos"}",style=MaterialTheme.typography.titleMedium,color=MaterialTheme.colorScheme.primary)
                             Text("${system.unitCount} ${if(system.unitCount==1)"unidad registrada" else "unidades registradas"}",style=MaterialTheme.typography.bodySmall)
                         }
