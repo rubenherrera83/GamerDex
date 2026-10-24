@@ -7,6 +7,8 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.grid.*
+import com.gamerdex.ui.SystemView
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
@@ -64,27 +66,43 @@ fun HardwareKind.label() = when(this) { HardwareKind.CONSOLE -> "Consola"; Hardw
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable fun HardwareListScreen(hardware: List<Hardware>, menu: () -> Unit, add: () -> Unit, open: (Long) -> Unit,query:String,setQuery:(String)->Unit,embedded:Boolean=false) {
+@Composable fun HardwareListScreen(hardware: List<Hardware>, menu: () -> Unit, add: () -> Unit, open: (Long) -> Unit,query:String,setQuery:(String)->Unit,embedded:Boolean=false,mode:SystemView=SystemView.CARDS,setMode:(SystemView)->Unit={}) {
+    val visible=hardware.filter { (it.name+" "+it.platform+" "+it.serialNumber).contains(query,true) }
     Scaffold(containerColor=Color.Transparent, topBar={ if(!embedded)ScreenHeader("Mis equipos",menu=menu) },
         floatingActionButton={ExtendedFloatingActionButton(onClick=add){Text("+ AÑADIR EQUIPO")}}) { padding ->
-        LazyColumn(Modifier.fillMaxSize().padding(padding).testTag("equipment-list"), contentPadding=PaddingValues(20.dp,12.dp,20.dp,100.dp), verticalArrangement=Arrangement.spacedBy(16.dp)) {
-            item { Text("${hardware.size} equipos · ${hardware.sumOf { h -> h.controllers.sumOf { it.quantity } }} accesorios / componentes", style=MaterialTheme.typography.titleMedium) }
-            item { OutlinedTextField(query,setQuery,label={Text("Buscar en mis equipos")},modifier=Modifier.fillMaxWidth(),singleLine=true) }
-            if(hardware.isEmpty()) item { Text("Registra cada consola u ordenador que conservas, con su caja, accesorios y datos de compra.") }
-            items(hardware.filter { (it.name+" "+it.platform+" "+it.serialNumber).contains(query,true) },key={it.id}) { item ->
+        LazyVerticalGrid(if(mode==SystemView.GRID)GridCells.Adaptive(145.dp) else GridCells.Fixed(1),Modifier.fillMaxSize().padding(padding).testTag("equipment-list"), contentPadding=PaddingValues(20.dp,12.dp,20.dp,100.dp), verticalArrangement=Arrangement.spacedBy(10.dp),horizontalArrangement=Arrangement.spacedBy(10.dp)) {
+            item(span={GridItemSpan(maxLineSpan)}) { Text("${hardware.size} equipos · ${hardware.sumOf { h -> h.controllers.sumOf { it.quantity } }} accesorios / componentes", style=MaterialTheme.typography.titleMedium) }
+            item(span={GridItemSpan(maxLineSpan)}) { OutlinedTextField(query,setQuery,label={Text("Buscar en mis equipos")},modifier=Modifier.fillMaxWidth(),singleLine=true) }
+            item(span={GridItemSpan(maxLineSpan)}) { SystemViewSelector(mode,setMode) }
+            if(hardware.isEmpty()) item(span={GridItemSpan(maxLineSpan)}) { Text("Registra cada consola u ordenador que conservas, con su caja, accesorios y datos de compra.") }
+            else if(visible.isEmpty())item(span={GridItemSpan(maxLineSpan)}){Text("No hay equipos que coincidan con la búsqueda.")}
+            items(visible,key={it.id}) { item ->
                 OutlinedCard(onClick={open(item.id)},modifier=Modifier.fillMaxWidth().testTag("equipment-card-${item.id}")) {
-                    HardwareImage(item,Modifier.fillMaxWidth().height(170.dp))
-                    Row(Modifier.padding(16.dp),verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(14.dp)) {
-                        BrandLogo(item.platform,item.logoUrl,Modifier.size(44.dp),platform=true)
-                        Column(Modifier.weight(1f)) { Text(item.name,style=MaterialTheme.typography.titleLarge); Text(item.platform); Text("${item.condition.label()} · ${item.controllers.sumOf { it.quantity }} accesorios / componentes",style=MaterialTheme.typography.bodySmall) }
+                    if(mode==SystemView.LIST)Row(Modifier.fillMaxWidth().heightIn(min=64.dp).padding(8.dp),verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(10.dp)) {
+                        if(item.localPhotos.isNotEmpty() || item.imageUrl!=null)HardwareImage(item,Modifier.size(40.dp),showCaption=false)
+                        else BrandLogo(item.platform,item.logoUrl,Modifier.size(40.dp),platform=true)
+                        Column(Modifier.weight(1f)) {
+                            Text(item.name,style=MaterialTheme.typography.bodyMedium,maxLines=2,overflow=androidx.compose.ui.text.style.TextOverflow.Ellipsis)
+                            Text("${item.platform} · ${item.condition.label()}",style=MaterialTheme.typography.labelSmall)
+                        }
+                        BrandLogo(item.platform,item.logoUrl,Modifier.size(24.dp),platform=true)
+                        Text("›")
+                    } else {
+                        HardwareImage(item,Modifier.fillMaxWidth().height(if(mode==SystemView.GRID)90.dp else 170.dp),showCaption=mode==SystemView.CARDS)
+                        Row(Modifier.padding(if(mode==SystemView.GRID)10.dp else 16.dp),verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(10.dp)) {
+                            BrandLogo(item.platform,item.logoUrl,Modifier.size(if(mode==SystemView.GRID)24.dp else 44.dp),platform=true)
+                            Column(Modifier.weight(1f)) {
+                                Text(item.name,style=if(mode==SystemView.GRID)MaterialTheme.typography.titleSmall else MaterialTheme.typography.titleLarge,maxLines=2,overflow=androidx.compose.ui.text.style.TextOverflow.Ellipsis)
+                                Text(item.platform,style=MaterialTheme.typography.bodySmall)
+                                Text("${item.condition.label()} · ${item.controllers.sumOf { it.quantity }} accesorios / componentes",style=MaterialTheme.typography.labelSmall)
+                            }
+                        }
                     }
                 }
             }
         }
     }
 }
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable fun HardwareDetailScreen(item: Hardware, back: () -> Unit, edit: () -> Unit, delete: () -> Unit, gamertag:()->Unit={}) {
     var confirm by rememberSaveable(item.id){mutableStateOf(false)}

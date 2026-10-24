@@ -13,6 +13,7 @@ import android.graphics.Bitmap
 import java.io.File
 
 class SpendingEvercadeFlowTest {
+    @org.junit.Before fun openGamesSection(){openGlobalCollection(compose)}
     @get:Rule val compose=createAndroidComposeRule<MainActivity>()
     @Test fun directBarcodeEntryRejectsIncompleteCodeWithoutNetworkCall() {
         compose.onNodeWithText("+ AÑADIR JUEGO").performClick(); expandGameSections(compose)
@@ -45,7 +46,7 @@ class SpendingEvercadeFlowTest {
             compose.onNodeWithText("JPY").performScrollTo().performClick()
             compose.onNodeWithText("Precio pagado (opcional)").performScrollTo().performTextInput("1500")
             compose.onNodeWithText("GUARDAR EN LA BÓVEDA").performClick()
-            compose.waitUntil(10_000){compose.onAllNodesWithText(title).fetchSemanticsNodes().isNotEmpty()}
+            awaitCollectionGame(compose,title)
             val game=repository.snapshot().games.single{it.title==title}
             assertNull(game.rawgId);assertTrue(game.catalogUrl!!.contains("atari-collection-1"));assertTrue(game.notes!!.contains("Adventure"))
             assertEquals(150000L,game.pricePaidCents);assertEquals("JPY",game.priceCurrency);assertEquals(id,game.ownedSystemId)

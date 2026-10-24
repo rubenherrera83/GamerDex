@@ -10,6 +10,7 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class CollectionV2FlowTest {
+    @org.junit.Before fun openGamesSection(){openGlobalCollection(compose)}
     @get:Rule val compose = createAndroidComposeRule<MainActivity>()
     @Test fun collectorContentsPriceGenresAndMenuPersist() {
         val title = "Collector ${System.currentTimeMillis()}"
@@ -23,8 +24,8 @@ class CollectionV2FlowTest {
         compose.onNodeWithText("Precio pagado (opcional)").performScrollTo().performTextInput("39,95")
         compose.onNodeWithText("Géneros (separados por comas)").performScrollTo().performTextInput("RPG, Acción")
         compose.onNodeWithText("GUARDAR EN LA BÓVEDA").performClick()
-        compose.waitUntil(10_000) { compose.onAllNodesWithText(title).fetchSemanticsNodes().isNotEmpty() }
-        compose.onNodeWithText(title).performScrollTo().performClick()
+        awaitCollectionGame(compose,title)
+        compose.onNodeWithTag("collection-grid").performScrollToNode(hasText(title));compose.onNodeWithText(title).performScrollTo().performClick()
         compose.onNodeWithText("Falta: instrucciones").performScrollTo().assertExists()
         compose.onNodeWithText("Precio pagado:", substring = true).assert(hasText("39", substring = true))
         compose.onNodeWithText("Crear gamertag de este juego").performScrollTo().performClick()
@@ -35,7 +36,7 @@ class CollectionV2FlowTest {
         compose.onNodeWithText("Géneros").performClick()
         compose.onNodeWithText("RPG").performClick()
         compose.onNodeWithText("Limpiar filtros").performScrollTo().assertExists()
-        compose.onNodeWithText(title).performScrollTo().performClick()
+        compose.onNodeWithTag("collection-grid").performScrollToNode(hasText(title));compose.onNodeWithText(title).performScrollTo().performClick()
         compose.onNodeWithText("Eliminar de la colección").performScrollTo().performClick()
         compose.onNodeWithText("Eliminar", useUnmergedTree = true).performClick()
     }

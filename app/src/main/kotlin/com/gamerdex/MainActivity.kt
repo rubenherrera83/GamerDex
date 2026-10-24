@@ -36,6 +36,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import com.gamerdex.branding.GamerDexLogo
 import com.gamerdex.core.domain.CollectionFilter
 import com.gamerdex.ui.CollectionView
+import com.gamerdex.ui.SystemView
 import com.gamerdex.ui.StartScreen
 import com.gamerdex.core.domain.systemLibraries
 import android.net.Uri
@@ -59,14 +60,15 @@ class MainActivity : ComponentActivity() {
                 onDispose { }
             }
             val mode by preferences.collectionView.collectAsStateWithLifecycle()
+            val systemMode by preferences.systemView.collectAsStateWithLifecycle()
             val nickname by preferences.alias.collectAsStateWithLifecycle()
             val startScreen by preferences.startScreen.collectAsStateWithLifecycle()
-            GamerDexTheme(theme) { GamerDexApp(theme, mode, preferences::setCollectionView, nickname,startScreen) }
+            GamerDexTheme(theme) { GamerDexApp(theme, mode, preferences::setCollectionView, nickname,startScreen,systemMode,preferences::setSystemView) }
         }
     }
 }
 
-@Composable private fun GamerDexApp(theme: VisualTheme, mode: CollectionView, setMode: (CollectionView) -> Unit, nickname: String,startScreen:StartScreen, viewModel: CollectionViewModel = hiltViewModel()) {
+@Composable private fun GamerDexApp(theme: VisualTheme, mode: CollectionView, setMode: (CollectionView) -> Unit, nickname: String,startScreen:StartScreen, systemMode:SystemView, setSystemMode:(SystemView)->Unit, viewModel: CollectionViewModel = hiltViewModel()) {
     val nav = rememberNavController()
     val initialRoute=rememberSaveable{if(startScreen==StartScreen.SYSTEMS)"systems" else "vault"}
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -113,15 +115,15 @@ class MainActivity : ComponentActivity() {
         bottomBar={if(!editing && !showingDetail && drawer.isClosed)CollectionNavigation(primary,{navigateSection(it)},menu)}) { outer ->
         NavHost(nav, startDestination = initialRoute, enterTransition={EnterTransition.None}, exitTransition={ExitTransition.None},
             popEnterTransition={EnterTransition.None}, popExitTransition={ExitTransition.None}, modifier = Modifier.padding(bottom = outer.calculateBottomPadding()).consumeWindowInsets(PaddingValues(bottom=outer.calculateBottomPadding()))) {
-            composable("systems") {SystemsHomeScreen(state,hardware,menu,{system->openSystem(system.key)},::openAllGames,{nav.navigate("edit/0")},{nav.navigate("hardware/edit/0")})}
+            composable("systems") {SystemsHomeScreen(state,hardware,menu,{system->openSystem(system.key)},::openAllGames,{nav.navigate("edit/0")},{nav.navigate("hardware/edit/0")},systemMode,setSystemMode)}
             composable("system-games/{family}?tab={tab}",arguments=listOf(navArgument("family"){type=NavType.StringType},navArgument("tab"){type=NavType.StringType;defaultValue="games"})){systemEntry->
                 val family=systemEntry.arguments!!.getString("family").orEmpty()
                 val summary=systemLibraries(state.games,hardware).firstOrNull{it.key==family}
                 SystemLibraryScreen(state,hardware,family,summary?.title ?: family,systemEntry.arguments?.getString("tab")=="equipment",mode,setMode,
                     {nav.popBackStack()},{nav.navigate("edit/0?platform=${Uri.encode(summary?.platform ?: family)}")},{nav.navigate("detail/$it")},
-                    {game->viewModel.save(game.copy(isFavorite=!game.isFavorite)){}},{nav.navigate("hardware/edit/0?platform=${Uri.encode(summary?.platform ?: family)}")},{nav.navigate("hardware/detail/$it")})
+                    {game->viewModel.save(game.copy(isFavorite=!game.isFavorite)){}},{nav.navigate("hardware/edit/0?platform=${Uri.encode(summary?.platform ?: family)}")},{nav.navigate("hardware/detail/$it")},systemMode,setSystemMode)
             }
-            composable("hardware") { SystemsHomeScreen(state,hardware,menu,{system->openSystem(system.key)},::openAllGames,{nav.navigate("edit/0")},{nav.navigate("hardware/edit/0")}) }
+            composable("hardware") { SystemsHomeScreen(state,hardware,menu,{system->openSystem(system.key)},::openAllGames,{nav.navigate("edit/0")},{nav.navigate("hardware/edit/0")},systemMode,setSystemMode) }
             composable("hardware/edit/{id}?platform={platform}",arguments=listOf(navArgument("id"){type=NavType.LongType},navArgument("platform"){type=NavType.StringType;defaultValue=""})) { entry ->
                 val id=entry.arguments!!.getLong("id"); val item=hardware.find{it.id==id}
                 if(id==0L || item!=null) HardwareEditorScreen(item,saving,{ value -> viewModel.saveHardware(value){

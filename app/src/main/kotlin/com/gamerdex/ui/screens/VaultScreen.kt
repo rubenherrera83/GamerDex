@@ -41,7 +41,8 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
     var favorites by rememberSaveable(resetSearchKey) { mutableStateOf(false) }
     var finished by rememberSaveable(resetSearchKey) { mutableStateOf(false) }
     var specialsOnly by rememberSaveable(resetSearchKey) { mutableStateOf(false) }
-    var order by rememberSaveable { mutableStateOf(CollectionOrder.NEWEST) }
+    // A new state namespace also discards the pre-0.19 automatic "Alta reciente" value.
+    var order by key("alphabetical-order-v19") { rememberSaveable(resetSearchKey) { mutableStateOf(CollectionOrder.TITLE) } }
     var filtersOpen by rememberSaveable { mutableStateOf(false) }
     val gridState = rememberLazyGridState()
     var appliedResetKey by rememberSaveable { mutableIntStateOf(resetSearchKey) }
@@ -49,7 +50,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
         // A restored destination can carry older saved state even when its inputs have changed.
         if(appliedResetKey!=resetSearchKey){
             localQuery="";localPlatform=platform;localGenre=genre;favorites=false;finished=false;specialsOnly=false
-            filtersOpen=false;appliedResetKey=resetSearchKey;gridState.scrollToItem(0)
+            order=CollectionOrder.TITLE;filtersOpen=false;appliedResetKey=resetSearchKey;gridState.scrollToItem(0)
         }
     }
     val visible = remember(familyGames,chosenPlatform,chosenGenre,query,favorites,finished,specialsOnly,order) {
@@ -65,7 +66,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
         BoxWithConstraints(Modifier.fillMaxSize().padding(padding)) {
         val accessible=LocalDensity.current.fontScale>1.3f || maxWidth<360.dp
         val short=isShortWindow()
-        val columns = when (mode) { CollectionView.GRID -> GridCells.Fixed(if(accessible){if(maxWidth>=600.dp)3 else 2}else if (maxWidth >= 600.dp) 4 else 3); CollectionView.COVER_FLOW -> GridCells.Fixed(1); CollectionView.LIST -> GridCells.Adaptive(155.dp) }
+        val columns = when (mode) { CollectionView.GRID -> GridCells.Fixed(if(accessible){if(maxWidth>=600.dp)3 else 2}else if (maxWidth >= 600.dp) 4 else 3); CollectionView.COVER_FLOW, CollectionView.LIST -> GridCells.Fixed(1); CollectionView.CARDS -> GridCells.Adaptive(155.dp) }
         LazyVerticalGrid(columns = columns, state=gridState, modifier = Modifier.fillMaxSize().testTag("collection-grid"), contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 12.dp, bottom = 110.dp), verticalArrangement = Arrangement.spacedBy(10.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             if(showHeader && familyFilter!=null)item(span={GridItemSpan(maxLineSpan)}) { Column(verticalArrangement=Arrangement.spacedBy(6.dp)){
                 Text("${familyGames.size} ${if(familyGames.size==1)"videojuego" else "videojuegos"} en este sistema",style=MaterialTheme.typography.titleMedium,modifier=Modifier.testTag("system-games-total"))
@@ -124,6 +125,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
             }
             else items(visible, key = { it.id }) { game ->
                 if (mode == CollectionView.GRID) CompactGameCard(game, { toggleFavorite(game) }) { openGame(game.id) }
+                else if (mode == CollectionView.LIST) GameListRow(game, { toggleFavorite(game) }) { openGame(game.id) }
                 else GameCard(game, { toggleFavorite(game) }) { openGame(game.id) }
             }
         }

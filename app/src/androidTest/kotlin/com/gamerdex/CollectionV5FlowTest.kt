@@ -19,6 +19,7 @@ import kotlin.math.abs
 
 @RunWith(AndroidJUnit4::class)
 class CollectionV5FlowTest {
+    @org.junit.Before fun openGamesSection(){openGlobalCollection(compose)}
     @get:Rule val compose = createAndroidComposeRule<MainActivity>()
     @Test fun compactGridHasThreeColumnsAndFourInLandscape() = runBlocking {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
@@ -36,22 +37,22 @@ class CollectionV5FlowTest {
             compose.onNodeWithText("Cuadrícula").performScrollTo().performClick()
             compose.activityRule.scenario.recreate()
             assertEquals(CollectionView.GRID, preferences.collectionView.value)
-            compose.onNodeWithTag("compact-cover-${ids.last()}").performScrollTo()
-            val top = ids.reversed().take(4).map { compose.onNodeWithTag("compact-cover-$it").fetchSemanticsNode().boundsInRoot.top }
+            compose.onNodeWithTag("compact-cover-${ids.first()}").performScrollTo()
+            val top = ids.take(4).map { compose.onNodeWithTag("compact-cover-$it").fetchSemanticsNode().boundsInRoot.top }
             assertTrue(abs(top[0] - top[1]) < 2f && abs(top[1] - top[2]) < 2f)
             assertTrue(top[3] > top[0] + 20f)
             val directory = File(context.getExternalFilesDir(null), "render-tests").apply { mkdirs() }
             instrumentation.uiAutomation.takeScreenshot().let { image -> File(directory, "compact-grid.png").outputStream().use { image.compress(Bitmap.CompressFormat.PNG, 100, it) } }
-            compose.onNodeWithTag("compact-cover-${ids.last()}").performClick()
+            compose.onNodeWithTag("compact-cover-${ids.first()}").performClick()
             compose.onNodeWithText("Editar").assertExists(); compose.onNodeWithText("Volver").performClick()
             compose.runOnUiThread { compose.activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE }
             compose.waitUntil(10_000) { compose.activity.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE }
-            compose.onNodeWithTag("collection-grid").performScrollToKey(ids.last())
-            val landscape = ids.reversed().take(4).map { compose.onNodeWithTag("compact-cover-$it").fetchSemanticsNode().boundsInRoot.top }
+            compose.onNodeWithTag("collection-grid").performScrollToKey(ids.first())
+            val landscape = ids.take(4).map { compose.onNodeWithTag("compact-cover-$it").fetchSemanticsNode().boundsInRoot.top }
             assertTrue(landscape.all { abs(it - landscape.first()) < 2f })
             compose.onNodeWithText("Lista").performScrollTo().performClick()
-            compose.waitUntil(5_000) { preferences.collectionView.value == CollectionView.LIST && compose.onAllNodesWithTag("compact-cover-${ids.last()}").fetchSemanticsNodes().isEmpty() }
-            compose.onNodeWithTag("compact-cover-${ids.last()}").assertDoesNotExist()
+            compose.waitUntil(5_000) { preferences.collectionView.value == CollectionView.LIST && compose.onAllNodesWithTag("compact-cover-${ids.first()}").fetchSemanticsNodes().isEmpty() }
+            compose.onNodeWithTag("compact-cover-${ids.first()}").assertDoesNotExist()
         } finally {
             compose.runOnUiThread { compose.activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT }
             preferences.setCollectionView(CollectionView.LIST)

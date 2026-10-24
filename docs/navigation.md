@@ -37,3 +37,5 @@ Todas las pantallas comparten una cabecera compacta y fija, con logotipo del tem
 Desde 0.17.0, entrar, salir y volver entre destinos no utiliza fundidos. Gamertags mantiene su editor por secciones, vista previa ampliable y acciones fijas. [Uso del editor](ux-gamertags.md).
 
 Desde 0.18.0, la navegación inferior reorganiza sus etiquetas si no caben con el tamaño de letra elegido y utiliza una presentación compacta en ventanas bajas. El menú lateral es desplazable; no cambia el destino ni la restauración de estado. [Revisión adaptativa](ux-adaptive-review.md).
+
+Desde 0.19.0, Sistemas y Mis equipos permiten Tarjetas / Lista / Cuadrícula y guardan esa preferencia. Juegos ofrece Cuadrícula / Lista compacta / Tarjetas / Cover Flow. Toda consulta nueva de juegos comienza en Título A–Z; Todos los juegos también restablece ese orden. Volver a una consulta conserva cualquier orden elegido explícitamente. [Vistas y ordenación](collection-views.md).

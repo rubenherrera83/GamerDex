@@ -47,7 +47,7 @@ class UxHeadersAndPreferencesTest {
             val grid=compose.onNodeWithTag("collection-view-GRID").assertIsSelected().fetchSemanticsNode().boundsInRoot
             val list=compose.onNodeWithTag("collection-view-LIST").fetchSemanticsNode().boundsInRoot
             val flow=compose.onNodeWithTag("collection-view-COVER_FLOW").fetchSemanticsNode().boundsInRoot
-            assertTrue(grid.left<list.left && list.left<flow.left)
+            assertTrue(grid.left<list.left && (flow.top>list.top || list.left<flow.left))
             capture("header-games-v16.png")
             compose.onNodeWithTag("collection-grid").performScrollToIndex(5)
             compose.onNodeWithTag("screen-header-title").assertIsDisplayed()

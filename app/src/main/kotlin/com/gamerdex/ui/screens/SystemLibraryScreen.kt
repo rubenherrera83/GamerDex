@@ -13,12 +13,13 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
 import com.gamerdex.core.domain.*
 import com.gamerdex.ui.CollectionState
+import com.gamerdex.ui.SystemView
 import com.gamerdex.ui.CollectionView
 import com.gamerdex.ui.components.ScreenHeader
 
 @Composable fun SystemLibraryScreen(state:CollectionState,hardware:List<Hardware>,family:String,title:String,initialEquipment:Boolean,
     mode:CollectionView,setMode:(CollectionView)->Unit,back:()->Unit,addGame:()->Unit,openGame:(Long)->Unit,
-    toggleFavorite:(Game)->Unit,addEquipment:()->Unit,openEquipment:(Long)->Unit) {
+    toggleFavorite:(Game)->Unit,addEquipment:()->Unit,openEquipment:(Long)->Unit,systemMode:SystemView=SystemView.CARDS,setSystemMode:(SystemView)->Unit={}) {
     var equipment by rememberSaveable { mutableStateOf(initialEquipment) }
     var gamesQuery by rememberSaveable { mutableStateOf("") }
     var equipmentQuery by rememberSaveable { mutableStateOf("") }
@@ -38,7 +39,7 @@ import com.gamerdex.ui.components.ScreenHeader
         }
     }}}){padding->Box(Modifier.fillMaxSize().padding(padding).consumeWindowInsets(padding)){
         savedTabs.SaveableStateProvider(if(equipment)"equipment" else "games"){
-            if(equipment)HardwareListScreen(units,{}, {leaveInput(addEquipment)},{id->leaveInput{openEquipment(id)}},equipmentQuery,{equipmentQuery=it},embedded=true)
+            if(equipment)HardwareListScreen(units,{}, {leaveInput(addEquipment)},{id->leaveInput{openEquipment(id)}},equipmentQuery,{equipmentQuery=it},embedded=true,mode=systemMode,setMode=setSystemMode)
             else VaultScreen(state,{leaveInput(addGame)},{id->leaveInput{openGame(id)}},{},null,null,{}, {},mode,setMode,toggleFavorite=toggleFavorite,
                 familyFilter=family,showHeader=false,searchQuery=gamesQuery,setSearchQuery={gamesQuery=it})
         }

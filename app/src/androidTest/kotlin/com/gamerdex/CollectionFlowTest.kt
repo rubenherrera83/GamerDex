@@ -11,6 +11,7 @@ import androidx.test.filters.SdkSuppress
 
 @RunWith(AndroidJUnit4::class)
 class CollectionFlowTest {
+    @org.junit.Before fun openGamesSection(){openGlobalCollection(compose)}
     @get:Rule val compose = createAndroidComposeRule<MainActivity>()
 
     @Test @SdkSuppress(minSdkVersion = 28)
@@ -27,8 +28,8 @@ class CollectionFlowTest {
         compose.onNodeWithText("Capturar foto").performClick()
         compose.waitUntil(30_000) { compose.onAllNodesWithContentDescription("Foto de tu copia").fetchSemanticsNodes().isNotEmpty() }
         compose.onNodeWithText("GUARDAR EN LA BÓVEDA").performClick()
-        compose.waitUntil(10_000) { compose.onAllNodesWithTag("collection-grid").fetchSemanticsNodes().isNotEmpty() && compose.onAllNodesWithText(title).fetchSemanticsNodes().isNotEmpty() }
-        compose.onNodeWithText(title).performScrollTo().performClick()
+        awaitCollectionGame(compose,title)
+        compose.onNodeWithTag("collection-grid").performScrollToNode(hasText(title));compose.onNodeWithText(title).performScrollTo().performClick()
         compose.activityRule.scenario.recreate()
         compose.waitUntil(10_000) { compose.onAllNodesWithTag("game-detail").fetchSemanticsNodes().isNotEmpty() && compose.onAllNodesWithText(title).fetchSemanticsNodes().isNotEmpty() }
         // Scroll the outer vertical container, rather than the nested horizontal photo pager.
@@ -48,8 +49,8 @@ class CollectionFlowTest {
         compose.onNodeWithText("Plataforma *").performTextInput("PC")
         compose.onNodeWithText("Compañía (opcional)").performTextInput("Valve")
         compose.onNodeWithText("GUARDAR EN LA BÓVEDA").performClick()
-        compose.waitUntil(10_000) { compose.onAllNodesWithTag("collection-grid").fetchSemanticsNodes().isNotEmpty() && compose.onAllNodesWithText(title).fetchSemanticsNodes().isNotEmpty() }
-        compose.onNodeWithText(title).performScrollTo().performClick()
+        awaitCollectionGame(compose,title)
+        compose.onNodeWithTag("collection-grid").performScrollToNode(hasText(title));compose.onNodeWithText(title).performScrollTo().performClick()
         compose.onNodeWithText("Editar").performClick()
         compose.onNodeWithText(title).performTextReplacement("$title editado")
         compose.onNodeWithText("GUARDAR EN LA BÓVEDA").performClick()

@@ -27,6 +27,7 @@ import android.net.Uri
 /** Opt-in in practice: requires a configured RAWG key and live Internet access. */
 @LargeTest @RunWith(AndroidJUnit4::class)
 class RawgLiveFlowTest {
+    @org.junit.Before fun openGamesSection(){openGlobalCollection(compose)}
     @get:Rule val compose = createAndroidComposeRule<MainActivity>()
     @Test fun civilizationUsesUpcFallbackThenRequiresRawgAndPlatformConfirmation() {
         assumeTrue("RAWG key is required",BuildConfig.RAWG_API_KEY.isNotBlank())
@@ -94,8 +95,8 @@ class RawgLiveFlowTest {
         val title = "Portal RAWG ${System.currentTimeMillis()}"
         compose.onNodeWithText("Título *").performTextReplacement(title)
         compose.onNodeWithText("GUARDAR EN LA BÓVEDA").performClick()
-        compose.waitUntil(10_000) { compose.onAllNodesWithText(title).fetchSemanticsNodes().isNotEmpty() }
-        compose.onNodeWithText(title).performScrollTo().performClick()
+        awaitCollectionGame(compose,title)
+        compose.onNodeWithTag("collection-grid").performScrollToNode(hasText(title));compose.onNodeWithText(title).performScrollTo().performClick()
         compose.onNodeWithText("Imágenes y metadatos: RAWG ↗").performScrollTo().assertExists()
         compose.onNodeWithText("Comunidad RAWG").performScrollTo()
         compose.waitUntil(30_000) { compose.onAllNodesWithText("votos", substring = true).fetchSemanticsNodes().isNotEmpty() }

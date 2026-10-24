@@ -1,12 +1,21 @@
 # Validación de GamerDex
 
-Versión validada: 0.18.0 · Room v6 · formato de copia portable v5 (lectura v1–v5).
+Versión validada: 0.19.0 · Room v6 · formato de copia portable v5 (lectura v1–v5).
 
 Fecha: 24 de octubre de 2026.
 
 Entorno: Windows, JDK Microsoft 21.0.8, Gradle 8.11.1, Android SDK 35 y emulador Medium Phone Android 15 (API 35, x86_64).
 
 ## Resultados
+
+- Validación 0.19.0: APK e instrumentación compilados; Lint con 0 errores y 83 advertencias en dependencias/código previo, sin baseline ni supresiones. APK `GamerDex-0.19.0-debug.apk`, versión 0.19.0/código 23. Room v6 y ZIP v5 no cambian.
+- Batería Android completa: 56 pruebas distintas correctas en la repetición final, incluidas las dos nuevas. Se conservan las comprobaciones de letra ampliada, horizontal, doce temas, fichas, copias, gamertags y proveedores de metadatos. Actualización instalada y arranque en frío correctos en API 35; preferencias originales, tamaño/densidad de pantalla y tamaño de letra restaurados y verificados.
+- Dos pruebas nuevas de vistas compactas correctas: filas de juegos de hasta 80 dp con letra normal, título/plataforma, favorito actualizable, apertura de ficha y orden Alfa/Beta/Zeta a partir de una inserción desordenada. A–Z inicial en colección global, por sistema y favoritos; cambio de vista sin alterar el orden, orden explícito conservado al recrear Activity y Todos los juegos restableciendo A–Z.
+- Sistemas con catorce plataformas sintéticas: Lista permite al menos siete filas visibles, es menor que Tarjetas y mantiene recuentos. Preferencia conservada al recrear Activity y reconstruir AppPreferences; Mis equipos usa esa vista y abre la ficha correcta. Cuadrícula coloca dos sistemas por fila en el tamaño habitual; Tarjetas sigue disponible.
+- Tres capturas sintéticas revisadas: lista de juegos, lista de sistemas y cuadrícula de sistemas. [Vistas y comportamiento](docs/collection-views.md).
+- Los recorridos anteriores de juegos abren explícitamente Juegos y localizan el título mediante desplazamiento de la colección. Ya no suponen que la pantalla inicial sea Juegos o que una copia recién añadida aparezca primero.
+
+Los resultados 0.18.0 siguientes se conservan como historial.
 
 - Validación 0.18.0: APK e instrumentación compilados; Lint con 0 errores y las mismas 82 advertencias previas, sin baseline ni supresiones. APK `GamerDex-0.18.0-debug.apk`, versión 0.18.0/código 22. Instalación y arranque en frío correctos en API 35. Preferencias, tamaño de pantalla, densidad y tamaño de letra originales restaurados y verificados. Room v6 y ZIP v5 no cambian.
 - Batería Android completa: 54 pruebas distintas correctas, incluidas tres nuevas de revisión adaptativa. La primera batería detectó una espera imprecisa en el recorrido anterior de editar/borrar: el título del formulario podía satisfacer la espera antes de concluir el guardado. Se espera ahora a la ficha o colección de destino; pasan los dos recorridos dirigidos de edición/cámara y la repetición completa de 54 pruebas.

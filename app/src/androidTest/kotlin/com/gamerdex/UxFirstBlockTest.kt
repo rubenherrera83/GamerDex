@@ -48,10 +48,10 @@ class UxFirstBlockTest {
             compose.onNodeWithText("GUARDAR EN LA BÓVEDA").assertIsNotEnabled()
             compose.onNodeWithText("Fecha de compra (AAAA-MM-DD)").performTextClearance()
             compose.onNodeWithText("GUARDAR EN LA BÓVEDA").assertIsEnabled().performClick()
-            compose.waitUntil(10_000){compose.onAllNodesWithText(title).fetchSemanticsNodes().isNotEmpty()}
+            awaitCollectionGame(compose,title)
             val game=repo.snapshot().games.single{it.title==title}
             assertEquals("Sin especificar",game.company);assertNull(game.pricePaidCents)
-            compose.onNodeWithText(title).performScrollTo().performClick();compose.onNodeWithText("Editar").performClick()
+            compose.onNodeWithTag("collection-grid").performScrollToNode(hasText(title));compose.onNodeWithText(title).performScrollTo().performClick();compose.onNodeWithText("Editar").performClick()
             compose.onNodeWithText("Compañía (opcional)").assert(hasText("",substring=false))
             compose.onNodeWithText("Volver").performClick()
             compose.onNodeWithText("¿Guardar los cambios?").assertDoesNotExist()
@@ -68,8 +68,8 @@ class UxFirstBlockTest {
             compose.onNodeWithText("Título *").assert(hasText(title))
             compose.onNodeWithText("Plataforma *").performTextInput("PC")
             compose.onNodeWithText("Volver").performClick();compose.onNodeWithText("Guardar cambios").performClick()
-            compose.waitUntil(10_000){compose.onAllNodesWithText(title).fetchSemanticsNodes().isNotEmpty()}
-            compose.onNodeWithText(title).performScrollTo().performClick();compose.onNodeWithText("Editar").performClick()
+            awaitCollectionGame(compose,title)
+            compose.onNodeWithTag("collection-grid").performScrollToNode(hasText(title));compose.onNodeWithText(title).performScrollTo().performClick();compose.onNodeWithText("Editar").performClick()
             compose.onNodeWithText("Año de lanzamiento").performScrollTo().performTextReplacement("1800")
             compose.onNodeWithTag("editor-section-metadata").performScrollTo().performClick()
             compose.onNodeWithText("GUARDAR EN LA BÓVEDA").assertIsDisplayed().assertIsNotEnabled()

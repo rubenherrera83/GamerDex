@@ -22,6 +22,7 @@ import java.io.File
 
 @RunWith(AndroidJUnit4::class)
 class CollectionV3FlowTest {
+    @org.junit.Before fun openGamesSection(){openGlobalCollection(compose)}
     @get:Rule val compose = createAndroidComposeRule<MainActivity>()
     private val instrumentation get() = InstrumentationRegistry.getInstrumentation()
     private val context get() = instrumentation.targetContext
@@ -51,7 +52,7 @@ class CollectionV3FlowTest {
                 ids += id
                 repository.save(Game(id = id, title = "$title [V3]", platform = if (index == 2) "Nintendo Switch" else "PlayStation 5", company = "Preview Studio", coverUrl = Uri.fromFile(file).toString(), genres = listOf("Aventura")))
             }
-            compose.waitUntil(10_000) { compose.onAllNodesWithText("Cover Flow").fetchSemanticsNodes().isNotEmpty() }
+            compose.onNodeWithTag("collection-grid").performScrollToNode(hasTestTag("collection-view-COVER_FLOW"))
             compose.onNodeWithText("Buscar en tu colección").performScrollTo().performTextInput("[V3]")
             compose.onNodeWithText("Cover Flow").performScrollTo().performClick()
             compose.onNodeWithTag("cover-flow").performScrollTo().assertExists()

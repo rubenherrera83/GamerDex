@@ -24,6 +24,9 @@ import javax.inject.Singleton
     private val mode = MutableStateFlow(runCatching { CollectionView.valueOf(preferences.getString("collection_view", null).orEmpty()) }
         .getOrDefault(if (preferences.contains("horizontal_collection")) { if (preferences.getBoolean("horizontal_collection", false)) CollectionView.COVER_FLOW else CollectionView.LIST } else CollectionView.GRID))
     val collectionView = mode.asStateFlow()
+    private val systemsMode = MutableStateFlow(runCatching { SystemView.valueOf(preferences.getString("system_view", null).orEmpty()) }.getOrDefault(SystemView.CARDS))
+    val systemView = systemsMode.asStateFlow()
+    fun setSystemView(value: SystemView) { preferences.edit().putString("system_view", value.name).apply(); systemsMode.value = value }
     private val nickname = MutableStateFlow(preferences.getString("nickname", "").orEmpty())
     val alias = nickname.asStateFlow()
     fun setAlias(value: String) { val name = value.take(32); preferences.edit().putString("nickname", name).apply(); nickname.value = name }

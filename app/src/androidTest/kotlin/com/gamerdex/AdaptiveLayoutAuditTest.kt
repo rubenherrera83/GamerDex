@@ -68,9 +68,9 @@ class AdaptiveLayoutAuditTest {
             compose.onNodeWithTag("nav-vault").performClick()
             compose.onNodeWithTag("collection-grid").performScrollToNode(hasTestTag("collection-view-GRID"))
             compose.onNodeWithTag("collection-view-GRID").assertIsSelected()
-            compose.onNodeWithTag("collection-grid").performScrollToKey(id+4)
-            val first=compose.onNodeWithTag("compact-cover-${id+4}").fetchSemanticsNode().boundsInRoot
-            val second=compose.onNodeWithTag("compact-cover-${id+3}").fetchSemanticsNode().boundsInRoot
+            compose.onNodeWithTag("collection-grid").performScrollToKey(id+1)
+            val first=compose.onNodeWithTag("compact-cover-${id+1}").fetchSemanticsNode().boundsInRoot
+            val second=compose.onNodeWithTag("compact-cover-${id+2}").fetchSemanticsNode().boundsInRoot
             assertEquals(first.top,second.top,2f);assertTrue("Carátulas demasiado estrechas",first.width/context.resources.displayMetrics.density>=120f)
             capture("audit-large-grid-v18.png")
             compose.onNodeWithTag("nav-statistics").performClick();compose.onNodeWithTag("stat-total-ALL").assertExists();capture("audit-large-statistics-v18.png")

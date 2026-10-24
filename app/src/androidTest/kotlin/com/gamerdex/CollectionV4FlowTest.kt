@@ -19,6 +19,7 @@ import java.io.File
 
 @RunWith(AndroidJUnit4::class)
 class CollectionV4FlowTest {
+    @org.junit.Before fun openGamesSection(){openGlobalCollection(compose)}
     @get:Rule val compose = createAndroidComposeRule<MainActivity>()
     private val context get() = InstrumentationRegistry.getInstrumentation().targetContext
     private val dependencies get() = EntryPointAccessors.fromApplication(context, CollectionV3Dependencies::class.java)
@@ -42,7 +43,7 @@ class CollectionV4FlowTest {
             compose.onNodeWithContentDescription("Activar valoración personal").performScrollTo().performClick()
             compose.onNode(SemanticsMatcher.keyIsDefined(SemanticsActions.SetProgress)).performSemanticsAction(SemanticsActions.SetProgress) { it(90f) }
             compose.onNodeWithText("GUARDAR EN LA BÓVEDA").performClick()
-            compose.waitUntil(10_000) { compose.onAllNodesWithText(title).fetchSemanticsNodes().isNotEmpty() }
+            awaitCollectionGame(compose,title)
             val saved = runBlocking { repository.snapshot().games.single { it.title == title } }
             assertTrue(saved.isFinished); assertTrue(saved.hasPlatinum); assertTrue(saved.isFavorite)
             assertEquals(87, saved.completionPercent); assertEquals(90f, saved.rating)
@@ -50,7 +51,7 @@ class CollectionV4FlowTest {
             compose.onNodeWithContentDescription("Abrir menú").performClick()
             compose.onNodeWithText("Favoritos").performClick()
             compose.onNodeWithTag("collection-filters").performScrollTo().performClick();compose.onNodeWithTag("filter-platform").performClick();compose.onNodeWithTag("filter-option-Plataforma-PlayStation 5").performClick();compose.onNodeWithText("Ver resultados").performClick()
-            compose.onNodeWithText(title).performScrollTo().assertExists()
+            compose.onNodeWithTag("collection-grid").performScrollToNode(hasText(title));compose.onNodeWithText(title).performScrollTo().assertExists()
             capture("favorites.png")
             compose.onNodeWithText("☰").performClick(); compose.onNodeWithText("Estadísticas").performClick()
             compose.onNodeWithTag("statistics-list").performScrollToNode(hasText("Trofeos platino"))
@@ -58,7 +59,7 @@ class CollectionV4FlowTest {
             capture("statistics.png")
             compose.onNodeWithTag("statistics-list").performScrollToNode(hasText("Juegos finalizados"))
             compose.onNodeWithText("Juegos finalizados").performClick()
-            compose.onNodeWithText(title).performScrollTo().performClick()
+            compose.onNodeWithTag("collection-grid").performScrollToNode(hasText(title));compose.onNodeWithText(title).performScrollTo().performClick()
             compose.onNodeWithText("Finalizado · 87 % completado").performScrollTo().assertExists()
             compose.onNodeWithText("Tu nota").assertExists()
             compose.onNodeWithText("90").assertExists()

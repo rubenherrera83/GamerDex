@@ -2,6 +2,10 @@
 
 Capturas reales del emulador Android 15:
 
+- [Lista compacta de juegos y orden A–Z, 0.19.0](render-tests/compact-games-v19.png)
+- [Lista compacta de sistemas, 0.19.0](render-tests/compact-systems-v19.png)
+- [Cuadrícula de sistemas, 0.19.0](render-tests/grid-systems-v19.png)
+
 - [Cuadrícula en 320 dp con letra al 160 % · Kawaii, 0.18.0](render-tests/audit-large-grid-v18.png)
 - [Estadísticas con letra ampliada, 0.18.0](render-tests/audit-large-statistics-v18.png)
 - [Menú desplazable en pantalla estrecha, 0.18.0](render-tests/audit-large-drawer-v18.png)

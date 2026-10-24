@@ -13,3 +13,15 @@ fun expandGameSections(compose:ComposeTestRule){
     }
     compose.onNodeWithText("Buscar por nombre").performScrollTo()
 }
+
+/** Saving no longer puts a game first: find it through the lazy collection's scroll action. */
+fun awaitCollectionGame(compose:ComposeTestRule,title:String){
+    compose.waitUntil(10_000){compose.onAllNodesWithTag("collection-grid").fetchSemanticsNodes().isNotEmpty()}
+    compose.onNodeWithTag("collection-grid").performScrollToNode(hasText(title))
+    compose.onNodeWithText(title).assertIsDisplayed()
+}
+
+fun openGlobalCollection(compose:ComposeTestRule){
+    compose.onNodeWithTag("nav-vault").performClick()
+    compose.waitUntil(10_000){compose.onAllNodesWithTag("collection-grid").fetchSemanticsNodes().isNotEmpty()}
+}

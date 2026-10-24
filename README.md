@@ -1,6 +1,13 @@
 # GamerDex
 
-Versión 0.18.0: revisión adaptativa para pantallas pequeñas, letra ampliada y ventanas horizontales.
+Versión 0.19.0: listados compactos para colecciones grandes y juegos ordenados por título A–Z.
+
+## Novedades 0.19.0
+
+- Sistemas y Mis equipos permiten elegir Tarjetas, Lista compacta o Cuadrícula. Se recuerda la elección entre sesiones.
+- Juegos incorpora una lista de filas pequeñas con miniatura, título, plataforma y favorito. Las carátulas grandes siguen en Tarjetas; se mantienen Cuadrícula como vista inicial y Cover Flow.
+- Todas las listas de juegos parten de Título A–Z, incluidos los juegos por sistema, favoritos y accesos desde estadísticas. Elegir otro orden es una acción explícita y se conserva al volver a esa consulta; Todos los juegos inicia de nuevo en A–Z.
+- APK `GamerDex-0.19.0-debug.apk`, versión 0.19.0/código 23. Room v6 y ZIP v5 no cambian. [Vistas y ordenación](docs/collection-views.md).
 
 ## Novedades 0.18.0
 
