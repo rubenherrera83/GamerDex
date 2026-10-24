@@ -72,10 +72,14 @@ import androidx.compose.ui.graphics.toArgb
     }
 }
 
-@Composable fun Metric(value: String, label: String, modifier: Modifier = Modifier) {
-    val shape = MaterialTheme.shapes.medium
-    Column(modifier.clip(shape).background(MaterialTheme.colorScheme.surface).border(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = .5f), shape).padding(12.dp)) {
-        Text(value, style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.primary, maxLines = 1)
-        Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
+@Composable fun Metric(value:String,label:String,modifier:Modifier=Modifier,compact:Boolean=false){
+    val shape=MaterialTheme.shapes.medium
+    val panel=modifier.clip(shape).background(MaterialTheme.colorScheme.surface).border(1.dp,MaterialTheme.colorScheme.outline.copy(alpha=.5f),shape).padding(12.dp)
+    if(compact)Row(panel,verticalAlignment=androidx.compose.ui.Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(12.dp)){
+        Text(value,style=MaterialTheme.typography.headlineSmall,color=MaterialTheme.colorScheme.primary)
+        Text(label,Modifier.weight(1f),style=MaterialTheme.typography.labelSmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
+    }else Column(panel){
+        Text(value,style=MaterialTheme.typography.headlineSmall,color=MaterialTheme.colorScheme.primary)
+        Text(label,style=MaterialTheme.typography.labelSmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }

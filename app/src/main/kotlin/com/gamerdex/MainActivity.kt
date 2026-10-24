@@ -8,6 +8,10 @@ import androidx.activity.SystemBarStyle
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
+import com.gamerdex.ui.components.windowSizeDp
+import androidx.compose.ui.platform.testTag
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -92,11 +96,13 @@ class MainActivity : ComponentActivity() {
     val destinations = listOf("systems" to "Sistemas","vault" to "Juegos", "library/FAVORITES" to "Favoritos", "browse/genres" to "Géneros", "statistics" to "Estadísticas", "gamertag/0" to "Gamertags", "preferences" to "Preferencias")
     LaunchedEffect(state.error) { state.error?.let { snack.showSnackbar(it); viewModel.clearError() } }
     ModalNavigationDrawer(drawerState = drawer, gesturesEnabled = !saving && entry?.destination?.route?.startsWith("edit/")!=true && entry?.destination?.route?.startsWith("hardware/edit/")!=true, drawerContent = {
-        ModalDrawerSheet(modifier = Modifier.width(300.dp)) {
-            Column(Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) { GamerDexLogo(Modifier.fillMaxWidth()); Text("PLAYER HUB / 02", style = MaterialTheme.typography.labelSmall) }
-            destinations.forEachIndexed { index, (route, title) -> NavigationDrawerItem(label = { Text(title) }, icon = { Text("0${index + 1}", color = MaterialTheme.colorScheme.primary) },
+        ModalDrawerSheet(modifier = Modifier.widthIn(max=windowSizeDp().width-56.dp).width(300.dp)) {
+            LazyColumn(Modifier.fillMaxSize().testTag("drawer-list")){
+            item{Column(Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) { GamerDexLogo(Modifier.fillMaxWidth()); Text("PLAYER HUB / 02", style = MaterialTheme.typography.labelSmall) }}
+            itemsIndexed(destinations) { index, (route, title) -> NavigationDrawerItem(label = { Text(title) }, icon = { Text("0${index + 1}", color = MaterialTheme.colorScheme.primary) },
                 selected = entry?.destination?.route == route || (route=="systems" && (entry?.destination?.route?.startsWith("system-games/")==true || entry?.destination?.route?.startsWith("hardware")==true)) || (route == "library/FAVORITES" && entry?.destination?.route == "library/{filter}" && entry?.arguments?.getString("filter") == "FAVORITES") || (route == "gamertag/0" && entry?.destination?.route in setOf("gamertag/{gameId}","gamertag-system/{id}")), onClick = { scope.launch { drawer.close() };if(route=="vault")openAllGames()else navigateSection(route) }, modifier = Modifier.padding(horizontal = 12.dp, vertical = 3.dp)) }
-            Spacer(Modifier.weight(1f)); Text(theme.tagline, Modifier.padding(24.dp), color = MaterialTheme.colorScheme.onSurfaceVariant)
+            item{Text(theme.tagline, Modifier.padding(24.dp), color = MaterialTheme.colorScheme.onSurfaceVariant)}
+            }
         }
     }) {
     val route=entry?.destination?.route.orEmpty()

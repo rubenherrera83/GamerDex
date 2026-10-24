@@ -1,6 +1,14 @@
 # GamerDex
 
-Versión 0.17.0: gamertags con vista previa prioritaria, controles agrupados y acciones fijas; navegación sin fundido.
+Versión 0.18.0: revisión adaptativa para pantallas pequeñas, letra ampliada y ventanas horizontales.
+
+## Novedades 0.18.0
+
+- Navegación inferior adaptada al ancho y al tamaño de letra: nombres completos y botones reorganizados cuando no caben. Menú lateral desplazable y con margen exterior en pantallas estrechas.
+- Cabecera más compacta en ventanas bajas. Gasto desplaza sus filtros con el listado cuando falta altura; en ventanas altas siguen fijos.
+- Cuadrícula de dos columnas en ventanas estrechas o con letra ampliada, manteniendo la vista elegida. Contadores y tarjetas de estadísticas adaptados para evitar columnas demasiado estrechas.
+- Revisión de alta de juegos con letra al 160 %, teclado, guardado y confirmación de cambios pendientes. Se conservan los doce temas, los datos y la navegación sin fundido.
+- APK `GamerDex-0.18.0-debug.apk`, versión 0.18.0/código 22. Room v6 y ZIP v5 no cambian. [Alcance y tamaños revisados](docs/ux-adaptive-review.md).
 
 ## Novedades 0.17.0
 

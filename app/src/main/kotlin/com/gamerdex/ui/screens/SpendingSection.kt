@@ -16,6 +16,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.gamerdex.core.domain.*
 import com.gamerdex.ui.components.ScreenHeader
+import com.gamerdex.ui.components.isShortWindow
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable fun SpendingScreen(games:List<Game>,hardware:List<Hardware>,entries:List<Purchase>,removeArchived:(String)->Unit,back:()->Unit){
@@ -36,9 +37,8 @@ import com.gamerdex.ui.components.ScreenHeader
     val currencies=totals.combined.keys.toList()
     val currency=chartCurrency?.takeIf{it in currencies} ?: currencies.firstOrNull()
     val savedModes=rememberSaveableStateHolder()
-    BackHandler(onBack=back)
-    Scaffold(containerColor=androidx.compose.ui.graphics.Color.Transparent,topBar={Surface{Column{
-        ScreenHeader("Gasto histórico",back=back)
+    val short=isShortWindow()
+    val controls:@Composable ()->Unit={Column{
         Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min).padding(horizontal=16.dp),horizontalArrangement=Arrangement.spacedBy(8.dp)){
             SpendingFilter("Año",year,"Todos los años",years,Modifier.weight(1f).fillMaxHeight()){year=it}
             SpendingFilter("Plataforma",platform,"Todas las plataformas",platforms,Modifier.weight(1f).fillMaxHeight()){platform=it}
@@ -47,6 +47,11 @@ import com.gamerdex.ui.components.ScreenHeader
         Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal=16.dp),horizontalArrangement=Arrangement.spacedBy(8.dp)){
             SpendGrouping.entries.forEach{candidate->FilterChip(mode==candidate,{mode=candidate},label={Text(candidate.label)},modifier=Modifier.testTag("spending-mode-${candidate.name}"))}
         }
+    }}
+    BackHandler(onBack=back)
+    Scaffold(containerColor=androidx.compose.ui.graphics.Color.Transparent,topBar={Surface{Column{
+        ScreenHeader("Gasto histórico",back=back)
+        if(!short)controls()
     }}}){padding->
         savedModes.SaveableStateProvider(mode.name){
             val listState=rememberLazyListState()
@@ -54,6 +59,7 @@ import com.gamerdex.ui.components.ScreenHeader
             var appliedPlatform by rememberSaveable{mutableStateOf(platform)}
             LaunchedEffect(year,platform){if(appliedYear!=year || appliedPlatform!=platform){listState.scrollToItem(0);appliedYear=year;appliedPlatform=platform}}
             LazyColumn(state=listState,modifier=Modifier.fillMaxSize().padding(padding).consumeWindowInsets(padding).testTag("spending-list"),contentPadding=PaddingValues(16.dp),verticalArrangement=Arrangement.spacedBy(14.dp)){
+                if(short)item(key="filters"){controls()}
                 item(key="summary"){
                     OutlinedCard(Modifier.fillMaxWidth().testTag("spending-selection-summary")){
                         Column(Modifier.padding(16.dp),verticalArrangement=Arrangement.spacedBy(10.dp)){

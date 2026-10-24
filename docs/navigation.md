@@ -35,3 +35,5 @@ La preferencia se utiliza en sesiones nuevas. Cambiarla no abandona la pantalla 
 Todas las pantallas comparten una cabecera compacta y fija, con logotipo del tema, título y navegación coherentes. [Cabeceras y preferencias](ux-preferences-and-headers.md).
 
 Desde 0.17.0, entrar, salir y volver entre destinos no utiliza fundidos. Gamertags mantiene su editor por secciones, vista previa ampliable y acciones fijas. [Uso del editor](ux-gamertags.md).
+
+Desde 0.18.0, la navegación inferior reorganiza sus etiquetas si no caben con el tamaño de letra elegido y utiliza una presentación compacta en ventanas bajas. El menú lateral es desplazable; no cambia el destino ni la restauración de estado. [Revisión adaptativa](ux-adaptive-review.md).

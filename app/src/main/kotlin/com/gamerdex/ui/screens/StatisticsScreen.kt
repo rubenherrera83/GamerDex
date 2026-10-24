@@ -10,6 +10,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import com.gamerdex.core.domain.*
 import com.gamerdex.ui.components.*
@@ -31,6 +33,7 @@ import kotlin.math.roundToInt
 @Composable private fun CollectionStatistics(games:List<Game>,hardware:List<Hardware>,purchases:List<Purchase>,
     menu:()->Unit,open:(CollectionFilter)->Unit,platform:(String)->Unit,genre:(String)->Unit,spending:()->Unit){
     val stats=remember(games){collectionStats(games)}
+    val columns=if(windowSizeDp().width<360.dp || LocalDensity.current.fontScale>1.3f)1 else 2
     Scaffold(containerColor=androidx.compose.ui.graphics.Color.Transparent,
         topBar={ScreenHeader("Estadísticas",menu=menu,
             actions={TextButton(spending,modifier=Modifier.testTag("statistics-open-spending")){Text("Gasto")}})}){padding->
@@ -43,11 +46,11 @@ import kotlin.math.roundToInt
                     Text("Toca un contador para ver sus juegos. Cada copia o edición cuenta como un ejemplar.",style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
-            CollectionFilter.entries.chunked(2).forEach{pair->item{
-                Row(horizontalArrangement=Arrangement.spacedBy(12.dp)){
+            CollectionFilter.entries.chunked(columns).forEach{pair->item{
+                Row(Modifier.height(IntrinsicSize.Min),horizontalArrangement=Arrangement.spacedBy(12.dp)){
                     pair.forEach{filter->
                         Surface(shape=MaterialTheme.shapes.medium,color=MaterialTheme.colorScheme.surface,
-                            modifier=Modifier.weight(1f).testTag("stat-total-${filter.name}").clickable(onClickLabel="Ver ${filter.title}"){open(filter)}){
+                            modifier=Modifier.weight(1f).fillMaxHeight().testTag("stat-total-${filter.name}").clickable(onClickLabel="Ver ${filter.title}"){open(filter)}){
                             Column(Modifier.padding(16.dp),verticalArrangement=Arrangement.spacedBy(6.dp)){
                                 Text("${stats.totals.getValue(filter)}",style=MaterialTheme.typography.headlineMedium,color=MaterialTheme.colorScheme.primary)
                                 Text(filter.title,style=MaterialTheme.typography.labelLarge)

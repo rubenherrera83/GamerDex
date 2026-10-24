@@ -27,10 +27,10 @@ class CollectionFlowTest {
         compose.onNodeWithText("Capturar foto").performClick()
         compose.waitUntil(30_000) { compose.onAllNodesWithContentDescription("Foto de tu copia").fetchSemanticsNodes().isNotEmpty() }
         compose.onNodeWithText("GUARDAR EN LA BÓVEDA").performClick()
-        compose.waitUntil(10_000) { compose.onAllNodesWithText(title).fetchSemanticsNodes().isNotEmpty() }
+        compose.waitUntil(10_000) { compose.onAllNodesWithTag("collection-grid").fetchSemanticsNodes().isNotEmpty() && compose.onAllNodesWithText(title).fetchSemanticsNodes().isNotEmpty() }
         compose.onNodeWithText(title).performScrollTo().performClick()
         compose.activityRule.scenario.recreate()
-        compose.waitUntil(10_000) { compose.onAllNodesWithText(title).fetchSemanticsNodes().isNotEmpty() }
+        compose.waitUntil(10_000) { compose.onAllNodesWithTag("game-detail").fetchSemanticsNodes().isNotEmpty() && compose.onAllNodesWithText(title).fetchSemanticsNodes().isNotEmpty() }
         // Scroll the outer vertical container, rather than the nested horizontal photo pager.
         compose.onNodeWithText("Eliminar de la colección").performScrollTo()
         compose.onNodeWithContentDescription("Foto 1 de $title").assertIsDisplayed()
@@ -48,12 +48,12 @@ class CollectionFlowTest {
         compose.onNodeWithText("Plataforma *").performTextInput("PC")
         compose.onNodeWithText("Compañía (opcional)").performTextInput("Valve")
         compose.onNodeWithText("GUARDAR EN LA BÓVEDA").performClick()
-        compose.waitUntil(10_000) { compose.onAllNodesWithText(title).fetchSemanticsNodes().isNotEmpty() }
+        compose.waitUntil(10_000) { compose.onAllNodesWithTag("collection-grid").fetchSemanticsNodes().isNotEmpty() && compose.onAllNodesWithText(title).fetchSemanticsNodes().isNotEmpty() }
         compose.onNodeWithText(title).performScrollTo().performClick()
         compose.onNodeWithText("Editar").performClick()
         compose.onNodeWithText(title).performTextReplacement("$title editado")
         compose.onNodeWithText("GUARDAR EN LA BÓVEDA").performClick()
-        compose.waitUntil(10_000) { compose.onAllNodesWithText("$title editado").fetchSemanticsNodes().isNotEmpty() }
+        compose.waitUntil(10_000) { compose.onAllNodesWithTag("game-detail").fetchSemanticsNodes().isNotEmpty() && compose.onAllNodesWithText("$title editado").fetchSemanticsNodes().isNotEmpty() }
         compose.onNodeWithText("Eliminar de la colección").performScrollTo().performClick()
         compose.onNodeWithText("Eliminar", useUnmergedTree = true).performClick()
         compose.waitUntil(10_000) { compose.onAllNodesWithText("+ AÑADIR JUEGO").fetchSemanticsNodes().isNotEmpty() }

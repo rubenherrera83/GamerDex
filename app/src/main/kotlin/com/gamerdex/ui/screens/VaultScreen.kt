@@ -8,6 +8,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.unit.dp
@@ -62,16 +63,22 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
         topBar={if(showHeader)ScreenHeader(familyTitle ?: "Juegos",menu=menu,back=back)},
         floatingActionButton = { if(allowAdd)ExtendedFloatingActionButton(onClick = add, containerColor = CyberCyan, contentColor = MaterialTheme.colorScheme.onPrimary, shape = MaterialTheme.shapes.medium) { Text("+ AÑADIR JUEGO") } }) { padding ->
         BoxWithConstraints(Modifier.fillMaxSize().padding(padding)) {
-        val columns = when (mode) { CollectionView.GRID -> GridCells.Fixed(if (maxWidth >= 600.dp) 4 else 3); CollectionView.COVER_FLOW -> GridCells.Fixed(1); CollectionView.LIST -> GridCells.Adaptive(155.dp) }
+        val accessible=LocalDensity.current.fontScale>1.3f || maxWidth<360.dp
+        val short=isShortWindow()
+        val columns = when (mode) { CollectionView.GRID -> GridCells.Fixed(if(accessible){if(maxWidth>=600.dp)3 else 2}else if (maxWidth >= 600.dp) 4 else 3); CollectionView.COVER_FLOW -> GridCells.Fixed(1); CollectionView.LIST -> GridCells.Adaptive(155.dp) }
         LazyVerticalGrid(columns = columns, state=gridState, modifier = Modifier.fillMaxSize().testTag("collection-grid"), contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 12.dp, bottom = 110.dp), verticalArrangement = Arrangement.spacedBy(10.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             if(showHeader && familyFilter!=null)item(span={GridItemSpan(maxLineSpan)}) { Column(verticalArrangement=Arrangement.spacedBy(6.dp)){
                 Text("${familyGames.size} ${if(familyGames.size==1)"videojuego" else "videojuegos"} en este sistema",style=MaterialTheme.typography.titleMedium,modifier=Modifier.testTag("system-games-total"))
             } }
-            if(showHeader && familyFilter==null)item(span = { GridItemSpan(maxLineSpan) }) {
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Metric("%02d".format(state.games.size), "EJEMPLARES", Modifier.weight(1f).clickable(onClickLabel = "Ver todos los títulos", onClick = titles))
-                    Metric("%02d".format(systemCount), "EQUIPOS", Modifier.weight(1f).testTag("owned-systems-counter").clickable(onClickLabel = "Ver sistemas y equipos", onClick = systems))
-                    Metric("%02d".format(state.games.count { it.effectiveEdition != com.gamerdex.core.domain.EditionType.STANDARD }), "ESPECIALES", Modifier.weight(1f).clickable(onClickLabel = "Ver ediciones especiales", onClick = specials))
+            if(showHeader && familyFilter==null)item(span={GridItemSpan(maxLineSpan)}){
+                if(accessible)Column(verticalArrangement=Arrangement.spacedBy(8.dp)){
+                    Metric("%02d".format(state.games.size),"EJEMPLARES",Modifier.fillMaxWidth().clickable(onClickLabel="Ver todos los títulos",onClick=titles),compact=true)
+                    Metric("%02d".format(systemCount),"EQUIPOS",Modifier.fillMaxWidth().testTag("owned-systems-counter").clickable(onClickLabel="Ver sistemas y equipos",onClick=systems),compact=true)
+                    Metric("%02d".format(state.games.count{it.effectiveEdition!=EditionType.STANDARD}),"ESPECIALES",Modifier.fillMaxWidth().clickable(onClickLabel="Ver ediciones especiales",onClick=specials),compact=true)
+                }else Row(horizontalArrangement=Arrangement.spacedBy(8.dp)){
+                    Metric("%02d".format(state.games.size),"EJEMPLARES",Modifier.weight(1f).clickable(onClickLabel="Ver todos los títulos",onClick=titles),compact=short)
+                    Metric("%02d".format(systemCount),"EQUIPOS",Modifier.weight(1f).testTag("owned-systems-counter").clickable(onClickLabel="Ver sistemas y equipos",onClick=systems),compact=short)
+                    Metric("%02d".format(state.games.count{it.effectiveEdition!=EditionType.STANDARD}),"ESPECIALES",Modifier.weight(1f).clickable(onClickLabel="Ver ediciones especiales",onClick=specials),compact=short)
                 }
             }
             item(span = { GridItemSpan(maxLineSpan) }) {

@@ -1,12 +1,22 @@
 # Validación de GamerDex
 
-Versión validada: 0.17.0 · Room v6 · formato de copia portable v5 (lectura v1–v5).
+Versión validada: 0.18.0 · Room v6 · formato de copia portable v5 (lectura v1–v5).
 
 Fecha: 24 de octubre de 2026.
 
 Entorno: Windows, JDK Microsoft 21.0.8, Gradle 8.11.1, Android SDK 35 y emulador Medium Phone Android 15 (API 35, x86_64).
 
 ## Resultados
+
+- Validación 0.18.0: APK e instrumentación compilados; Lint con 0 errores y las mismas 82 advertencias previas, sin baseline ni supresiones. APK `GamerDex-0.18.0-debug.apk`, versión 0.18.0/código 22. Instalación y arranque en frío correctos en API 35. Preferencias, tamaño de pantalla, densidad y tamaño de letra originales restaurados y verificados. Room v6 y ZIP v5 no cambian.
+- Batería Android completa: 54 pruebas distintas correctas, incluidas tres nuevas de revisión adaptativa. La primera batería detectó una espera imprecisa en el recorrido anterior de editar/borrar: el título del formulario podía satisfacer la espera antes de concluir el guardado. Se espera ahora a la ficha o colección de destino; pasan los dos recorridos dirigidos de edición/cámara y la repetición completa de 54 pruebas.
+- Línea de base con la versión anterior: las dos pruebas iniciales reproducen el recorte de Estadísticas con letra ampliada y un listado de gasto horizontal sin altura suficiente. Tras los ajustes pasan navegación, menú, colección, copias y gasto en los tamaños revisados. Se mantiene el tamaño de letra del usuario; no se añaden supresiones de Lint.
+- Ventana 320 × 640 dp al 160 %: etiqueta de navegación completa sin desbordamiento medido, Preferencias alcanzable en el menú desplazable y ambos botones de copia alcanzables al desplazarse. Cuadrícula de dos carátulas por fila, con ancho de al menos 120 dp; vista seleccionada conservada. Estadísticas usa una columna y los temas claro/oscuro mantienen contraste en cabecera y barras del sistema.
+- Ventana 640 × 320 dp: la cabecera y navegación compactas dejan al listado de gasto al menos 120 dp de altura. Los filtros se consultan dentro del desplazamiento; seleccionar 2024 permite llegar a los importes y regresar. El menú sigue dando acceso a Gamertags y se ven Compartir/Guardar PNG.
+- Alta al 160 % en 320 dp: Guardar visible y habilitado sobre el teclado después de introducir título/plataforma. Volver abre la confirmación, Seguir editando conserva el título y el guardado persiste el registro correcto. Se mantienen los recorridos anteriores de calendario, datos opcionales, fotos, notas, componentes y protección de cambios pendientes.
+- Revisión visual con cinco capturas sintéticas: cuadrícula y estadísticas en Kawaii, menú estrecho, editor con teclado y gasto horizontal en Cyberpunk. La batería anterior conserva navegación, doce temas, fichas, favoritos, progreso, RAWG, ScanDex/UPCitemdb/Evercade, estadísticas, copias y gamertags. El tamaño habitual mantiene tres columnas y cuatro en horizontal. [Alcance y tamaños comprobados](docs/ux-adaptive-review.md).
+
+Los resultados 0.17.0 siguientes se conservan como historial.
 
 - Validación 0.17.0: APK e instrumentación compilados; Lint con 0 errores y las mismas 82 advertencias previas, sin baseline ni supresiones. APK `GamerDex-0.17.0-debug.apk`, versión 0.17.0/código 21. Actualización instalada y sesión nueva arrancada en frío correctamente en API 35; preferencias originales restauradas y verificadas. Room v6 y ZIP v5 no cambian.
 - Batería Android completa: 51 pruebas distintas correctas, incluidas dos nuevas de UX de gamertags y una de generación/exportación. Los recorridos anteriores usan los accesos por secciones y esperan a que Compartir esté habilitado: ver la imagen anterior ya no significa que haya terminado la actualización. Las esperas del reloj manual de navegación se sincronizan por fotogramas. No quedan fallos pendientes.

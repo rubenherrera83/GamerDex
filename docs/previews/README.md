@@ -2,6 +2,11 @@
 
 Capturas reales del emulador Android 15:
 
+- [Cuadrícula en 320 dp con letra al 160 % · Kawaii, 0.18.0](render-tests/audit-large-grid-v18.png)
+- [Estadísticas con letra ampliada, 0.18.0](render-tests/audit-large-statistics-v18.png)
+- [Menú desplazable en pantalla estrecha, 0.18.0](render-tests/audit-large-drawer-v18.png)
+- [Guardar accesible con teclado y letra ampliada, 0.18.0](render-tests/audit-large-editor-keyboard-v18.png)
+- [Gasto horizontal con espacio para el listado, 0.18.0](render-tests/audit-landscape-spending-v18.png)
 - [Gamertags: vista previa y acciones fijas, 0.17.0](render-tests/gamertag-overview-v17.png)
 - [Diseño independiente de la tarjeta, 0.17.0](render-tests/gamertag-custom-design-v17.png)
 - [Tarjeta de PC con componentes, 0.17.0](render-tests/gamertag-hardware-v17.png)
