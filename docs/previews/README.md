@@ -2,6 +2,9 @@
 
 Capturas reales del emulador Android 15:
 
+- [Portada de estadísticas, 0.15.0](render-tests/statistics-overview-v15.png)
+- [Gasto en pantalla completa y gráfico, 0.15.0](render-tests/spending-chart-v15.png)
+- [Confirmación de compra archivada · Kawaii, 0.15.0](render-tests/spending-archive-confirmation-v15.png)
 - [Ficha de juego por secciones · Cyberpunk, 0.14.0](render-tests/game-detail-overview.png)
 - [Fotos de la copia y multimedia, 0.14.0](render-tests/game-detail-media.png)
 - [Ficha de equipo por secciones · Kawaii, 0.14.0](render-tests/hardware-detail-overview-v14.png)

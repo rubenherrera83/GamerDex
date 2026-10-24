@@ -2,11 +2,11 @@
 
 ## Selección del gasto
 
-Estadísticas → Ver gasto por año, plataforma y sistema incorpora selectores de año y plataforma. Todos los años / Todas las plataformas conserva el histórico completo; combinarlos hace una intersección. Año desconocido incluye únicamente compras sin fecha, sin inferirla del lanzamiento ni del alta. Se puede limpiar la selección sin modificar fichas.
+Desde 0.15.0, Estadísticas → Gasto abre una pantalla completa con selectores visibles de año y plataforma; también se accede desde Ver gasto por año, plataforma y sistema. Todos los años / Todas las plataformas conserva el histórico completo; combinarlos hace una intersección. Año desconocido incluye únicamente compras sin fecha, sin inferirla del lanzamiento ni del alta. Se puede limpiar la selección sin modificar fichas.
 
-Los nombres de plataforma son los registrados en cada compra, como en el desglose anterior: Genesis y Mega Drive no se fusionan automáticamente en el historial financiero. Cada moneda se suma por separado. La selección se mantiene al cambiar entre Por año, Por plataforma, Por sistema y Archivadas. En Archivadas el resumen solo incluye las compras archivadas que cumplen los filtros. Una combinación sin compras se explica y no modifica la colección. Los selectores y el contenido se desplazan dentro del diálogo para conservar acceso en pantallas pequeñas.
+Los nombres de plataforma son los registrados en cada compra, como en el desglose anterior: Genesis y Mega Drive no se fusionan automáticamente en el historial financiero. Cada moneda se suma por separado. La selección se mantiene al cambiar entre Por año, Por plataforma, Por sistema y Archivadas. En Archivadas el resumen solo incluye las compras archivadas que cumplen los filtros. Una combinación sin compras se explica y no modifica la colección. Los filtros permanecen arriba y los resultados se desplazan por la pantalla completa. [Gráficos, estado y desgloses anuales](ux-statistics.md).
 
-El contador SISTEMAS de la colección global usa el número total de unidades del inventario de hardware; dos consolas del mismo modelo cuentan como dos. Abre Sistemas, también cuando el inventario está vacío. Desde 0.11.0 las unidades se consultan en cada plataforma → Mis equipos. El contador no se calcula a partir de las plataformas de los juegos ni cambia al filtrar la colección.
+El contador EQUIPOS de la colección global usa el número total de unidades del inventario de hardware; dos consolas del mismo modelo cuentan como dos. Abre Sistemas, también cuando el inventario está vacío. Desde 0.11.0 las unidades se consultan en cada plataforma → Mis equipos. El contador no se calcula a partir de las plataformas de los juegos ni cambia al filtrar la colección.
 
 ## Curiosidades
 

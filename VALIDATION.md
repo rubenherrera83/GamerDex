@@ -1,12 +1,22 @@
 # Validación de GamerDex
 
-Versión validada: 0.14.0 · Room v6 · formato de copia portable v5 (lectura v1–v5).
+Versión validada: 0.15.0 · Room v6 · formato de copia portable v5 (lectura v1–v5).
 
 Fecha: 24 de octubre de 2026.
 
 Entorno: Windows, JDK Microsoft 21.0.8, Gradle 8.11.1, Android SDK 35 y emulador Medium Phone Android 15 (API 35, x86_64).
 
 ## Resultados
+
+- Validación 0.15.0: APK e instrumentación compilados; Lint con 0 errores y las mismas 82 advertencias anteriores, sin baseline ni supresiones. Salida `GamerDex-0.15.0-debug.apk`, versión 0.15.0/código 19. Instalación sobre 0.14.0 y arranque en frío correctos en API 35; preferencias del emulador restauradas al terminar. Room v6 y ZIP v5 no cambian.
+- Batería Android completa de 46 pruebas correctas, incluidas dos nuevas de estadísticas/gasto. Los casos anteriores de filtros y gasto por unidad se adaptan a pantalla completa y conservan la comprobación de importes. En la primera prueba dirigida se detectó que un desglose anual se cerraba al volver: se elevó su estado y se repitieron los dos recorridos nuevos y la batería completa sin fallos.
+- Consulta sintética con dos equipos del mismo nombre y series diferentes: total seleccionado 315 EUR y 1500 JPY, sin mezclarlos. Año 2021 y plataforma reducen la selección a 100 EUR y 1500 JPY, con una compra sin precio. Se comprueba también el detalle anual de la unidad por moneda. Las compras sin fecha permanecen en Año desconocido.
+- Estado: año, plataforma, modo, moneda del gráfico y grupos desplegados se conservan al recrear Activity, volver a la portada/reabrir Gasto y alternar Juegos/Estadísticas. Volver por el sistema regresa a los contadores. Cambiar moneda del gráfico mantiene separados los totales de EUR y JPY.
+- Archivadas: resumen limitado a fichas eliminadas y filtros actuales; confirmación conservada tras recrear Activity. Cancelar mantiene la compra. Confirmar retira solo esa compra y deja intactos el juego activo y su precio cero. Al volver al desglose anual se muestra 0 EUR con barra vacía, sin división por cero.
+- Revisión visual con datos sintéticos en Cyberpunk y Kawaii: portada de estadísticas, gasto con gráfico anual y confirmación de compra archivada. Los filtros tienen altura alineada, los totales se distinguen de videojuegos/equipos y el gráfico indica su moneda y límite de grupos. [Alcance y criterios](docs/ux-statistics.md).
+- Continúan pasando cámara, edición, doce temas, RAWG/multimedia, ScanDex/UPCitemdb/Evercade, favoritos, fichas, navegación, copias y gamertags. No se alteran el registro de compras, sus criterios de agrupación financiera ni los formatos de datos.
+
+Los resultados 0.14.0 siguientes se conservan como historial.
 
 - Validación 0.14.0: APK e instrumentación compilados; Lint con 0 errores y las mismas 82 advertencias anteriores, sin baseline ni supresiones. Salida `GamerDex-0.14.0-debug.apk`, versión 0.14.0/código 18. Instalación sobre 0.13.0 y arranque en frío correctos en API 35. Room v6 y ZIP v5 no cambian.
 - Batería Android completa de 44 pruebas correctas, sin fallos, incluidas dos nuevas de fichas. Se mantienen los recorridos de cámara/edición, doce temas, búsquedas y multimedia RAWG, código de barras/Evercade, favoritos, navegación, estadísticas/gasto, copias y gamertags de juegos/equipos.

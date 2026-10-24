@@ -22,6 +22,8 @@ Cada pestaña conserva búsqueda y desplazamiento al alternar, y la pestaña sel
 
 Desde 0.14.0, las fichas de juegos y equipos agrupan los datos en secciones abiertas y ofrecen accesos rápidos en su barra superior. Volver/Editar permanecen accesibles; fotos ampliables y confirmación de borrado se conservan al recrear Activity. [Uso de las fichas](ux-third-block.md).
 
+Desde 0.15.0, Estadísticas da acceso directo a Gasto en pantalla completa. Volver regresa a los contadores; reabrir Gasto recupera filtros y desgloses. Alternar secciones principales conserva la última consulta abierta en Estadísticas. [Consulta financiera y gráficos](ux-statistics.md).
+
 Volver recupera el listado de sistemas y su búsqueda. **Juegos** en el menú antiguo y **Todos los juegos** en la portada abren la colección global y limpian búsqueda y filtros. **Juegos** en la barra inferior recupera el estado de la colección. El contador **Equipos** de la colección global conserva el total de unidades físicas y abre la portada unificada. [Filtros, ordenación y restauración de estado](ux-second-block.md).
 
 ## Pantalla inicial

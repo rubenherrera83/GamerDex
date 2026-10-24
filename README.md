@@ -1,6 +1,14 @@
 # GamerDex
 
-Versión 0.14.0: fichas de juegos y equipos agrupadas por secciones, con accesos rápidos y fotos ampliables.
+Versión 0.15.0: estadísticas reorganizadas y gasto en pantalla completa, con gráficos por moneda y filtros visibles.
+
+## Novedades 0.15.0
+
+- Estadísticas comienza por la colección y sus contadores. Conserva los accesos a listados y añade logotipos/porcentajes en plataformas. Gasto tiene acceso directo en la barra superior.
+- Gasto pasa del diálogo a una pantalla completa: año y plataforma visibles, totales separados por moneda y desgloses por año, plataforma y unidad, con detalle anual desplegable.
+- Gráficos con selector de moneda, evolución anual y comparación de plataformas/equipos. Hasta seis grupos con importes más Año desconocido en la vista anual; el desglose mantiene todos. Sin conversiones ni estimaciones de precios/fechas.
+- Filtros, moneda, modo y desgloses abiertos conservados al volver o recrear Activity. Compras archivadas con confirmación recuperable y retirada independiente del inventario actual.
+- APK `GamerDex-0.15.0-debug.apk`, versión 0.15.0/código 19. Room v6 y ZIP v5 permanecen iguales. [Alcance y criterios](docs/ux-statistics.md).
 
 ## Novedades 0.14.0
 

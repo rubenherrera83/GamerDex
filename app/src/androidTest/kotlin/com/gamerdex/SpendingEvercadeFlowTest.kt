@@ -52,10 +52,10 @@ class SpendingEvercadeFlowTest {
             val expenses=repository.snapshot().purchases.filter{it.systemId==id}
             assertEquals(1350000L,spendingTotals(expenses).combined["JPY"])
             compose.onNodeWithContentDescription("Abrir menú").performClick();compose.onNodeWithText("Estadísticas").performClick()
-            compose.onNodeWithText("Ver gasto por año, plataforma y sistema").performScrollTo().performClick()
-            compose.onNodeWithText("Por sistema").performClick()
-            compose.onNode(SemanticsMatcher.keyIsDefined(SemanticsActions.ScrollToIndex) and hasAnyAncestor(isDialog())).performScrollToNode(hasText(systemName))
-            compose.onNodeWithText(systemName).performScrollTo().assertExists()
+            compose.onNodeWithTag("statistics-open-spending").performClick()
+            compose.onNodeWithTag("spending-mode-SYSTEM").performScrollTo().performClick()
+            compose.onNodeWithTag("spending-list").performScrollToNode(hasTestTag("spending-group-unit-$id"))
+            compose.onNodeWithTag("spending-group-unit-$id").assert(hasAnyDescendant(hasText(systemName)));compose.onNodeWithTag("spending-expand-unit-$id").performScrollTo().performClick()
             compose.onNodeWithText("2023").performScrollTo().assertExists()
             compose.onNodeWithText("2022").performScrollTo().assertExists()
             val dir=File(context.getExternalFilesDir(null),"render-tests").apply{mkdirs()}
